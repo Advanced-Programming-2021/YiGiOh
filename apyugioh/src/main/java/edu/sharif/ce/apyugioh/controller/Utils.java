@@ -12,8 +12,8 @@ public class Utils {
         String[] words = text.replaceAll("_", " ").split("\\s+");
         StringBuilder output = new StringBuilder();
         for (String word : words) {
-            output.append(word.toUpperCase().substring(0, 1));
-            output.append(word.toLowerCase().substring(1));
+            output.append(Character.toUpperCase(word.charAt(0)));
+            output.append(word.substring(1).toLowerCase());
         }
         return output.toString();
     }

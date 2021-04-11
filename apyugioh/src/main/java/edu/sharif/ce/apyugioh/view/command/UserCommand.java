@@ -8,22 +8,21 @@ import edu.sharif.ce.apyugioh.view.error.ErrorView;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "user", mixinStandardHelpOptions = true, description = "game account commands",
-        commandListHeading = "Commands:%n", sortOptions = false)
+@Command(name = "user", mixinStandardHelpOptions = true, description = "game account commands", sortOptions = false)
 public class UserCommand {
 
     @Command(name = "login", description = "login to your game account", sortOptions = false)
-    public void login(@Option(names = {"-u", "--username"}, required = true, paramLabel = "username", order = 0) String username,
-                      @Option(names = {"-p", "--password"}, required = true, paramLabel = "password", order = 1) String password) {
+    public void login(@Option(names = {"-u", "--username"}, required = true, paramLabel = "username") String username,
+                      @Option(names = {"-p", "--password"}, required = true, paramLabel = "password") String password) {
         if (!isAvailable()) return;
         if (!isOptionsValid(username, password)) return;
         UserController.getInstance().loginUser(username, password);
     }
 
     @Command(name = "create", description = "create a game account", sortOptions = false)
-    public void create(@Option(names = {"-u", "--username"}, required = true, paramLabel = "username", order = 0) String username,
-                       @Option(names = {"-p", "--password"}, required = true, paramLabel = "password", order = 1) String password,
-                       @Option(names = {"-n", "--nickname"}, required = true, paramLabel = "nickname", order = 2) String nickname) {
+    public void create(@Option(names = {"-u", "--username"}, required = true, paramLabel = "username") String username,
+                       @Option(names = {"-p", "--password"}, required = true, paramLabel = "password") String password,
+                       @Option(names = {"-n", "--nickname"}, required = true, paramLabel = "nickname") String nickname) {
         if (!isAvailable()) return;
         if (!isOptionsValid(username, password, nickname)) return;
         UserController.getInstance().registerUser(username, password, nickname);
