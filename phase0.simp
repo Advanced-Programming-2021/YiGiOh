@@ -17,7 +17,7 @@
       </counter>
       <counter>
         <item-type stereotype="enumeration" type-id="enumeration" type="Enumeration" />
-        <value>4</value>
+        <value>6</value>
       </counter>
     </entity-names>
     <entity-ids>
@@ -31,11 +31,11 @@
       </counter>
       <counter>
         <item-type type-id="universal-connector" type="Universal Connector" />
-        <value>20</value>
+        <value>22</value>
       </counter>
       <counter>
         <item-type type-id="enumeration" type="Enumeration" />
-        <value>7</value>
+        <value>9</value>
       </counter>
       <counter>
         <item-type type-id="relationship" type="Association" />
@@ -47,7 +47,7 @@
       </counter>
       <counter>
         <item-type type-id="generalization" type="Generalization" />
-        <value>10</value>
+        <value>12</value>
       </counter>
       <counter>
         <item-type type-id="shape" type="Shape" />
@@ -55,11 +55,11 @@
       </counter>
       <counter>
         <item-type type-id="group" type="Group" />
-        <value>167</value>
+        <value>261</value>
       </counter>
       <counter>
         <item-type type-id="property" type="Property" />
-        <value>92</value>
+        <value>94</value>
       </counter>
     </entity-ids>
     <diagrams>
@@ -83,7 +83,7 @@
       </counter>
       <counter>
         <type>SoftwareIdeasModeler.Core.DiagramItems.Fields.EnumerationItemField</type>
-        <value>191</value>
+        <value>200</value>
       </counter>
     </fields>
   </counters>
@@ -174,6 +174,8 @@
       <type id="List&lt;ShopCard&gt;" tid="" name="List&lt;ShopCard&gt;" description="" />
       <type id="List&lt;Monster&gt;" tid="" name="List&lt;Monster&gt;" description="" />
       <type id="MonsterType" tid="" name="MonsterType" description="" />
+      <type id="Class:1b1cafd267a942c99b30bcd7a696556a" tid="" name="EffectType" description="" class-ref="1b1cafd267a942c99b30bcd7a696556a" />
+      <type id="Class:83fe14b7c5034a0fbf4b10a1fc72785e" tid="" name="SummonType" description="" class-ref="83fe14b7c5034a0fbf4b10a1fc72785e" />
     </custom-types>
   </types>
   <style-set name="Test">
@@ -2130,7 +2132,7 @@
         </item>
       </abstract-items>
       <sub-models />
-      <diagram type="uml-class" id="pf359371fc33b403096415a157c035dbe_734775128" name="ClassDiagram1" order-index="1" uid="" show-id="false" show-name="true" show-parent-name="false" name-style="local-auto-parents" show-stereotypes="true" show-tagged-values="false" show-template-parameters="true" show-fields="true" show-field-tags="true" show-empty-compartments="true" show-special-indicators="false" show-rules="true" show-attributes="true" show-attribute-visibility="true" show-operations="true" show-operation-parameters="true" show-operation-visibility="true" show-visibility-sign="true" show-nullability="true" show-sequence-number="false" show-extension-points="false" show-relationship-texts="true" show-data="true" show-description="false" show-field-description="false" auto-routed-paths="false" default-line-style="default" view-location="-445,126" zoom="0.8">
+      <diagram type="uml-class" id="pf359371fc33b403096415a157c035dbe_734775128" name="ClassDiagram1" order-index="1" uid="" show-id="false" show-name="true" show-parent-name="false" name-style="local-auto-parents" show-stereotypes="true" show-tagged-values="false" show-template-parameters="true" show-fields="true" show-field-tags="true" show-empty-compartments="true" show-special-indicators="false" show-rules="true" show-attributes="true" show-attribute-visibility="true" show-operations="true" show-operation-parameters="true" show-operation-visibility="true" show-visibility-sign="true" show-nullability="true" show-sequence-number="false" show-extension-points="false" show-relationship-texts="true" show-data="true" show-description="false" show-field-description="false" auto-routed-paths="false" default-line-style="default" view-location="-401,126" zoom="0.8">
         <style>
           <background-color index="1" color="#FFFFFFFF" />
           <background-color index="2" color="#FFFFFFFF" />
@@ -2142,7 +2144,7 @@
           </authors>
           <description />
           <creation-date>04/14/2021 03:57:49</creation-date>
-          <change-date>04/14/2021 23:19:10</change-date>
+          <change-date>04/15/2021 01:18:52</change-date>
           <revision-count>0</revision-count>
           <version />
         </meta>
@@ -2175,6 +2177,8 @@
               <owned-item ref="1a02a1098c094e58ac33377d5eae4ad1" />
               <owned-item ref="d8bfa9f855804bf3a4cdfe86d0391e84" />
               <owned-item ref="5333536de3ae48fe85a1b6368caa7e17" />
+              <owned-item ref="1b1cafd267a942c99b30bcd7a696556a" />
+              <owned-item ref="83fe14b7c5034a0fbf4b10a1fc72785e" />
             </owned-items>
           </item>
           <item id="di988222987128252540" cid="PKG003" type="package" name="view" style-class="" change-tracking-state="added" creator="P58f25abd7a2f44afa57bebca6b18042e" creation-date="04/14/2021 03:58:07" visibility="package">
@@ -2614,7 +2618,7 @@
             </attributes>
             <operations>
               <operation id="o7bcc258eb2f344c7a0d6cd27afca29cc33" cid="ELEM175" name="logout" creation-date="01/01/0001 00:00:00" type="" type-id="" visibility="public" />
-              <operation id="o96521f7712424175bd617bf509bac7ff440" cid="ELEM176" name="serUser" creation-date="01/01/0001 00:00:00" type="" type-id="" visibility="public">
+              <operation id="o96521f7712424175bd617bf509bac7ff440" cid="ELEM176" name="setUser" creation-date="01/01/0001 00:00:00" type="" type-id="" visibility="public">
                 <parameters>
                   <parameter id="p7753b68c45bf4482aa97509dd736a50b" name="user" type="User" type-id="User" />
                 </parameters>
@@ -2814,12 +2818,16 @@
               <owned-item ref="030c5ee15eea49ec8aa84cbd9b2b0d35" />
               <owned-item ref="7f58d5aaa3e844c39797c6daecd70c33" />
               <owned-item ref="a5b3413cb7994df6b2cd6c6667e6c1b9" />
+              <owned-item ref="8e341aeb0b7a4433810b43e2538ed464" />
+              <owned-item ref="0e1bc130cb0e4cf697beec3c26e357ae" />
             </owned-items>
             <attributes>
               <attribute id="aedfa075dd8a24a02b8c645c0b62a93d7104" cid="PROP088" name="level" creation-date="04/14/2021 23:05:15" property-ref="69f07b2ed4a64245a15917f30961bc2c" />
               <attribute id="af426bcf8a6b147fcb4e88ae0bd6c4e3466" cid="PROP089" name="attackPoints" creation-date="04/14/2021 23:18:10" property-ref="030c5ee15eea49ec8aa84cbd9b2b0d35" />
               <attribute id="abc694984c1654e55b9fa38590a999e37100" cid="PROP090" name="defensePoints" creation-date="04/14/2021 23:18:16" property-ref="7f58d5aaa3e844c39797c6daecd70c33" />
               <attribute id="addeffcf4e54547e19e399499f06b1800582" cid="PROP091" name="type" creation-date="04/14/2021 23:18:29" property-ref="a5b3413cb7994df6b2cd6c6667e6c1b9" />
+              <attribute id="a8b0ef675ecfd4adb813049034c2cee99335" cid="PROP092" name="effect" creation-date="04/15/2021 00:46:40" property-ref="8e341aeb0b7a4433810b43e2538ed464" />
+              <attribute id="aa764a1189bcc40e5829b5b4bd1f3b672772" cid="PROP093" name="summon" creation-date="04/15/2021 01:19:50" property-ref="0e1bc130cb0e4cf697beec3c26e357ae" />
             </attributes>
           </item>
           <item id="1a02a1098c094e58ac33377d5eae4ad1" cid="C049" type="class" name="Spell" style-class="" owner="di802704698957564964" change-tracking-state="added" creator="" creation-date="04/14/2021 23:04:28" />
@@ -2878,6 +2886,46 @@
               <enumeration-item id="a23062ec0f10d43aab66c5f3300f8a4de194" cid="ENI189" name="WYRM" creation-date="04/14/2021 23:21:11" />
               <enumeration-item id="a7273f60084564846877e0377aa7b549f470" cid="ENI190" name="ZOMBIE" creation-date="04/14/2021 23:21:13" />
             </enumeration-items>
+          </item>
+          <item id="8e341aeb0b7a4433810b43e2538ed464" cid="PROP092" type="property" name="effect" style-class="" owner="f53d1408c55e4d519c092b29b11f5fad" creator="" creation-date="04/15/2021 00:46:40" visibility="private">
+            <feature />
+            <structural-feature type="EffectType" type-id="Class:1b1cafd267a942c99b30bcd7a696556a" />
+            <property />
+          </item>
+          <item id="1b1cafd267a942c99b30bcd7a696556a" cid="E007" type="enumeration" name="EffectType" style-class="" owner="di802704698957564964" change-tracking-state="added" creator="" creation-date="04/15/2021 00:47:09">
+            <stereotypes>
+              <stereotype name="enumeration" />
+            </stereotypes>
+            <stereotype-instances>
+              <stereotype id="1b1cafd267a942c99b30bcd7a696556a_enumeration_c" type="enumeration" ref="" />
+            </stereotype-instances>
+            <enumeration-items>
+              <enumeration-item id="a4acbbb298d444e878f41a247dd6f5ef6554" cid="ENI195" name="NORMAL" creation-date="04/15/2021 00:59:59" />
+              <enumeration-item id="aab19792a0448407b8b6f5d5de1c96e95770" cid="ENI191" name="CONTINUOUS" creation-date="04/15/2021 00:51:39" />
+              <enumeration-item id="aeed0551924d54684b6f0978c7b9038f6497" cid="ENI192" name="IGNITION" creation-date="04/15/2021 00:51:49" />
+              <enumeration-item id="abb6a9d8e5cb644dc93e6328d7777df79550" cid="ENI193" name="TRIGGER" creation-date="04/15/2021 00:52:00" />
+              <enumeration-item id="ac0d2932c88c94d3da871dc1f002b904f505" cid="ENI194" name="QUICK" creation-date="04/15/2021 00:52:02" />
+            </enumeration-items>
+          </item>
+          <item id="61b782690c84411e886e28b9d9dcfa79" cid="GNR011" type="generalization" name="" style-class="" change-tracking-state="added" creator="" creation-date="04/15/2021 01:03:20" from="f53d1408c55e4d519c092b29b11f5fad" to="fe12b10d56d1416fa4c793514507dd0a" visibility="package" />
+          <item id="83fe14b7c5034a0fbf4b10a1fc72785e" cid="E008" type="enumeration" name="SummonType" style-class="" owner="di802704698957564964" change-tracking-state="added" creator="" creation-date="04/15/2021 01:18:52">
+            <stereotypes>
+              <stereotype name="enumeration" />
+            </stereotypes>
+            <stereotype-instances>
+              <stereotype id="83fe14b7c5034a0fbf4b10a1fc72785e_enumeration_c" type="enumeration" ref="" />
+            </stereotype-instances>
+            <enumeration-items>
+              <enumeration-item id="ac87016f7e66b42b5bca630990915f72d35" cid="ENI196" name="NORMAL" creation-date="04/15/2021 01:19:07" />
+              <enumeration-item id="a5075d57ab05645959042d826f9ebf96f79" cid="ENI197" name="TRIBUTE" creation-date="04/15/2021 01:19:09" />
+              <enumeration-item id="a8704d1e24a7849ff9de1ba7e2f749ded250" cid="ENI198" name="SPECIAL" creation-date="04/15/2021 01:19:34" />
+              <enumeration-item id="a7d2c4a3c82e44d4385b7fc3e8985b7dc568" cid="ENI199" name="RITUAL" creation-date="04/15/2021 01:19:43" />
+            </enumeration-items>
+          </item>
+          <item id="0e1bc130cb0e4cf697beec3c26e357ae" cid="PROP093" type="property" name="summon" style-class="" owner="f53d1408c55e4d519c092b29b11f5fad" creator="" creation-date="04/15/2021 01:19:50" visibility="private">
+            <feature />
+            <structural-feature type="SummonType" type-id="Class:83fe14b7c5034a0fbf4b10a1fc72785e" />
+            <property />
           </item>
         </abstract-items>
         <layer id="e03beb10a2eb45ea9d7e9c7f67b89ad0" name="Default" visible="true" enabled="true" locked="false">
@@ -3054,11 +3102,11 @@
             <enumeration />
           </item>
           <item id="f53d1408c55e4d519c092b29b11f5fad" iid="6dde6aa6e1c641ae8c3dc1a4842f4a49" container="di802704698957564964" container-iid="5aaa69db4dd64777b553d9bdc9d5e6cb" creation-date="04/14/2021 23:04:19" order-index="38" type="entity">
-            <layout ax="-19" ay="398" awidth="140" aheight="160" x="-28" y="400" width="140" height="160" />
+            <layout ax="-19" ay="398" awidth="175" aheight="160" x="-28" y="398" width="175" height="160" rotation-center="-17.5,0" />
             <class />
           </item>
           <item id="1a02a1098c094e58ac33377d5eae4ad1" iid="27400c8e41124090a7958f433d02d232" container="di802704698957564964" container-iid="5aaa69db4dd64777b553d9bdc9d5e6cb" creation-date="04/14/2021 23:04:28" order-index="39" type="entity">
-            <layout ax="156" ay="398" awidth="140" aheight="160" x="156" y="398" width="140" height="160" />
+            <layout ax="174" ay="398" awidth="140" aheight="160" x="174" y="398" width="140" height="160" />
             <class />
           </item>
           <item id="d8bfa9f855804bf3a4cdfe86d0391e84" iid="8f2cb24a07404a76b3303c199a6d7e34" container="di802704698957564964" container-iid="5aaa69db4dd64777b553d9bdc9d5e6cb" creation-date="04/14/2021 23:04:34" order-index="40" type="entity">
@@ -3067,6 +3115,23 @@
           </item>
           <item id="5333536de3ae48fe85a1b6368caa7e17" iid="1c4ada046324482a867b7871a440b314" container="di802704698957564964" container-iid="5aaa69db4dd64777b553d9bdc9d5e6cb" creation-date="04/14/2021 23:19:10" order-index="41" type="entity">
             <layout ax="-354" ay="498" awidth="167" aheight="463" x="-353" y="498" width="140" height="160" />
+            <enumeration />
+          </item>
+          <item id="1b1cafd267a942c99b30bcd7a696556a" iid="3a956f83dab0418fae99191932b20d45" container="di802704698957564964" container-iid="5aaa69db4dd64777b553d9bdc9d5e6cb" creation-date="04/15/2021 00:47:09" order-index="42" type="entity">
+            <layout ax="-175" ay="498" awidth="140" aheight="160" x="-175" y="498" width="140" height="160" />
+            <enumeration />
+          </item>
+          <item id="61b782690c84411e886e28b9d9dcfa79" iid="42d02ace8e514a2fb17f4dbc2b3745c8" creation-date="04/15/2021 01:03:20" order-index="43" type="relation">
+            <layout line-style="oblique" lock-start-point="true" lock-end-point="true" lock-to-fields="false" auto-path="" x1="68" y1="398" x2="70" y2="368" start-border-pos="0.125" end-border-pos="0.625730994152047" name-position="0,20">
+              <points>
+                <point x="68" y="398" />
+                <point x="70" y="368" />
+              </points>
+            </layout>
+            <relation from="f53d1408c55e4d519c092b29b11f5fad" from-iid="6dde6aa6e1c641ae8c3dc1a4842f4a49" to="fe12b10d56d1416fa4c793514507dd0a" to-iid="ef9235d3c6444ae5907a6f46f761a0e2" />
+          </item>
+          <item id="83fe14b7c5034a0fbf4b10a1fc72785e" iid="64fd0cdf922046869c982fa6349b3d61" container="di802704698957564964" container-iid="5aaa69db4dd64777b553d9bdc9d5e6cb" creation-date="04/15/2021 01:18:52" order-index="44" type="entity">
+            <layout ax="-175" ay="668" awidth="140" aheight="160" x="-176" y="668" width="140" height="160" />
             <enumeration />
           </item>
         </layer>
