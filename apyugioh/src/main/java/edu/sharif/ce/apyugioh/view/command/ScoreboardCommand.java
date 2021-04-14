@@ -3,7 +3,7 @@ package edu.sharif.ce.apyugioh.view.command;
 import edu.sharif.ce.apyugioh.controller.MenuState;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.ScoreboardController;
-import edu.sharif.ce.apyugioh.view.error.ErrorView;
+import edu.sharif.ce.apyugioh.view.ErrorView;
 import picocli.CommandLine.Command;
 
 @Command(name = "scoreboard", mixinStandardHelpOptions = true, description = "scoreboard commands",

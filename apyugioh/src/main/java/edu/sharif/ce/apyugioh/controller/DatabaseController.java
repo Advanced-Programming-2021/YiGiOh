@@ -9,19 +9,27 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DatabaseController {
 
-    private static Path db, usersDB;
+    private static Path db;
+    private static HashMap<String, Path> dbs;
     private static Moshi moshi;
     private static List<User> userList;
 
     public static void init() {
         moshi = new Moshi.Builder().build();
+        dbs = new HashMap<>();
+        ArrayList<String> models = new ArrayList<>();
+        models.add("user");
         try {
             db = Path.of("db");
-            usersDB = Path.of("db\\users.json");
+            for (String model : models) {
+                dbs.put(model, Path.of("db\\" + model + "s.json"));
+            }
             updateUsersFromDB();
         } catch (Exception e) {
             Utils.printError("couldn't initialize database");
@@ -63,7 +71,7 @@ public class DatabaseController {
     private static void updateUsersFromDB() {
         String users = "";
         try {
-            users = readFromFile(usersDB);
+            users = readFromFile(dbs.get("user"));
             Type type = Types.newParameterizedType(List.class, User.class);
             JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
             userList = usersAdapter.fromJson(users);
@@ -78,7 +86,7 @@ public class DatabaseController {
         try {
             Type type = Types.newParameterizedType(List.class, User.class);
             JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
-            writeToFile(usersDB, usersAdapter.toJson(userList));
+            writeToFile(dbs.get("user"), usersAdapter.toJson(userList));
         } catch (Exception e) {
             Utils.printError("corrupted database");
             System.exit(1);

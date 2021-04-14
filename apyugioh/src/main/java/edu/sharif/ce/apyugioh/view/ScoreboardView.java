@@ -6,7 +6,7 @@ import edu.sharif.ce.apyugioh.model.User;
 
 import java.util.List;
 
-public class ScoreboardView {
+public class ScoreboardView extends View {
 
     public void showScoreboard(List<User> users) {
         AsciiTable scoreboard = new AsciiTable();
@@ -26,5 +26,4 @@ public class ScoreboardView {
         }
         System.out.println(scoreboard.render());
     }
-
 }

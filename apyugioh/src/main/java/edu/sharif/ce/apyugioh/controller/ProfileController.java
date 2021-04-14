@@ -29,7 +29,7 @@ public class ProfileController {
 
     public void changeNickname(String nickname) {
         if (User.getUserByNickname(nickname) != null) {
-            view.showParameterizedError(ProfileView.ERROR_USER_NICKNAME_ALREADY_TAKEN, nickname);
+            view.showError(ProfileView.ERROR_USER_NICKNAME_ALREADY_TAKEN, nickname);
             return;
         }
         user.setNickname(nickname);

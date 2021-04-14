@@ -3,7 +3,7 @@ package edu.sharif.ce.apyugioh.view.command;
 import edu.sharif.ce.apyugioh.controller.MenuState;
 import edu.sharif.ce.apyugioh.controller.ProfileController;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
-import edu.sharif.ce.apyugioh.view.error.ErrorView;
+import edu.sharif.ce.apyugioh.view.ErrorView;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -11,10 +11,10 @@ import picocli.CommandLine.Option;
 public class ProfileCommand {
 
     @Command(name = "change", description = "change your game account nickname or password")
-    public void changeNickname(@Option(names = {"-p", "--password"}, paramLabel = "password") boolean isPassword,
-                               @Option(names = {"-n", "--nickname"}, paramLabel = "nickname") String nickname,
-                               @Option(names = {"-np", "--new"}, paramLabel = "new password") String newPassword,
-                               @Option(names = {"-c", "--current"}, paramLabel = "current password") String currentPassword) {
+    public void change(@Option(names = {"-p", "--password"}, paramLabel = "password") boolean isPassword,
+                       @Option(names = {"-n", "--nickname"}, paramLabel = "nickname") String nickname,
+                       @Option(names = {"-np", "--new"}, paramLabel = "new password") String newPassword,
+                       @Option(names = {"-c", "--current"}, paramLabel = "current password") String currentPassword) {
         if (!isAvailable()) return;
         if (isPassword) {
             if (nickname != null || currentPassword == null || newPassword == null) {

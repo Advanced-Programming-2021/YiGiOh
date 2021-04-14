@@ -19,11 +19,11 @@ public class UserController {
 
     public void registerUser(String username, String password, String nickname) {
         if (User.getUserByUsername(username) != null) {
-            view.showParameterizedError(UserView.ERROR_USER_USERNAME_ALREADY_TAKEN, username);
+            view.showError(UserView.ERROR_USER_USERNAME_ALREADY_TAKEN, username);
             return;
         }
         if (User.getUserByNickname(nickname) != null) {
-            view.showParameterizedError(UserView.ERROR_USER_NICKNAME_ALREADY_TAKEN, nickname);
+            view.showError(UserView.ERROR_USER_NICKNAME_ALREADY_TAKEN, nickname);
             return;
         }
         new User(username, password, nickname);

@@ -5,6 +5,7 @@ import picocli.CommandLine.Help.Ansi;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.io.File;
 import java.io.IOException;
 
@@ -53,9 +54,10 @@ public class ImageToASCII {
         double value = 0, counter = 0;
         for (int i = 0; i < count; i++) {
             for (int j = 0; j < 2 * count; j++) {
-                Color pixcol = new Color(cardImage.getRGB(width + i, height + j));
-                if (pixcol.getRed() < 10 && pixcol.getGreen() < 10 && pixcol.getBlue() < 10) continue;
-                value += (((pixcol.getRed() * 0.2126) + (pixcol.getBlue() * 0.0722) + (pixcol
+                Color pixelColor = new Color(cardImage.getRGB(width + i, height + j), true);
+                if (pixelColor.getAlpha() < 5) continue;
+                if (pixelColor.getRed() < 10 && pixelColor.getGreen() < 10 && pixelColor.getBlue() < 10) continue;
+                value += (((pixelColor.getRed() * 0.2126) + (pixelColor.getBlue() * 0.0722) + (pixelColor
                         .getGreen() * 0.7152)));
                 counter++;
             }
@@ -68,12 +70,12 @@ public class ImageToASCII {
         int redValue = 0, greenValue = 0, blueValue = 0, counter = 0;
         for (int i = 0; i < count; i++) {
             for (int j = 0; j < 2 * count; j++) {
-                Color pixcol = new Color(cardImage.getRGB(width + i, height + j));
-                if (pixcol.getRed() < 10 && pixcol.getGreen() < 10 && pixcol.getBlue() < 10) continue;
-                if (pixcol.getRed() > 235 && pixcol.getGreen() > 235 && pixcol.getBlue() > 235) continue;
-                redValue += pixcol.getRed();
-                greenValue += pixcol.getGreen();
-                blueValue += pixcol.getBlue();
+                Color pixelColor = new Color(cardImage.getRGB(width + i, height + j), true);
+                if (pixelColor.getAlpha() < 5) continue;
+                if (pixelColor.getRed() < 10 && pixelColor.getGreen() < 10 && pixelColor.getBlue() < 10) continue;
+                redValue += pixelColor.getRed();
+                greenValue += pixelColor.getGreen();
+                blueValue += pixelColor.getBlue();
                 counter++;
             }
         }
@@ -88,7 +90,7 @@ public class ImageToASCII {
 
     private char greyscaleChar(double g) {
         String greyscale = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
-        return greyscale.charAt((int) Math.round(g * 69 / 255));
+        return greyscale.charAt(69 - (int) Math.round(g * 69 / 255));
     }
 
     private String colorize(char text, int val) {

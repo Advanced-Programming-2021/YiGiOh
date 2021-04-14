@@ -4,7 +4,7 @@ import edu.sharif.ce.apyugioh.controller.MainMenuController;
 import edu.sharif.ce.apyugioh.controller.MenuState;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.UserController;
-import edu.sharif.ce.apyugioh.view.error.ErrorView;
+import edu.sharif.ce.apyugioh.view.ErrorView;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 

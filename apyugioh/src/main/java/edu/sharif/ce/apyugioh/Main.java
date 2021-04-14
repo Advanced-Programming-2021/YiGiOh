@@ -36,6 +36,7 @@ public class Main {
     public static void main(String[] args) {
         ProgramController.getInstance().initialize();
         AnsiConsole.systemInstall();
+        System.out.print(new ImageToASCII("characters/YamiYugi", (float) 4).getASCII());
         parseCommands();
     }
 
@@ -57,7 +58,6 @@ public class Main {
                     .parser(parser).variable(LineReader.LIST_MAX, 50).build();
             builtins.setLineReader(reader);
             factory.setTerminal(terminal);
-            System.out.print(new ImageToASCII("characters/YamiYugi", (float) 2).getASCII());
             while (true) {
                 if (getCommand(systemRegistry, reader)) return;
             }

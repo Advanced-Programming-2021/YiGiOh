@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class User implements Comparable<User> {
 
-    private String username;
+    private final String username;
     private String password;
     private String nickname;
     private int score;
@@ -34,14 +34,6 @@ public class User implements Comparable<User> {
 
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public void setPassword(String password) {
