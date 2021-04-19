@@ -30,9 +30,8 @@ public class ImageToASCII {
             int count = Math.round(getCount(cardImage) / scale);
             for (int i = 0; i <= cardImage.getHeight() - 2 * count; i += 2 * count) {
                 for (int j = 0; j <= cardImage.getWidth() - count; j += count) {
-                    double greyscaleValue = avgVal(cardImage, j, i, count);
-                    int rgbValue = avgColorValue(cardImage, j, i, count);
-                    output.append(colorize(greyscaleChar(greyscaleValue), rgbValue));
+                    int rgbValue = averageRGBColor(cardImage, j, i, count);
+                    output.append(colorize(pixelToBoxArt(cardImage, j, i, count), rgbValue));
                 }
                 output.append(System.lineSeparator());
             }
@@ -49,29 +48,30 @@ public class ImageToASCII {
         return maxDim / 60;
     }
 
-    private double avgVal(BufferedImage cardImage, int width, int height, int count) {
-        double value = 0, counter = 0;
+    private String pixelToBoxArt(BufferedImage cardImage, int width, int height, int count) {
+        int[][] counter = new int[2][2];
+        String[] arts = new String[]{"█", "▛", "▜", "▀", "▙", "▌", "▚", "▘", "▟", "▞", "▐", "▝", "▄", "▖", "▗", " "};
         for (int i = 0; i < count; i++) {
             for (int j = 0; j < 2 * count; j++) {
                 Color pixelColor = new Color(cardImage.getRGB(width + i, height + j), true);
                 if (pixelColor.getAlpha() < 5) continue;
-                if (pixelColor.getRed() < 10 && pixelColor.getGreen() < 10 && pixelColor.getBlue() < 10) continue;
-                value += (((pixelColor.getRed() * 0.2126) + (pixelColor.getBlue() * 0.0722) + (pixelColor
-                        .getGreen() * 0.7152)));
-                counter++;
+                counter[2 * (i) / count][(j) / count]++;
             }
         }
-        if (counter > 0) return value / counter;
-        return 0;
+        int upLeftEmpty = counter[0][0] == 0 ? 8 : 0;
+        int upRightEmpty = counter[0][1] == 0 ? 4 : 0;
+        int downLeftEmpty = counter[1][0] == 0 ? 2 : 0;
+        int downRightEmpty = counter[1][1] == 0 ? 1 : 0;
+        int total = upLeftEmpty + upRightEmpty + downLeftEmpty + downRightEmpty;
+        return arts[total];
     }
 
-    private int avgColorValue(BufferedImage cardImage, int width, int height, int count) {
+    private int averageRGBColor(BufferedImage cardImage, int width, int height, int count) {
         int redValue = 0, greenValue = 0, blueValue = 0, counter = 0;
         for (int i = 0; i < count; i++) {
             for (int j = 0; j < 2 * count; j++) {
                 Color pixelColor = new Color(cardImage.getRGB(width + i, height + j), true);
                 if (pixelColor.getAlpha() < 5) continue;
-                if (pixelColor.getRed() < 10 && pixelColor.getGreen() < 10 && pixelColor.getBlue() < 10) continue;
                 redValue += pixelColor.getRed();
                 greenValue += pixelColor.getGreen();
                 blueValue += pixelColor.getBlue();
@@ -87,12 +87,7 @@ public class ImageToASCII {
         return 16;
     }
 
-    private char greyscaleChar(double g) {
-        String greyscale = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
-        return greyscale.charAt(69 - (int) Math.round(g * 69 / 255));
-    }
-
-    private String colorize(char text, int val) {
+    private String colorize(String text, int val) {
         return Ansi.AUTO.string("@|fg(" + val + ") " + text + "|@");
     }
 }
