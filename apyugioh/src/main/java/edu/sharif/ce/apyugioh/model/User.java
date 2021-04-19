@@ -2,14 +2,26 @@ package edu.sharif.ce.apyugioh.model;
 
 import edu.sharif.ce.apyugioh.controller.DatabaseController;
 import edu.sharif.ce.apyugioh.controller.Utils;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User implements Comparable<User> {
 
+    @Getter
+    @EqualsAndHashCode.Include
     private final String username;
     private String password;
+    @Getter
+    @EqualsAndHashCode.Include
     private String nickname;
+    @Getter
+    @Setter
     private int score;
+    @Getter
+    @Setter
     private int mainDeckID;
 
     public User(String username, String password, String nickname) {
@@ -34,38 +46,14 @@ public class User implements Comparable<User> {
         return Utils.hash(password).equals(this.password);
     }
 
-    public String getUsername() {
-        return username;
-    }
-
     public void setPassword(String password) {
         this.password = Utils.hash(password);
         DatabaseController.updateUsersToDB();
     }
 
-    public String getNickname() {
-        return nickname;
-    }
-
     public void setNickname(String nickname) {
         this.nickname = nickname;
         DatabaseController.updateUsersToDB();
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public int getMainDeckID() {
-        return mainDeckID;
-    }
-
-    public void setMainDeckID(int mainDeckID) {
-        this.mainDeckID = mainDeckID;
     }
 
     @Override

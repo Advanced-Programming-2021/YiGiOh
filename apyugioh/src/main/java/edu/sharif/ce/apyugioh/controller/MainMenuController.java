@@ -3,9 +3,12 @@ package edu.sharif.ce.apyugioh.controller;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.view.MainMenuView;
+import lombok.Getter;
+import lombok.Setter;
 
 public class MainMenuController {
 
+    @Getter
     private static MainMenuController instance;
     private static MainMenuView view;
 
@@ -14,19 +17,9 @@ public class MainMenuController {
         view = new MainMenuView();
     }
 
+    @Getter
+    @Setter
     private User user;
-
-    public static MainMenuController getInstance() {
-        return instance;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public void logout() {
         user = null;

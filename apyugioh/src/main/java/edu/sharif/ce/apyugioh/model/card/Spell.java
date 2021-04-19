@@ -1,27 +1,20 @@
 package edu.sharif.ce.apyugioh.model.card;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Spell extends Card {
 
-    private SpellProperty property;
-    private SpellLimit limit;
+    private final SpellProperty property;
+    private final SpellLimit limit;
 
-    {
-        setCardType(CardType.SPELL);
-    }
-
-    public SpellProperty getProperty() {
-        return property;
-    }
-
-    public void setProperty(SpellProperty property) {
+    public Spell(String name, String description, SpellProperty property, SpellLimit limit) {
+        this.name = name;
+        this.description = description;
+        this.cardType = CardType.SPELL;
         this.property = property;
-    }
-
-    public SpellLimit getLimit() {
-        return limit;
-    }
-
-    public void setLimit(SpellLimit limit) {
         this.limit = limit;
     }
 }

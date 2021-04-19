@@ -4,19 +4,17 @@ import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.view.ImageToASCII;
 import edu.sharif.ce.apyugioh.view.UserView;
+import lombok.Getter;
 
 public class UserController {
 
+    @Getter
     private static UserController instance;
     private static UserView view;
 
     static {
         instance = new UserController();
         view = new UserView();
-    }
-
-    public static UserController getInstance() {
-        return instance;
     }
 
     public void registerUser(String username, String password, String nickname) {
@@ -48,6 +46,6 @@ public class UserController {
         view.showSuccess(UserView.SUCCESS_USER_LOGIN);
         ProgramController.setState(MenuState.MAIN);
         Utils.clearScreen();
-        Utils.printHorizontalCenter(new ImageToASCII("characters/YamiYugi", (float) 4).getASCII());
+        System.out.println(new ImageToASCII("characters/YamiYugi", (float) 4).getASCII());
     }
 }

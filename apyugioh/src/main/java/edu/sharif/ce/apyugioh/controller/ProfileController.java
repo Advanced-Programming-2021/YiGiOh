@@ -2,9 +2,12 @@ package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.view.ProfileView;
+import lombok.Getter;
+import lombok.Setter;
 
 public class ProfileController {
 
+    @Getter
     private static ProfileController instance;
     private static ProfileView view;
 
@@ -13,19 +16,9 @@ public class ProfileController {
         view = new ProfileView();
     }
 
+    @Getter
+    @Setter
     private User user;
-
-    public static ProfileController getInstance() {
-        return instance;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public void changeNickname(String nickname) {
         if (User.getUserByNickname(nickname) != null) {

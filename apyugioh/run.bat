@@ -1,1 +1,1 @@
-START cmd /k java -jar out/artifacts/apyugioh_jar/apyugioh.jar
+START cmd /k java -Dfile.encoding=UTF-8 -jar out/artifacts/apyugioh_jar/apyugioh.jar

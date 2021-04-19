@@ -1,72 +1,30 @@
 package edu.sharif.ce.apyugioh.model.card;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Monster extends Card {
 
-    private int level;
-    private int attackPoints;
-    private int defensePoints;
-    private MonsterAttribute attribute;
-    private MonsterEffect effect;
-    private MonsterSummon summon;
-    private MonsterType type;
+    private final int level;
+    private final int attackPoints;
+    private final int defensePoints;
+    private final MonsterAttribute attribute;
+    private final MonsterEffect effect;
+    private final MonsterSummon summon;
+    private final MonsterType type;
 
-    {
-        setCardType(CardType.MONSTER);
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
+    public Monster(String name, String description, int level, int attackPoints, int defensePoints, MonsterAttribute attribute, MonsterType type, MonsterEffect effect) {
+        this.name = name;
+        this.description = description;
+        this.cardType = CardType.MONSTER;
         this.level = level;
-    }
-
-    public int getAttackPoints() {
-        return attackPoints;
-    }
-
-    public void setAttackPoints(int attackPoints) {
         this.attackPoints = attackPoints;
-    }
-
-    public int getDefensePoints() {
-        return defensePoints;
-    }
-
-    public void setDefensePoints(int defensePoints) {
         this.defensePoints = defensePoints;
-    }
-
-    public MonsterAttribute getAttribute() {
-        return attribute;
-    }
-
-    public void setAttribute(MonsterAttribute attribute) {
         this.attribute = attribute;
-    }
-
-    public MonsterEffect getEffect() {
-        return effect;
-    }
-
-    public void setEffect(MonsterEffect effect) {
-        this.effect = effect;
-    }
-
-    public MonsterSummon getSummon() {
-        return summon;
-    }
-
-    public void setSummon(MonsterSummon summon) {
-        this.summon = summon;
-    }
-
-    public MonsterType getType() {
-        return type;
-    }
-
-    public void setType(MonsterType type) {
         this.type = type;
+        this.effect = effect;
+        summon = level > 4 ? MonsterSummon.TRIBUTE : MonsterSummon.NORMAL;
     }
 }

@@ -5,6 +5,8 @@ import edu.sharif.ce.apyugioh.view.command.MenuCommand;
 import edu.sharif.ce.apyugioh.view.command.ProfileCommand;
 import edu.sharif.ce.apyugioh.view.command.ScoreboardCommand;
 import edu.sharif.ce.apyugioh.view.command.UserCommand;
+import lombok.Getter;
+import lombok.Setter;
 import org.fusesource.jansi.AnsiConsole;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.Builtins;
@@ -28,25 +30,17 @@ import java.util.function.Supplier;
 
 public class ProgramController {
 
+    @Getter
     private static ProgramController instance;
+    @Getter
+    @Setter
     private static MenuState state;
+    @Getter
     private static LineReader reader;
 
     static {
         instance = new ProgramController();
         state = MenuState.LOGIN;
-    }
-
-    public static ProgramController getInstance() {
-        return instance;
-    }
-
-    public static MenuState getState() {
-        return state;
-    }
-
-    public static void setState(MenuState state) {
-        ProgramController.state = state;
     }
 
     public static String getPromptTitle() {
@@ -107,10 +101,6 @@ public class ProgramController {
             //systemRegistry.trace(e);
         }
         return false;
-    }
-
-    public LineReader getReader() {
-        return reader;
     }
 
     @CommandLine.Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},

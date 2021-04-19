@@ -2,12 +2,15 @@ package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.view.ScoreboardView;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
 
 public class ScoreboardController {
 
+    @Getter
     private static ScoreboardController instance;
     private static ScoreboardView view;
 
@@ -16,19 +19,9 @@ public class ScoreboardController {
         view = new ScoreboardView();
     }
 
+    @Getter
+    @Setter
     private User user;
-
-    public static ScoreboardController getInstance() {
-        return instance;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public void showScoreboard() {
         List<User> users = DatabaseController.getUserList();

@@ -5,6 +5,7 @@ import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.model.card.*;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -19,6 +20,7 @@ public class DatabaseController {
     private static Path db;
     private static HashMap<String, Path> dbs;
     private static Moshi moshi;
+    @Getter
     private static List<User> userList;
     private static ShopCards cards;
 
@@ -96,10 +98,6 @@ public class DatabaseController {
         }
     }
 
-    public static List<User> getUserList() {
-        return userList;
-    }
-
     public static void addUser(User user) {
         userList.add(user);
         updateUsersToDB();
@@ -114,40 +112,28 @@ public class DatabaseController {
 
     private static void addSpellsToCards(ShopCards cards) {
         for (HashMap<String, String> spellMap : new CSVParser("shop/SpellTrap.csv").getContentsAsMap()) {
-            Card spell;
             if (spellMap.get("type").equalsIgnoreCase("spell")) {
-                spell = new Spell();
-                ((Spell) spell).setProperty(SpellProperty.valueOf(spellMap.get("icon (property)").toUpperCase()
-                        .replaceAll("-", "_")));
-                ((Spell) spell).setLimit(SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
-                spell.setName(spellMap.get("name"));
-                spell.setDescription(spellMap.get("description"));
-                cards.addSpell((Spell) spell, Integer.parseInt(spellMap.get("price")));
+                Spell spell = new Spell(spellMap.get("name"), spellMap.get("description"), SpellProperty.
+                        valueOf(spellMap.get("icon (property)").toUpperCase().replaceAll("-", "_")),
+                        SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
+                cards.addSpell(spell, Integer.parseInt(spellMap.get("price")));
             } else {
-                spell = new Trap();
-                ((Trap) spell).setProperty(SpellProperty.valueOf(spellMap.get("icon (property)").toUpperCase()
-                        .replaceAll("-", "_")));
-                ((Trap) spell).setLimit(SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
-                spell.setName(spellMap.get("name"));
-                spell.setDescription(spellMap.get("description"));
-                cards.addTrap((Trap) spell, Integer.parseInt(spellMap.get("price")));
+                Trap trap = new Trap(spellMap.get("name"), spellMap.get("description"), SpellProperty.
+                        valueOf(spellMap.get("icon (property)").toUpperCase().replaceAll("-", "_")),
+                        SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
+                cards.addTrap(trap, Integer.parseInt(spellMap.get("price")));
             }
         }
     }
 
     private static void addMonstersToCards(ShopCards cards) {
         for (HashMap<String, String> monsterMap : new CSVParser("shop/Monsters.csv").getContentsAsMap()) {
-            Monster monster = new Monster();
-            monster.setName(monsterMap.get("name"));
-            monster.setDescription(monsterMap.get("description"));
-            monster.setLevel(Integer.parseInt(monsterMap.get("level")));
-            monster.setAttackPoints(Integer.parseInt(monsterMap.get("atk")));
-            monster.setDefensePoints(Integer.parseInt(monsterMap.get("def")));
-            monster.setAttribute(MonsterAttribute.valueOf(monsterMap.get("attribute")));
-            monster.setType(MonsterType.valueOf(monsterMap.get("monster type")
-                    .replaceAll("[- ]", "_").toUpperCase()));
-            monster.setEffect(monsterMap.get("card type").equalsIgnoreCase("NORMAL") ? MonsterEffect.NORMAL :
-                    MonsterEffect.CONTINUOUS);
+            Monster monster = new Monster(monsterMap.get("name"), monsterMap.get("description"),
+                    Integer.parseInt(monsterMap.get("level")), Integer.parseInt(monsterMap.get("atk")),
+                    Integer.parseInt(monsterMap.get("def")), MonsterAttribute.valueOf(monsterMap.get("attribute")),
+                    MonsterType.valueOf(monsterMap.get("monster type").replaceAll("[- ]", "_")
+                            .toUpperCase()), monsterMap.get("card type").equalsIgnoreCase("NORMAL") ?
+                    MonsterEffect.NORMAL : MonsterEffect.CONTINUOUS);
             cards.addMonster(monster, Integer.parseInt(monsterMap.get("price")));
         }
     }
