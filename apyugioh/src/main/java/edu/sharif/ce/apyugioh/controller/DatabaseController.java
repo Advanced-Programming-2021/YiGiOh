@@ -4,6 +4,7 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
 import edu.sharif.ce.apyugioh.model.User;
+import edu.sharif.ce.apyugioh.model.card.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -19,6 +20,7 @@ public class DatabaseController {
     private static HashMap<String, Path> dbs;
     private static Moshi moshi;
     private static List<User> userList;
+    private static ShopCards cards;
 
     public static void init() {
         moshi = new Moshi.Builder().build();
@@ -31,6 +33,7 @@ public class DatabaseController {
                 dbs.put(model, Path.of("db\\" + model + "s.json"));
             }
             updateUsersFromDB();
+            cards = CSVToShopCards();
         } catch (Exception e) {
             Utils.printError("couldn't initialize database");
             System.exit(1);
@@ -102,4 +105,50 @@ public class DatabaseController {
         updateUsersToDB();
     }
 
+    private static ShopCards CSVToShopCards() {
+        ShopCards cards = new ShopCards();
+        addMonstersToCards(cards);
+        addSpellsToCards(cards);
+        return cards;
+    }
+
+    private static void addSpellsToCards(ShopCards cards) {
+        for (HashMap<String, String> spellMap : new CSVParser("shop/SpellTrap.csv").getContentsAsMap()) {
+            Card spell;
+            if (spellMap.get("type").equalsIgnoreCase("spell")) {
+                spell = new Spell();
+                ((Spell) spell).setProperty(SpellProperty.valueOf(spellMap.get("icon (property)").toUpperCase()
+                        .replaceAll("-", "_")));
+                ((Spell) spell).setLimit(SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
+                spell.setName(spellMap.get("name"));
+                spell.setDescription(spellMap.get("description"));
+                cards.addSpell((Spell) spell, Integer.parseInt(spellMap.get("price")));
+            } else {
+                spell = new Trap();
+                ((Trap) spell).setProperty(SpellProperty.valueOf(spellMap.get("icon (property)").toUpperCase()
+                        .replaceAll("-", "_")));
+                ((Trap) spell).setLimit(SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
+                spell.setName(spellMap.get("name"));
+                spell.setDescription(spellMap.get("description"));
+                cards.addTrap((Trap) spell, Integer.parseInt(spellMap.get("price")));
+            }
+        }
+    }
+
+    private static void addMonstersToCards(ShopCards cards) {
+        for (HashMap<String, String> monsterMap : new CSVParser("shop/Monsters.csv").getContentsAsMap()) {
+            Monster monster = new Monster();
+            monster.setName(monsterMap.get("name"));
+            monster.setDescription(monsterMap.get("description"));
+            monster.setLevel(Integer.parseInt(monsterMap.get("level")));
+            monster.setAttackPoints(Integer.parseInt(monsterMap.get("atk")));
+            monster.setDefensePoints(Integer.parseInt(monsterMap.get("def")));
+            monster.setAttribute(MonsterAttribute.valueOf(monsterMap.get("attribute")));
+            monster.setType(MonsterType.valueOf(monsterMap.get("monster type")
+                    .replaceAll("[- ]", "_").toUpperCase()));
+            monster.setEffect(monsterMap.get("card type").equalsIgnoreCase("NORMAL") ? MonsterEffect.NORMAL :
+                    MonsterEffect.CONTINUOUS);
+            cards.addMonster(monster, Integer.parseInt(monsterMap.get("price")));
+        }
+    }
 }

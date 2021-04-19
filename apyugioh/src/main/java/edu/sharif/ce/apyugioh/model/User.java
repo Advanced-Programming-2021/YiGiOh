@@ -10,11 +10,13 @@ public class User implements Comparable<User> {
     private String password;
     private String nickname;
     private int score;
+    private int mainDeckID;
 
     public User(String username, String password, String nickname) {
         this.username = username;
         this.password = Utils.hash(password);
         this.nickname = nickname;
+        mainDeckID = -1;
         DatabaseController.addUser(this);
     }
 
@@ -56,6 +58,14 @@ public class User implements Comparable<User> {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public int getMainDeckID() {
+        return mainDeckID;
+    }
+
+    public void setMainDeckID(int mainDeckID) {
+        this.mainDeckID = mainDeckID;
     }
 
     @Override

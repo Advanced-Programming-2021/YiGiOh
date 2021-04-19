@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import org.jline.utils.InfoCmp;
 import picocli.CommandLine;
 
 import java.nio.charset.StandardCharsets;
@@ -36,6 +37,30 @@ public class Utils {
 
     public static void printSuccess(String message) {
         System.out.println(CommandLine.Help.Ansi.AUTO.string("@|green " + message + "|@"));
+    }
+
+    public static void clearScreen() {
+        ProgramController.getInstance().getReader().getTerminal().puts(InfoCmp.Capability.clear_screen);
+    }
+
+    public static void printHorizontalCenter(String data) {
+        int width = ProgramController.getInstance().getReader().getTerminal().getWidth();
+        System.out.println(width);
+        String[] rows = data.split("\\r?\\n");
+        StringBuilder output = new StringBuilder();
+        for (String row : rows) {
+            int counter = 1;
+            for (; row.length() > counter * width; counter++) {
+                output.append(row, (counter - 1) * width, counter * width);
+                output.append(System.lineSeparator());
+            }
+            String marginSpaces = " ".repeat(width - (row.length() - (counter - 1) * width));
+            output.append(marginSpaces);
+            output.append(row, (counter - 1) * width, row.length());
+            output.append(marginSpaces);
+            output.append(System.lineSeparator());
+        }
+        System.out.print(output);
     }
 
 }

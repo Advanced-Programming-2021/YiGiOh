@@ -13,6 +13,28 @@
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>4.6.1</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
@@ -49,24 +71,10 @@
             <artifactId>asciitable</artifactId>
             <version>0.3.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.4</version>
+        </dependency>
     </dependencies>
-
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <!-- annotationProcessorPaths requires maven-compiler-plugin version 3.5 or higher -->
-        <version>${maven-compiler-plugin-version}</version>
-        <configuration>
-            <annotationProcessorPaths>
-                <path>
-                    <groupId>info.picocli</groupId>
-                    <artifactId>picocli-codegen</artifactId>
-                    <version>4.6.1</version>
-                </path>
-            </annotationProcessorPaths>
-            <compilerArgs>
-                <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
-            </compilerArgs>
-        </configuration>
-    </plugin>
 </project>

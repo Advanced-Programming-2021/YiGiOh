@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.view.command;
 
 import edu.sharif.ce.apyugioh.controller.*;
+import edu.sharif.ce.apyugioh.model.MenuState;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
@@ -31,6 +32,7 @@ public class MenuCommand {
                         break;
                 }
                 ProgramController.setState(menuState);
+                Utils.clearScreen();
             } else if (menuState.equals(MenuState.LOGIN))
                 System.out.println("you have to logout first");
             else System.out.println("you are already in main menu");

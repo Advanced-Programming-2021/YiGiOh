@@ -1,7 +1,7 @@
 package edu.sharif.ce.apyugioh.view.command;
 
 import edu.sharif.ce.apyugioh.controller.MainMenuController;
-import edu.sharif.ce.apyugioh.controller.MenuState;
+import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.view.ErrorView;

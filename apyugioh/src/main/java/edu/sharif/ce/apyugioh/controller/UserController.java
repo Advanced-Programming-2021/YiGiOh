@@ -1,6 +1,8 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.model.User;
+import edu.sharif.ce.apyugioh.view.ImageToASCII;
 import edu.sharif.ce.apyugioh.view.UserView;
 
 public class UserController {
@@ -29,6 +31,7 @@ public class UserController {
         new User(username, password, nickname);
         view.showSuccess(UserView.SUCCESS_USER_CREATE);
         ProgramController.setState(MenuState.MAIN);
+        Utils.clearScreen();
     }
 
     public void loginUser(String username, String password) {
@@ -44,5 +47,7 @@ public class UserController {
         MainMenuController.getInstance().setUser(user);
         view.showSuccess(UserView.SUCCESS_USER_LOGIN);
         ProgramController.setState(MenuState.MAIN);
+        Utils.clearScreen();
+        Utils.printHorizontalCenter(new ImageToASCII("characters/YamiYugi", (float) 4).getASCII());
     }
 }
