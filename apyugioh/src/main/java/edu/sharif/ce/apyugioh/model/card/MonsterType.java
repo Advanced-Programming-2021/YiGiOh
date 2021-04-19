@@ -1,4 +1,4 @@
-package edu.sharif.ce.apyugioh.model;
+package edu.sharif.ce.apyugioh.model.card;
 
 public enum MonsterType {
     AQUA, BEAST, BEAST_WARRIOR, CREATOR_GOD, CYBERSE, DINOSAUR, DIVINE_BEAST, DRAGON, FAIRY, FIEND, FISH, INSECT,
