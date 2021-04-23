@@ -12,7 +12,13 @@ public class Utils {
     public static String firstUpperOnly(String text) {
         String[] words = text.replaceAll("_", " ").split("\\s+");
         StringBuilder output = new StringBuilder();
+        boolean isFirstWord = true;
         for (String word : words) {
+            if (!isFirstWord) {
+                output.append(" ");
+            } else {
+                isFirstWord = false;
+            }
             output.append(Character.toUpperCase(word.charAt(0)));
             output.append(word.substring(1).toLowerCase());
         }

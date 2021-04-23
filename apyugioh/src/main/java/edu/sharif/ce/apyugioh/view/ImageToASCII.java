@@ -3,25 +3,37 @@ package edu.sharif.ce.apyugioh.view;
 import picocli.CommandLine.Help.Ansi;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ImageToASCII {
 
     private final String imageName;
     private final StringBuilder output;
     private final float scale;
+    private final boolean isTrue;
 
-    public ImageToASCII(String imageName, float scale) {
+    public ImageToASCII(String imageName, double scale, boolean isTrue) {
         this.imageName = imageName;
-        this.scale = scale;
+        this.scale = (float) scale;
+        this.isTrue = isTrue;
         output = new StringBuilder();
     }
 
     public ImageToASCII(String imageName) {
-        this(imageName, 1);
+        this(imageName, 1, true);
+    }
+
+    public ImageToASCII(String imageName, boolean isTrue) {
+        this(imageName, 1, isTrue);
+    }
+
+    public ImageToASCII(String imageName, double scale) {
+        this(imageName, scale, true);
     }
 
     public String getASCII() {
@@ -53,8 +65,8 @@ public class ImageToASCII {
         String[] arts = new String[]{"█", "▛", "▜", "▀", "▙", "▌", "▚", "▘", "▟", "▞", "▐", "▝", "▄", "▖", "▗", " "};
         for (int i = 0; i < count; i++) {
             for (int j = 0; j < 2 * count; j++) {
-                Color pixelColor = new Color(cardImage.getRGB(width + i, height + j), true);
-                if (pixelColor.getAlpha() < 5) continue;
+                int pixelColor = cardImage.getRGB(width + i, height + j);
+                if (getAlpha(pixelColor) < 5) continue;
                 counter[2 * (i) / count][(j) / count]++;
             }
         }
@@ -67,22 +79,25 @@ public class ImageToASCII {
     }
 
     private int averageRGBColor(BufferedImage cardImage, int width, int height, int count) {
-        int redValue = 0, greenValue = 0, blueValue = 0, counter = 0;
+        List<Integer> rgbValues = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             for (int j = 0; j < 2 * count; j++) {
-                Color pixelColor = new Color(cardImage.getRGB(width + i, height + j), true);
-                if (pixelColor.getAlpha() < 5) continue;
-                redValue += pixelColor.getRed();
-                greenValue += pixelColor.getGreen();
-                blueValue += pixelColor.getBlue();
-                counter++;
+                int pixelColor = cardImage.getRGB(width + i, height + j);
+                if (getAlpha(pixelColor) < 5) continue;
+                rgbValues.add(pixelColor);
             }
         }
-        if (counter > 0) {
-            redValue /= counter;
-            greenValue /= counter;
-            blueValue /= counter;
-            return 16 + (int) (36 * Math.round(redValue / 51.0) + 6 * Math.round(greenValue / 51.0) + Math.round(blueValue / 51.0));
+        if (!rgbValues.isEmpty()) {
+            Collections.sort(rgbValues);
+            int mean = rgbValues.get(rgbValues.size() / 2), meanRed = getRed(mean), meanGreen = getGreen(mean), meanBlue = getBlue(mean);
+            int diff = isTrue ? 256 : 30;
+            rgbValues.removeIf(e -> Math.abs(getRed(e) - meanRed) > diff || Math.abs(getGreen(e) - meanGreen) > diff ||
+                    Math.abs(getBlue(e) - meanBlue) > diff);
+            int averageRed = (int) rgbValues.stream().mapToInt(e -> getRed(e)).average().getAsDouble();
+            int averageGreen = (int) rgbValues.stream().mapToInt(e -> getGreen(e)).average().getAsDouble();
+            int averageBlue = (int) rgbValues.stream().mapToInt(e -> getBlue(e)).average().getAsDouble();
+            return 16 + (int) (36 * Math.round(averageRed / 51.0) + 6 * Math.round(averageGreen / 51.0) +
+                    Math.round(averageBlue / 51.0));
         }
         return 16;
     }
@@ -90,4 +105,21 @@ public class ImageToASCII {
     private String colorize(String text, int val) {
         return Ansi.AUTO.string("@|fg(" + val + ") " + text + "|@");
     }
+
+    private int getAlpha(int rgb) {
+        return (rgb >> 24) & 0xff;
+    }
+
+    private int getRed(int rgb) {
+        return (rgb >> 16) & 0xFF;
+    }
+
+    private int getGreen(int rgb) {
+        return (rgb >> 8) & 0xFF;
+    }
+
+    private int getBlue(int rgb) {
+        return rgb & 0xFF;
+    }
+
 }

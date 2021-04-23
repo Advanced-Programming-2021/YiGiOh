@@ -3,9 +3,12 @@ package edu.sharif.ce.apyugioh.controller;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.model.card.*;
 import lombok.Getter;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -22,6 +25,8 @@ public class DatabaseController {
     private static Moshi moshi;
     @Getter
     private static List<User> userList;
+    @Getter
+    private static List<Inventory> inventoryList;
     private static ShopCards cards;
 
     public static void init() {
@@ -29,12 +34,16 @@ public class DatabaseController {
         dbs = new HashMap<>();
         ArrayList<String> models = new ArrayList<>();
         models.add("user");
+        models.add("inventory");
         try {
             db = Path.of("db");
             for (String model : models) {
-                dbs.put(model, Path.of("db\\" + model + "s.json"));
+                if (model.equals("inventory"))
+                    dbs.put(model, Path.of("db", model.substring(0, model.length() - 1) + "ies.json"));
+                else dbs.put(model, Path.of("db", model + "s.json"));
             }
             updateUsersFromDB();
+            updateInventoriesFromDB();
             cards = CSVToShopCards();
         } catch (Exception e) {
             Utils.printError("couldn't initialize database");
@@ -81,7 +90,19 @@ public class DatabaseController {
             JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
             userList = usersAdapter.fromJson(users);
         } catch (Exception e) {
-            System.out.println(users);
+            Utils.printError("corrupted database");
+            System.exit(1);
+        }
+    }
+
+    private static void updateInventoriesFromDB() {
+        String inventories = "";
+        try {
+            inventories = readFromFile(dbs.get("inventory"));
+            Type type = Types.newParameterizedType(List.class, Inventory.class);
+            JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
+            inventoryList = inventoryAdapter.fromJson(inventories);
+        } catch (Exception e) {
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -92,6 +113,17 @@ public class DatabaseController {
             Type type = Types.newParameterizedType(List.class, User.class);
             JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
             writeToFile(dbs.get("user"), usersAdapter.toJson(userList));
+        } catch (Exception e) {
+            Utils.printError("corrupted database");
+            System.exit(1);
+        }
+    }
+
+    public static void updateInventoriesToDB() {
+        try {
+            Type type = Types.newParameterizedType(List.class, Inventory.class);
+            JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
+            writeToFile(dbs.get("inventory"), inventoryAdapter.toJson(inventoryList));
         } catch (Exception e) {
             Utils.printError("corrupted database");
             System.exit(1);

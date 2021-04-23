@@ -5,6 +5,8 @@ import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.view.ImageToASCII;
 import edu.sharif.ce.apyugioh.view.UserView;
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class UserController {
 
@@ -17,6 +19,8 @@ public class UserController {
         view = new UserView();
     }
 
+    private Logger logger = LogManager.getLogger(UserController.class);
+
     public void registerUser(String username, String password, String nickname) {
         if (User.getUserByUsername(username) != null) {
             view.showError(UserView.ERROR_USER_USERNAME_ALREADY_TAKEN, username);
@@ -26,10 +30,12 @@ public class UserController {
             view.showError(UserView.ERROR_USER_NICKNAME_ALREADY_TAKEN, nickname);
             return;
         }
-        new User(username, password, nickname);
+        User user = new User(username, password, nickname);
+        MainMenuController.getInstance().setUser(user);
         view.showSuccess(UserView.SUCCESS_USER_CREATE);
         ProgramController.setState(MenuState.MAIN);
         Utils.clearScreen();
+        logger.info("{} registered in with {} : {}", user.getNickname(), username, password);
     }
 
     public void loginUser(String username, String password) {
@@ -46,6 +52,6 @@ public class UserController {
         view.showSuccess(UserView.SUCCESS_USER_LOGIN);
         ProgramController.setState(MenuState.MAIN);
         Utils.clearScreen();
-        System.out.println(new ImageToASCII("characters/YamiYugi", (float) 4).getASCII());
+        logger.info("{} logged in with {} : {}", user.getNickname(), username, password);
     }
 }

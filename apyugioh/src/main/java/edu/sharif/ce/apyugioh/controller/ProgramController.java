@@ -1,12 +1,15 @@
 package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.model.MenuState;
+import edu.sharif.ce.apyugioh.view.ImageToASCII;
 import edu.sharif.ce.apyugioh.view.command.MenuCommand;
 import edu.sharif.ce.apyugioh.view.command.ProfileCommand;
 import edu.sharif.ce.apyugioh.view.command.ScoreboardCommand;
 import edu.sharif.ce.apyugioh.view.command.UserCommand;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fusesource.jansi.AnsiConsole;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.Builtins;
@@ -43,11 +46,15 @@ public class ProgramController {
         state = MenuState.LOGIN;
     }
 
+    private static Logger logger = LogManager.getLogger(ProgramController.class);
+
     public static String getPromptTitle() {
         return Ansi.AUTO.string("@|yellow " + Utils.firstUpperOnly(ProgramController.getState().name()) + " Menu>|@");
     }
 
     public void initialize() {
+        logger.info("initialization started");
+        System.out.println(new ImageToASCII("characters/YamiYugi", 4).getASCII());
         DatabaseController.init();
         parseCommands();
     }
@@ -70,6 +77,7 @@ public class ProgramController {
                     .parser(parser).variable(LineReader.LIST_MAX, 50).build();
             builtins.setLineReader(reader);
             factory.setTerminal(terminal);
+            logger.info("initialization finished");
             while (true) {
                 if (getCommand(systemRegistry, reader)) return;
             }

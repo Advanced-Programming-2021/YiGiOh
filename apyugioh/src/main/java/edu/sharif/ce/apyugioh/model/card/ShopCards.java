@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ShopCards {
 
@@ -16,10 +17,6 @@ public class ShopCards {
         spells = new HashMap<>();
         traps = new HashMap<>();
     }
-
-    public ShopCards() {
-    }
-
 
     public void addMonster(Monster monster, int price) {
         monsters.put(monster, price);
@@ -81,6 +78,14 @@ public class ShopCards {
         cards.addAll(spells.keySet());
         cards.addAll(traps.keySet());
         return cards;
+    }
+
+    public String[] getAllCardNames() {
+        ArrayList<Card> cards = new ArrayList<>();
+        cards.addAll(monsters.keySet());
+        cards.addAll(spells.keySet());
+        cards.addAll(traps.keySet());
+        return cards.stream().map(e -> e.name).collect(Collectors.toList()).toArray(String[]::new);
     }
 
 }
