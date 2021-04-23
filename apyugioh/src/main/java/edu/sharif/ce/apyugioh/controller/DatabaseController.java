@@ -7,8 +7,6 @@ import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.model.card.*;
 import lombok.Getter;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,6 +25,7 @@ public class DatabaseController {
     private static List<User> userList;
     @Getter
     private static List<Inventory> inventoryList;
+    @Getter
     private static ShopCards cards;
 
     public static void init() {
@@ -83,7 +82,7 @@ public class DatabaseController {
     }
 
     private static void updateUsersFromDB() {
-        String users = "";
+        String users;
         try {
             users = readFromFile(dbs.get("user"));
             Type type = Types.newParameterizedType(List.class, User.class);
@@ -96,7 +95,7 @@ public class DatabaseController {
     }
 
     private static void updateInventoriesFromDB() {
-        String inventories = "";
+        String inventories;
         try {
             inventories = readFromFile(dbs.get("inventory"));
             Type type = Types.newParameterizedType(List.class, Inventory.class);
@@ -145,12 +144,12 @@ public class DatabaseController {
     private static void addSpellsToCards(ShopCards cards) {
         for (HashMap<String, String> spellMap : new CSVParser("shop/SpellTrap.csv").getContentsAsMap()) {
             if (spellMap.get("type").equalsIgnoreCase("spell")) {
-                Spell spell = new Spell(spellMap.get("name"), spellMap.get("description"), SpellProperty.
+                Spell spell = new Spell(Utils.firstUpperOnly(spellMap.get("name")), spellMap.get("description"), SpellProperty.
                         valueOf(spellMap.get("icon (property)").toUpperCase().replaceAll("-", "_")),
                         SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
                 cards.addSpell(spell, Integer.parseInt(spellMap.get("price")));
             } else {
-                Trap trap = new Trap(spellMap.get("name"), spellMap.get("description"), SpellProperty.
+                Trap trap = new Trap(Utils.firstUpperOnly(spellMap.get("name")), spellMap.get("description"), SpellProperty.
                         valueOf(spellMap.get("icon (property)").toUpperCase().replaceAll("-", "_")),
                         SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
                 cards.addTrap(trap, Integer.parseInt(spellMap.get("price")));
@@ -160,7 +159,7 @@ public class DatabaseController {
 
     private static void addMonstersToCards(ShopCards cards) {
         for (HashMap<String, String> monsterMap : new CSVParser("shop/Monsters.csv").getContentsAsMap()) {
-            Monster monster = new Monster(monsterMap.get("name"), monsterMap.get("description"),
+            Monster monster = new Monster(Utils.firstUpperOnly(monsterMap.get("name")), monsterMap.get("description"),
                     Integer.parseInt(monsterMap.get("level")), Integer.parseInt(monsterMap.get("atk")),
                     Integer.parseInt(monsterMap.get("def")), MonsterAttribute.valueOf(monsterMap.get("attribute")),
                     MonsterType.valueOf(monsterMap.get("monster type").replaceAll("[- ]", "_")

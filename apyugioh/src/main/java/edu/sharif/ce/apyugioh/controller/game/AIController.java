@@ -1,4 +1,4 @@
-package edu.sharif.ce.apyugioh.controller.Game;
+package edu.sharif.ce.apyugioh.controller.game;
 
 public class AIController {
     private int gameControllerID;

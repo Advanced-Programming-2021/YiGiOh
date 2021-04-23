@@ -1,4 +1,4 @@
-package edu.sharif.ce.apyugioh.controller.Game;
+package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.model.User;
 import lombok.Getter;

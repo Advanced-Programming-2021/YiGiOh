@@ -93,9 +93,9 @@ public class ImageToASCII {
             int diff = isTrue ? 256 : 30;
             rgbValues.removeIf(e -> Math.abs(getRed(e) - meanRed) > diff || Math.abs(getGreen(e) - meanGreen) > diff ||
                     Math.abs(getBlue(e) - meanBlue) > diff);
-            int averageRed = (int) rgbValues.stream().mapToInt(e -> getRed(e)).average().getAsDouble();
-            int averageGreen = (int) rgbValues.stream().mapToInt(e -> getGreen(e)).average().getAsDouble();
-            int averageBlue = (int) rgbValues.stream().mapToInt(e -> getBlue(e)).average().getAsDouble();
+            int averageRed = (int) rgbValues.stream().mapToInt(this::getRed).average().getAsDouble();
+            int averageGreen = (int) rgbValues.stream().mapToInt(this::getGreen).average().getAsDouble();
+            int averageBlue = (int) rgbValues.stream().mapToInt(this::getBlue).average().getAsDouble();
             return 16 + (int) (36 * Math.round(averageRed / 51.0) + 6 * Math.round(averageGreen / 51.0) +
                     Math.round(averageBlue / 51.0));
         }

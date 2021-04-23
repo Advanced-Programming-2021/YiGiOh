@@ -30,6 +30,9 @@ public class MenuCommand {
                     case PROFILE:
                         ProfileController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         break;
+                    case SHOP:
+                        ShopController.getInstance().setUser(MainMenuController.getInstance().getUser());
+                        break;
                 }
                 ProgramController.setState(menuState);
                 Utils.clearScreen();

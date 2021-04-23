@@ -46,11 +46,11 @@ public class Utils {
     }
 
     public static void clearScreen() {
-        ProgramController.getInstance().getReader().getTerminal().puts(InfoCmp.Capability.clear_screen);
+        ProgramController.getReader().getTerminal().puts(InfoCmp.Capability.clear_screen);
     }
 
     public static void printHorizontalCenter(String data) {
-        int width = ProgramController.getInstance().getReader().getTerminal().getWidth();
+        int width = ProgramController.getReader().getTerminal().getWidth();
         System.out.println(width);
         String[] rows = data.split("\\r?\\n");
         StringBuilder output = new StringBuilder();

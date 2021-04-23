@@ -2,10 +2,7 @@ package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.view.ImageToASCII;
-import edu.sharif.ce.apyugioh.view.command.MenuCommand;
-import edu.sharif.ce.apyugioh.view.command.ProfileCommand;
-import edu.sharif.ce.apyugioh.view.command.ScoreboardCommand;
-import edu.sharif.ce.apyugioh.view.command.UserCommand;
+import edu.sharif.ce.apyugioh.view.command.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -92,7 +89,9 @@ public class ProgramController {
         Completer completer = systemRegistry.completer();
         ArgumentCompleter menuCompleter = new ArgumentCompleter(new StringsCompleter("menu"),
                 new StringsCompleter("enter"), new EnumCompleter(MenuState.class));
-        return new AggregateCompleter(completer, menuCompleter);
+        ArgumentCompleter shopCompleter = new ArgumentCompleter(new StringsCompleter("shop"),
+                new StringsCompleter("buy"), new StringsCompleter(DatabaseController.getCards().getAllCompleterCardNames()));
+        return new AggregateCompleter(completer, menuCompleter, shopCompleter);
     }
 
     private boolean getCommand(SystemRegistry systemRegistry, LineReader reader) {
@@ -113,8 +112,8 @@ public class ProgramController {
 
     @CommandLine.Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},
             subcommands = {MenuCommand.class, UserCommand.class, ProfileCommand.class, ScoreboardCommand.class,
-                    PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
-    class CliCommands implements Runnable {
+                    ShopCommand.class, PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
+    static class CliCommands implements Runnable {
         PrintWriter out;
 
         CliCommands() {

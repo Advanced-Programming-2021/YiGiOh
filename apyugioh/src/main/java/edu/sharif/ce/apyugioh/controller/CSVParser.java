@@ -14,17 +14,14 @@ import java.util.stream.Collectors;
 
 public class CSVParser {
 
-    private String fileName;
-    private Path filePath;
     private List<String> headings;
     private List<HashMap<String, String>> contentsAsMap;
     private List<String[]> contents;
 
     public CSVParser(String fileName) {
-        this.fileName = fileName;
         headings = new ArrayList<>();
         contentsAsMap = new ArrayList<>();
-        filePath = Path.of("assets/" + fileName);
+        Path filePath = Path.of("assets/" + fileName);
         try {
             if (Files.exists(filePath)) {
                 CSVReader csvReader = new CSVReaderBuilder(new FileReader("assets/" + fileName)).build();

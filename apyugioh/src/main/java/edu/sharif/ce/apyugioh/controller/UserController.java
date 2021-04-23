@@ -2,7 +2,6 @@ package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.model.User;
-import edu.sharif.ce.apyugioh.view.ImageToASCII;
 import edu.sharif.ce.apyugioh.view.UserView;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;

@@ -1,9 +1,6 @@
 package edu.sharif.ce.apyugioh.model.card;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ShopCards {
@@ -12,7 +9,7 @@ public class ShopCards {
     private HashMap<Spell, Integer> spells;
     private HashMap<Trap, Integer> traps;
 
-    {
+    public ShopCards() {
         monsters = new HashMap<>();
         spells = new HashMap<>();
         traps = new HashMap<>();
@@ -85,7 +82,19 @@ public class ShopCards {
         cards.addAll(monsters.keySet());
         cards.addAll(spells.keySet());
         cards.addAll(traps.keySet());
-        return cards.stream().map(e -> e.name).collect(Collectors.toList()).toArray(String[]::new);
+        return cards.stream().map(e -> e.name).sorted().collect(Collectors.toList()).toArray(String[]::new);
+    }
+
+    public String[] getAllCompleterCardNames() {
+        return Arrays.stream(getAllCardNames()).map(e -> e.replaceAll("\\s+", "_"))
+                .collect(Collectors.toList()).toArray(String[]::new);
+    }
+
+    public int getCardPrice(String cardName) {
+        int price;
+        if ((price = getMonsterPrice(cardName)) != -1) return price;
+        if ((price = getSpellPrice(cardName)) != -1) return price;
+        return getTrapPrice(cardName);
     }
 
 }

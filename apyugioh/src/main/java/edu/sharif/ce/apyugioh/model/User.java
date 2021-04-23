@@ -30,6 +30,7 @@ public class User implements Comparable<User> {
         this.nickname = nickname;
         mainDeckID = -1;
         DatabaseController.addUser(this);
+        new Inventory(username);
     }
 
     public static User getUserByUsername(String username) {
