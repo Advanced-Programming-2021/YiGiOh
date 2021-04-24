@@ -2,6 +2,7 @@ package edu.sharif.ce.apyugioh.view;
 
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
+import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.model.User;
 
 import java.util.List;
@@ -24,6 +25,6 @@ public class ScoreboardView extends View {
             }
             scoreboard.addRule();
         }
-        System.out.println(scoreboard.render());
+        System.out.println(scoreboard.render(Math.max(80, ProgramController.getReader().getTerminal().getWidth())));
     }
 }

@@ -10,7 +10,7 @@ import java.util.Base64;
 public class Utils {
 
     public static String firstUpperOnly(String text) {
-        String[] words = text.replaceAll("_", " ").split("\\s+");
+        String[] words = text.replaceAll("[-_]+", " ").split("\\s+");
         StringBuilder output = new StringBuilder();
         boolean isFirstWord = true;
         for (String word : words) {

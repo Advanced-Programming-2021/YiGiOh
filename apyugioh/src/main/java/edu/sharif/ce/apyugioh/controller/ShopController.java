@@ -26,7 +26,7 @@ public class ShopController {
 
     public void buyCard(String cardName) {
         Inventory userInventory = Inventory.getInventoryByUsername(user.getUsername());
-        Card card = DatabaseController.getCards().getAllCards().stream().filter(e -> e.getName().equals(cardName))
+        Card card = DatabaseController.getCards().getAllCards().stream().filter(e -> e.getName().equalsIgnoreCase(cardName))
                 .findAny().orElse(null);
         if (card != null) {
             if (userInventory.getMoney() >= DatabaseController.getCards().getCardPrice(cardName)) {
@@ -46,5 +46,15 @@ public class ShopController {
         String[] cardNames = DatabaseController.getCards().getAllCardNames();
         int[] cardPrices = Arrays.stream(cardNames).mapToInt(e -> DatabaseController.getCards().getCardPrice(e)).toArray();
         view.showAllCards(cardNames, cardPrices);
+    }
+
+    public void showCard(String cardName) {
+        Card card = DatabaseController.getCards().getAllCards().stream().filter(e -> e.getName().equalsIgnoreCase(cardName))
+                .findAny().orElse(null);
+        if (card != null) {
+            view.showCard(card);
+        } else {
+            view.showError(ShopView.ERROR_CARD_NAME_INVALID);
+        }
     }
 }

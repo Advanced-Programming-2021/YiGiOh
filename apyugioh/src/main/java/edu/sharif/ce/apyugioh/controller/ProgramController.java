@@ -90,8 +90,12 @@ public class ProgramController {
         ArgumentCompleter menuCompleter = new ArgumentCompleter(new StringsCompleter("menu"),
                 new StringsCompleter("enter"), new EnumCompleter(MenuState.class));
         ArgumentCompleter shopCompleter = new ArgumentCompleter(new StringsCompleter("shop"),
-                new StringsCompleter("buy"), new StringsCompleter(DatabaseController.getCards().getAllCompleterCardNames()));
-        return new AggregateCompleter(completer, menuCompleter, shopCompleter);
+                new StringsCompleter("buy"), new StringsCompleter(DatabaseController.getCards()
+                .getAllCompleterCardNames()));
+        ArgumentCompleter cardCompleter = new ArgumentCompleter(new StringsCompleter("card"),
+                new StringsCompleter("show"), new StringsCompleter(DatabaseController.getCards()
+                .getAllCompleterCardNames()));
+        return new AggregateCompleter(completer, menuCompleter, shopCompleter, cardCompleter);
     }
 
     private boolean getCommand(SystemRegistry systemRegistry, LineReader reader) {
@@ -112,7 +116,8 @@ public class ProgramController {
 
     @CommandLine.Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},
             subcommands = {MenuCommand.class, UserCommand.class, ProfileCommand.class, ScoreboardCommand.class,
-                    ShopCommand.class, PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
+                    ShopCommand.class, CardCommand.class,
+                    PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
     static class CliCommands implements Runnable {
         PrintWriter out;
 

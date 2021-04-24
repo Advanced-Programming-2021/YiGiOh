@@ -7,6 +7,8 @@ import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.model.card.*;
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,6 +29,7 @@ public class DatabaseController {
     private static List<Inventory> inventoryList;
     @Getter
     private static ShopCards cards;
+    private static Logger logger = LogManager.getLogger(DatabaseController.class);
 
     public static void init() {
         moshi = new Moshi.Builder().build();
@@ -45,6 +48,7 @@ public class DatabaseController {
             updateInventoriesFromDB();
             cards = CSVToShopCards();
         } catch (Exception e) {
+            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
             Utils.printError("couldn't initialize database");
             System.exit(1);
         }
@@ -55,6 +59,7 @@ public class DatabaseController {
             initDB(jsonDB);
             return Files.readString(jsonDB);
         } catch (Exception e) {
+            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
             Utils.printError("failed to read database");
             System.exit(1);
         }
@@ -66,6 +71,7 @@ public class DatabaseController {
             initDB(jsonDB);
             Files.writeString(jsonDB, jsonText);
         } catch (Exception e) {
+            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
             Utils.printError("failed to write database");
             System.exit(1);
         }
@@ -89,6 +95,7 @@ public class DatabaseController {
             JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
             userList = usersAdapter.fromJson(users);
         } catch (Exception e) {
+            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -102,6 +109,7 @@ public class DatabaseController {
             JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
             inventoryList = inventoryAdapter.fromJson(inventories);
         } catch (Exception e) {
+            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -113,6 +121,7 @@ public class DatabaseController {
             JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
             writeToFile(dbs.get("user"), usersAdapter.toJson(userList));
         } catch (Exception e) {
+            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -124,6 +133,7 @@ public class DatabaseController {
             JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
             writeToFile(dbs.get("inventory"), inventoryAdapter.toJson(inventoryList));
         } catch (Exception e) {
+            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -158,10 +168,10 @@ public class DatabaseController {
     }
 
     private static void addMonstersToCards(ShopCards cards) {
-        for (HashMap<String, String> monsterMap : new CSVParser("shop/Monsters.csv").getContentsAsMap()) {
+        for (HashMap<String, String> monsterMap : new CSVParser("shop/Monster.csv").getContentsAsMap()) {
             Monster monster = new Monster(Utils.firstUpperOnly(monsterMap.get("name")), monsterMap.get("description"),
                     Integer.parseInt(monsterMap.get("level")), Integer.parseInt(monsterMap.get("atk")),
-                    Integer.parseInt(monsterMap.get("def")), MonsterAttribute.valueOf(monsterMap.get("attribute")),
+                    Integer.parseInt(monsterMap.get("def")), MonsterAttribute.valueOf(monsterMap.get("attribute").toUpperCase()),
                     MonsterType.valueOf(monsterMap.get("monster type").replaceAll("[- ]", "_")
                             .toUpperCase()), monsterMap.get("card type").equalsIgnoreCase("NORMAL") ?
                     MonsterEffect.NORMAL : MonsterEffect.CONTINUOUS);
