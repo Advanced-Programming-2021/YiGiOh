@@ -6,6 +6,8 @@ import edu.sharif.ce.apyugioh.model.card.Card;
 import edu.sharif.ce.apyugioh.view.ShopView;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 
@@ -14,10 +16,12 @@ public class ShopController {
     @Getter
     private static ShopController instance;
     private static ShopView view;
+    private static Logger logger;
 
     static {
         instance = new ShopController();
         view = new ShopView();
+        logger = LogManager.getLogger(ShopController.class);
     }
 
     @Getter
@@ -31,6 +35,7 @@ public class ShopController {
         if (card != null) {
             if (userInventory.getMoney() >= DatabaseController.getCards().getCardPrice(cardName)) {
                 userInventory.buyCard(cardName);
+                logger.info("{} bought {}", user.getNickname(), card.getName());
                 view.showSuccess(ShopView.SUCCESS_BUY_CARD, cardName, String.valueOf(userInventory.getMoney()));
             } else {
                 view.showError(ShopView.ERROR_MONEY_NOT_ENOUGH, cardName,

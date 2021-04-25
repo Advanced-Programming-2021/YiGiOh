@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +31,11 @@ public class DatabaseController {
     private static List<Inventory> inventoryList;
     @Getter
     private static ShopCards cards;
-    private static Logger logger = LogManager.getLogger(DatabaseController.class);
+    private static Logger logger;
+
+    static {
+        logger = LogManager.getLogger(DatabaseController.class);
+    }
 
     public static void init() {
         moshi = new Moshi.Builder().build();
@@ -48,7 +54,7 @@ public class DatabaseController {
             updateInventoriesFromDB();
             cards = CSVToShopCards();
         } catch (Exception e) {
-            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("couldn't initialize database");
             System.exit(1);
         }
@@ -59,7 +65,7 @@ public class DatabaseController {
             initDB(jsonDB);
             return Files.readString(jsonDB);
         } catch (Exception e) {
-            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("failed to read database");
             System.exit(1);
         }
@@ -71,15 +77,15 @@ public class DatabaseController {
             initDB(jsonDB);
             Files.writeString(jsonDB, jsonText);
         } catch (Exception e) {
-            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("failed to write database");
             System.exit(1);
         }
     }
 
     private static void initDB(Path jsonDB) throws IOException {
-        if (!Files.isDirectory(db)) {
-            Files.createDirectory(db);
+        if (!Files.isDirectory(jsonDB.getParent())) {
+            Files.createDirectory(jsonDB.getParent());
         }
         if (!Files.exists(jsonDB)) {
             Files.createFile(jsonDB);
@@ -95,7 +101,7 @@ public class DatabaseController {
             JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
             userList = usersAdapter.fromJson(users);
         } catch (Exception e) {
-            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -109,7 +115,7 @@ public class DatabaseController {
             JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
             inventoryList = inventoryAdapter.fromJson(inventories);
         } catch (Exception e) {
-            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -121,7 +127,7 @@ public class DatabaseController {
             JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
             writeToFile(dbs.get("user"), usersAdapter.toJson(userList));
         } catch (Exception e) {
-            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -133,7 +139,7 @@ public class DatabaseController {
             JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
             writeToFile(dbs.get("inventory"), inventoryAdapter.toJson(inventoryList));
         } catch (Exception e) {
-            logger.error("Exception caused by: " + e.getCause() + "\nDetails: " + e.getMessage());
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("corrupted database");
             System.exit(1);
         }
@@ -177,5 +183,28 @@ public class DatabaseController {
                     MonsterEffect.NORMAL : MonsterEffect.CONTINUOUS);
             cards.addMonster(monster, Integer.parseInt(monsterMap.get("price")));
         }
+    }
+
+    public static Path exportShopCards(ShopCards cards) {
+        JsonAdapter<ShopCards> cardsAdapter = moshi.adapter(ShopCards.class);
+        Path exportPath = Path.of("assets", "backup", LocalDateTime.now().format(DateTimeFormatter
+                .ofPattern("yyyy_MM_dd_HH:mm:ss")) + "_export.json");
+        writeToFile(exportPath, cardsAdapter.toJson(cards));
+        return exportPath;
+    }
+
+    public static boolean importShopCards(Path shopCardsPath) {
+        JsonAdapter<ShopCards> cardsAdapter = moshi.adapter(ShopCards.class);
+        try {
+            ShopCards shopCards = cardsAdapter.fromJson(readFromFile(shopCardsPath));
+            if (shopCards != null && !cards.addShopCards(shopCards)) {
+                return false;
+            }
+        } catch (IOException e) {
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
+            Utils.printError("corrupted database");
+            System.exit(1);
+        }
+        return true;
     }
 }

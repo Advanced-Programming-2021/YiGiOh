@@ -1,88 +1,101 @@
 package edu.sharif.ce.apyugioh.model.card;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Getter
+@Setter
 public class ShopCards {
 
-    private HashMap<Monster, Integer> monsters;
-    private HashMap<Spell, Integer> spells;
-    private HashMap<Trap, Integer> traps;
+    private Set<Monster> monsters;
+    private Set<Spell> spells;
+    private Set<Trap> traps;
+    private Map<String, Integer> monsterPrices;
+    private Map<String, Integer> spellPrices;
+    private Map<String, Integer> trapPrices;
 
     public ShopCards() {
-        monsters = new HashMap<>();
-        spells = new HashMap<>();
-        traps = new HashMap<>();
+        monsters = new HashSet<>();
+        monsterPrices = new HashMap<>();
+        spells = new HashSet<>();
+        spellPrices = new HashMap<>();
+        traps = new HashSet<>();
+        trapPrices = new HashMap<>();
     }
 
     public void addMonster(Monster monster, int price) {
-        monsters.put(monster, price);
+        if (monsters.stream().noneMatch(e -> e.equals(monster))) {
+            monsters.add(monster);
+            monsterPrices.put(monster.getName(), price);
+        }
     }
 
-    public void addMonsters(Map<Monster, Integer> monsters) {
-        this.monsters.putAll(monsters);
-    }
-
-    public List<Monster> getMonsterList() {
-        return new ArrayList<>(monsters.keySet());
+    public void addMonsters(List<Monster> monsters, Map<String, Integer> monsterPrices) {
+        this.monsters.addAll(monsters);
+        this.monsterPrices.putAll(monsterPrices);
     }
 
     public int getMonsterPrice(String monsterName) {
-        Monster monster = new ArrayList<>(monsters.keySet()).stream().filter(e -> e.getName().equals(monsterName)).findAny().orElse(null);
-        if (monster != null) return monsters.get(monster);
+        Monster monster = monsters.stream().filter(e -> e.name.equalsIgnoreCase(monsterName)).findAny().orElse(null);
+        if (monster != null) {
+            return monsterPrices.get(monster.getName());
+        }
         return -1;
     }
 
     public void addSpell(Spell spell, int price) {
-        spells.put(spell, price);
+        if (spells.stream().noneMatch(e -> e.equals(spell))) {
+            spells.add(spell);
+            spellPrices.put(spell.getName(), price);
+        }
     }
 
-    public void addSpells(Map<Spell, Integer> spells) {
-        this.spells.putAll(spells);
-    }
-
-    public List<Spell> getSpellList() {
-        return new ArrayList<>(spells.keySet());
+    public void addSpells(List<Spell> spells, Map<String, Integer> spellPrices) {
+        this.spells.addAll(spells);
+        this.spellPrices.putAll(spellPrices);
     }
 
     public int getSpellPrice(String spellName) {
-        Spell spell = new ArrayList<>(spells.keySet()).stream().filter(e -> e.getName().equals(spellName)).findAny().orElse(null);
-        if (spell != null) return spells.get(spell);
+        Spell spell = spells.stream().filter(e -> e.name.equalsIgnoreCase(spellName)).findAny().orElse(null);
+        if (spell != null) {
+            return spellPrices.get(spell.getName());
+        }
         return -1;
     }
 
     public void addTrap(Trap trap, int price) {
-        traps.put(trap, price);
+        if (traps.stream().noneMatch(e -> e.equals(trap))) {
+            traps.add(trap);
+            trapPrices.put(trap.getName(), price);
+        }
     }
 
-    public void addTraps(Map<Trap, Integer> traps) {
-        this.traps.putAll(traps);
-    }
-
-    public List<Trap> getTrapList() {
-        return new ArrayList<>(traps.keySet());
+    public void addTraps(List<Trap> traps, Map<String, Integer> trapPrices) {
+        this.traps.addAll(traps);
+        this.trapPrices.putAll(trapPrices);
     }
 
     public int getTrapPrice(String trapName) {
-        Trap trap = new ArrayList<>(traps.keySet()).stream().filter(e -> e.getName().equals(trapName)).findAny().orElse(null);
-        if (trap != null) return traps.get(trap);
+        Trap trap = traps.stream().filter(e -> e.name.equalsIgnoreCase(trapName)).findAny().orElse(null);
+        if (trap != null) {
+            return trapPrices.get(trap.getName());
+        }
         return -1;
     }
 
     public List<Card> getAllCards() {
         ArrayList<Card> cards = new ArrayList<>();
-        cards.addAll(monsters.keySet());
-        cards.addAll(spells.keySet());
-        cards.addAll(traps.keySet());
+        cards.addAll(monsters);
+        cards.addAll(spells);
+        cards.addAll(traps);
         return cards;
     }
 
     public String[] getAllCardNames() {
-        ArrayList<Card> cards = new ArrayList<>();
-        cards.addAll(monsters.keySet());
-        cards.addAll(spells.keySet());
-        cards.addAll(traps.keySet());
-        return cards.stream().map(e -> e.name).sorted().collect(Collectors.toList()).toArray(String[]::new);
+        return getAllCards().stream().map(e -> e.name).sorted().collect(Collectors.toList()).toArray(String[]::new);
     }
 
     public String[] getAllCompleterCardNames() {
@@ -95,6 +108,40 @@ public class ShopCards {
         if ((price = getMonsterPrice(cardName)) != -1) return price;
         if ((price = getSpellPrice(cardName)) != -1) return price;
         return getTrapPrice(cardName);
+    }
+
+    public Card getCardByName(String name) {
+        Monster monster = monsters.stream().filter(e -> e.name.equalsIgnoreCase(name)).findAny().orElse(null);
+        if (monster != null) return monster;
+        Spell spell = spells.stream().filter(e -> e.name.equalsIgnoreCase(name)).findAny().orElse(null);
+        if (spell != null) return spell;
+        return traps.stream().filter(e -> e.name.equalsIgnoreCase(name)).findAny().orElse(null);
+    }
+
+    public boolean addCard(Card card, int price) {
+        switch (card.getCardType()) {
+            case MONSTER:
+                addMonster((Monster) card, price);
+                break;
+            case SPELL:
+                addSpell((Spell) card, price);
+                break;
+            case TRAP:
+                addTrap((Trap) card, price);
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    public boolean addShopCards(ShopCards cards) {
+        for (Card card : cards.getAllCards()) {
+            if (!addCard(card, cards.getCardPrice(card.getName()))) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

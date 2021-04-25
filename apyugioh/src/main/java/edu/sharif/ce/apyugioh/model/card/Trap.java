@@ -13,7 +13,7 @@ public class Trap extends Card {
     public Trap(String name, String description, SpellProperty property, SpellLimit limit) {
         this.name = name;
         this.description = description;
-        this.cardType = CardType.SPELL;
+        this.cardType = CardType.TRAP;
         this.property = property;
         this.limit = limit;
     }

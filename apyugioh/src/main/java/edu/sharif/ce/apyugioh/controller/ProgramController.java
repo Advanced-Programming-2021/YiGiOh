@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.fusesource.jansi.AnsiConsole;
+import org.jline.builtins.Completers;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.Builtins;
 import org.jline.console.impl.SystemRegistryImpl;
@@ -23,10 +24,13 @@ import picocli.CommandLine;
 import picocli.CommandLine.Help.Ansi;
 import picocli.shell.jline3.PicocliCommands;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class ProgramController {
 
@@ -37,6 +41,8 @@ public class ProgramController {
     private static MenuState state;
     @Getter
     private static LineReader reader;
+    @Getter
+    private static DynamicCompleter dynamicCompleter;
 
     static {
         instance = new ProgramController();
@@ -89,13 +95,9 @@ public class ProgramController {
         Completer completer = systemRegistry.completer();
         ArgumentCompleter menuCompleter = new ArgumentCompleter(new StringsCompleter("menu"),
                 new StringsCompleter("enter"), new EnumCompleter(MenuState.class));
-        ArgumentCompleter shopCompleter = new ArgumentCompleter(new StringsCompleter("shop"),
-                new StringsCompleter("buy"), new StringsCompleter(DatabaseController.getCards()
-                .getAllCompleterCardNames()));
-        ArgumentCompleter cardCompleter = new ArgumentCompleter(new StringsCompleter("card"),
-                new StringsCompleter("show"), new StringsCompleter(DatabaseController.getCards()
-                .getAllCompleterCardNames()));
-        return new AggregateCompleter(completer, menuCompleter, shopCompleter, cardCompleter);
+        dynamicCompleter = new DynamicCompleter(completer, menuCompleter);
+        updateCompleter();
+        return dynamicCompleter;
     }
 
     private boolean getCommand(SystemRegistry systemRegistry, LineReader reader) {
@@ -112,6 +114,29 @@ public class ProgramController {
             //systemRegistry.trace(e);
         }
         return false;
+    }
+
+    public static void updateCompleter() {
+        try {
+            ArgumentCompleter shopCompleter = new ArgumentCompleter(new StringsCompleter("shop"),
+                    new StringsCompleter("buy"), new StringsCompleter(DatabaseController.getCards()
+                    .getAllCompleterCardNames()));
+            ArgumentCompleter cardShowCompleter = new ArgumentCompleter(new StringsCompleter("card"),
+                    new StringsCompleter("show"), new StringsCompleter(DatabaseController.getCards()
+                    .getAllCompleterCardNames()));
+            ArgumentCompleter cardExportCompleter = new ArgumentCompleter(new StringsCompleter("card"),
+                    new StringsCompleter("export"), new StringsCompleter(DatabaseController.getCards()
+                    .getAllCompleterCardNames()));
+            dynamicCompleter.addCompleters(cardShowCompleter, cardExportCompleter, shopCompleter);
+            ArgumentCompleter cardImportCompleter = new ArgumentCompleter(new StringsCompleter("card"),
+                    new StringsCompleter("import"), new StringsCompleter(Files.walk(Path
+                    .of("assets", "backup")).filter(Files::isRegularFile)
+                    .map(e -> Path.of("assets", "backup").relativize(e).toString())
+                    .collect(Collectors.toList()).toArray(String[]::new)));
+            dynamicCompleter.addCompleters(cardImportCompleter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @CommandLine.Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},

@@ -69,4 +69,11 @@ public class Utils {
         System.out.print(output);
     }
 
+    public static double getTerminalScale(double scale) {
+        if (scale >= 1) {
+            return Math.max((ProgramController.getReader().getTerminal().getWidth() / 200.0) * scale, 1);
+        }
+        return (ProgramController.getReader().getTerminal().getWidth() / 200.0) * scale;
+    }
+
 }

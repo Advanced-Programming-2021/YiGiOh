@@ -12,13 +12,13 @@ public class UserController {
     @Getter
     private static UserController instance;
     private static UserView view;
+    private static Logger logger;
 
     static {
         instance = new UserController();
         view = new UserView();
+        logger = LogManager.getLogger(UserController.class);
     }
-
-    private Logger logger = LogManager.getLogger(UserController.class);
 
     public void registerUser(String username, String password, String nickname) {
         if (User.getUserByUsername(username) != null) {

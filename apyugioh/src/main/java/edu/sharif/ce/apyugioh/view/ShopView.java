@@ -1,6 +1,8 @@
 package edu.sharif.ce.apyugioh.view;
 
 import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.asciitable.CWC_LongestLine;
+import de.vandermeer.asciithemes.u8.U8_Grids;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
@@ -26,50 +28,65 @@ public class ShopView extends View {
     public void showAllCards(String[] cardNames, int[] cardPrices) {
         AsciiTable cards = new AsciiTable();
         cards.addRule();
-        cards.addRow("name", "price").setTextAlignment(TextAlignment.CENTER);
+        cards.addRow("name", "price");
         cards.addRule();
         for (int i = 0; i < cardNames.length; i++) {
-            cards.addRow(cardNames[i], cardPrices[i]).setTextAlignment(TextAlignment.CENTER);
+            cards.addRow(cardNames[i], cardPrices[i]);
             cards.addRule();
         }
+        cards.setTextAlignment(TextAlignment.CENTER);
+        cards.getContext().setGrid(U8_Grids.borderDouble());
         System.out.println(cards.render(Math.max(80, ProgramController.getReader().getTerminal().getWidth())));
     }
 
     public void showCard(Card card) {
+        showCardImage(card);
+        showCardStats(card);
+    }
+
+    private void showCardStats(Card card) {
         AsciiTable cardInfo = new AsciiTable();
+        CWC_LongestLine cwc = new CWC_LongestLine();
         cardInfo.addRule();
         if (card.getCardType().equals(CardType.MONSTER)) {
             Monster monster = (Monster) card;
-            cardInfo.addRow("name", "level", "type", "attack", "defense", "description")
-                    .setTextAlignment(TextAlignment.CENTER);
-            cardInfo.addRule();
-            cardInfo.addRow(monster.getName(), monster.getLevel() + " ★".repeat(monster.getLevel()),
-                    Utils.firstUpperOnly(monster.getType().toString()), monster.getAttackPoints(), monster.getDefensePoints(),
-                    monster.getDescription()).setTextAlignment(TextAlignment.CENTER);
-            cardInfo.addRule();
+            addMonsterRow(cardInfo, cwc, monster);
         } else if (card.getCardType().equals(CardType.SPELL)) {
             Spell spell = (Spell) card;
-            cardInfo.addRow("name", "type", "description")
-                    .setTextAlignment(TextAlignment.CENTER);
-            cardInfo.addRule();
-            cardInfo.addRow(spell.getName(), Utils.firstUpperOnly(spell.getProperty().toString()), spell.getDescription())
-                    .setTextAlignment(TextAlignment.CENTER);
-            cardInfo.addRule();
+            addSpellTrapRow(cardInfo, cwc, spell.getName(), spell.getProperty(), spell.getDescription());
         } else if (card.getCardType().equals(CardType.TRAP)) {
             Trap trap = (Trap) card;
-            cardInfo.addRow("name", "type", "description")
-                    .setTextAlignment(TextAlignment.CENTER);
-            cardInfo.addRule();
-            cardInfo.addRow(trap.getName(), Utils.firstUpperOnly(trap.getProperty().toString()), trap.getDescription())
-                    .setTextAlignment(TextAlignment.CENTER);
-            cardInfo.addRule();
+            addSpellTrapRow(cardInfo, cwc, trap.getName(), trap.getProperty(), trap.getDescription());
         }
+        cardInfo.addRule();
+        cardInfo.setTextAlignment(TextAlignment.CENTER);
+        cardInfo.getContext().setGrid(U8_Grids.borderDouble());
+        cardInfo.getRenderer().setCWC(cwc);
         System.out.println(cardInfo.render(Math.max(80, ProgramController.getReader().getTerminal().getWidth())));
-        String imageName = Utils.firstUpperOnly(card.getName()).replaceAll("\'", "")
+    }
+
+    private void addMonsterRow(AsciiTable cardInfo, CWC_LongestLine cwc, Monster monster) {
+        cardInfo.addRow("name", "level", "type", "attack", "defense", "description");
+        cardInfo.addRule();
+        cardInfo.addRow(monster.getName(), monster.getLevel() + "<br>" + "★".repeat(monster.getLevel()),
+                Utils.firstUpperOnly(monster.getType().toString()), monster.getAttackPoints(),
+                monster.getDefensePoints(), monster.getDescription());
+        cwc.add(4, 40).add(5, 20).add(4, 20).add(6, 20).add(7, 20).add(11, ProgramController.getReader().getTerminal().getWidth() / 2);
+    }
+
+    private void addSpellTrapRow(AsciiTable cardInfo, CWC_LongestLine cwc, String name, SpellProperty property, String description) {
+        cardInfo.addRow("name", "type", "description");
+        cardInfo.addRule();
+        cardInfo.addRow(name, Utils.firstUpperOnly(property.toString()), description);
+        cwc.add(4, 20).add(4, 20).add(11, ProgramController.getReader().getTerminal().getWidth() / 2);
+    }
+
+    private void showCardImage(Card card) {
+        String imageName = Utils.firstUpperOnly(card.getName()).replaceAll("[\',]", "")
                 .replaceAll(" ", "");
         Path imagePath = Path.of("assets", "cards", imageName + ".png");
         if (Files.exists(imagePath)) {
-            System.out.println(new ImageToASCII("cards/" + imageName, 3).getASCII());
+            System.out.println(new ImageToASCII("cards/" + imageName, Utils.getTerminalScale(3), false).getASCII());
         }
     }
 
