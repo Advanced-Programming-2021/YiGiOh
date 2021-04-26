@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.view.ImageToASCII;
 import edu.sharif.ce.apyugioh.view.command.*;
@@ -8,19 +9,19 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.fusesource.jansi.AnsiConsole;
-import org.jline.builtins.Completers;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.Builtins;
 import org.jline.console.impl.SystemRegistryImpl;
 import org.jline.reader.*;
 import org.jline.reader.impl.DefaultParser;
-import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.EnumCompleter;
+import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Ansi;
 import picocli.shell.jline3.PicocliCommands;
 
@@ -58,7 +59,7 @@ public class ProgramController {
     public void initialize() {
         logger.info("initialization started");
         System.out.println(new ImageToASCII("characters/YamiYugi", 4).getASCII());
-        DatabaseController.init();
+        DatabaseManager.init();
         parseCommands();
     }
 
@@ -119,29 +120,29 @@ public class ProgramController {
     public static void updateCompleter() {
         try {
             ArgumentCompleter shopCompleter = new ArgumentCompleter(new StringsCompleter("shop"),
-                    new StringsCompleter("buy"), new StringsCompleter(DatabaseController.getCards()
-                    .getAllCompleterCardNames()));
+                    new StringsCompleter("buy"), new StringsCompleter(DatabaseManager.getCards()
+                    .getAllCompleterCardNames()), NullCompleter.INSTANCE);
             ArgumentCompleter cardShowCompleter = new ArgumentCompleter(new StringsCompleter("card"),
-                    new StringsCompleter("show"), new StringsCompleter(DatabaseController.getCards()
-                    .getAllCompleterCardNames()));
+                    new StringsCompleter("show"), new StringsCompleter(DatabaseManager.getCards()
+                    .getAllCompleterCardNames()), NullCompleter.INSTANCE);
             ArgumentCompleter cardExportCompleter = new ArgumentCompleter(new StringsCompleter("card"),
-                    new StringsCompleter("export"), new StringsCompleter(DatabaseController.getCards()
-                    .getAllCompleterCardNames()));
+                    new StringsCompleter("export"), new StringsCompleter(DatabaseManager.getCards()
+                    .getAllCompleterCardNames()), NullCompleter.INSTANCE);
             dynamicCompleter.addCompleters(cardShowCompleter, cardExportCompleter, shopCompleter);
             ArgumentCompleter cardImportCompleter = new ArgumentCompleter(new StringsCompleter("card"),
                     new StringsCompleter("import"), new StringsCompleter(Files.walk(Path
                     .of("assets", "backup")).filter(Files::isRegularFile)
                     .map(e -> Path.of("assets", "backup").relativize(e).toString())
-                    .collect(Collectors.toList()).toArray(String[]::new)));
+                    .collect(Collectors.toList()).toArray(String[]::new)), NullCompleter.INSTANCE);
             dynamicCompleter.addCompleters(cardImportCompleter);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @CommandLine.Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},
+    @Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},
             subcommands = {MenuCommand.class, UserCommand.class, ProfileCommand.class, ScoreboardCommand.class,
-                    ShopCommand.class, CardCommand.class,
+                    ShopCommand.class, CardCommand.class, DeckCommand.class,
                     PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
     static class CliCommands implements Runnable {
         PrintWriter out;

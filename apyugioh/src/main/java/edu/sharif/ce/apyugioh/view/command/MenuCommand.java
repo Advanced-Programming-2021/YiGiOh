@@ -5,20 +5,27 @@ import edu.sharif.ce.apyugioh.model.MenuState;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "menu", mixinStandardHelpOptions = true, description = "menu commands",
-        commandListHeading = "Commands:%n")
+@Command(name = "menu", mixinStandardHelpOptions = true, description = "menu commands")
 public class MenuCommand {
 
     @Command(name = "exit", description = "exits out of current menu")
     public void exit() {
+        ProgramController.setState(MenuState.MAIN);
         switch (ProgramController.getState()) {
             case LOGIN:
                 System.exit(0);
             case MAIN:
                 MainMenuController.getInstance().logout();
                 break;
-            default:
-                ProgramController.setState(MenuState.MAIN);
+            case PROFILE:
+                ProfileController.getInstance().setUser(null);
+                break;
+            case SHOP:
+                ShopController.getInstance().setUser(null);
+                break;
+            case DECK:
+                DeckController.getInstance().setUser(null);
+                break;
         }
     }
 
@@ -32,6 +39,9 @@ public class MenuCommand {
                         break;
                     case SHOP:
                         ShopController.getInstance().setUser(MainMenuController.getInstance().getUser());
+                        break;
+                    case DECK:
+                        DeckController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         break;
                 }
                 ProgramController.setState(menuState);

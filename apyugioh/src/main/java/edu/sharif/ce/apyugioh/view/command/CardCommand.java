@@ -1,7 +1,7 @@
 package edu.sharif.ce.apyugioh.view.command;
 
 import edu.sharif.ce.apyugioh.controller.CardFactoryController;
-import edu.sharif.ce.apyugioh.controller.DatabaseController;
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.model.MenuState;
@@ -63,7 +63,7 @@ public class CardCommand {
     }
 
     private boolean isParamsValid(String[] names) {
-        String[] cardNames = DatabaseController.getCards().getAllCompleterCardNames();
+        String[] cardNames = DatabaseManager.getCards().getAllCompleterCardNames();
         for (String name : names) {
             if (Arrays.stream(cardNames).noneMatch(name::equalsIgnoreCase)) {
                 ErrorView.showError(ErrorView.COMMAND_INVALID);

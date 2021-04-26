@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.card.ShopCards;
 import edu.sharif.ce.apyugioh.view.CardFactoryView;
 import lombok.Getter;
@@ -22,14 +23,14 @@ public class CardFactoryController {
     }
 
     public void export(String[] names) {
-        ShopCards currentCards = DatabaseController.getCards();
+        ShopCards currentCards = DatabaseManager.getCards();
         ShopCards exportCards = new ShopCards();
         for (String name : names) {
             name = name.replaceAll("_", " ");
             exportCards.addCard(currentCards.getCardByName(name), currentCards.getCardPrice(name));
         }
         try {
-            Path exportPath = DatabaseController.exportShopCards(exportCards);
+            Path exportPath = DatabaseManager.exportShopCards(exportCards);
             logger.info("exported {}", Path.of("assets", "backup").relativize(exportPath).toString());
             ProgramController.updateCompleter();
             view.showSuccess(CardFactoryView.SUCCESS_CARDS_EXPORTED_SUCCESSFULLY);
@@ -41,7 +42,7 @@ public class CardFactoryController {
 
     public void importCards(Path backupPath) {
         try {
-            if (DatabaseController.importShopCards(backupPath)) {
+            if (DatabaseManager.importShopCards(backupPath)) {
                 ProgramController.updateCompleter();
                 logger.info("imported {}", Path.of("assets", "backup").relativize(backupPath).toString());
                 view.showSuccess(CardFactoryView.SUCCESS_CARDS_IMPORTED_SUCCESSFULLY);

@@ -1,10 +1,10 @@
-package edu.sharif.ce.apyugioh.controller;
+package edu.sharif.ce.apyugioh.model;
 
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
-import edu.sharif.ce.apyugioh.model.Inventory;
-import edu.sharif.ce.apyugioh.model.User;
+import edu.sharif.ce.apyugioh.controller.CSVParser;
+import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.card.*;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DatabaseController {
+public class DatabaseManager {
 
     private static Path db;
     private static HashMap<String, Path> dbs;
@@ -31,10 +31,12 @@ public class DatabaseController {
     private static List<Inventory> inventoryList;
     @Getter
     private static ShopCards cards;
+    @Getter
+    private static List<Deck> deckList;
     private static Logger logger;
 
     static {
-        logger = LogManager.getLogger(DatabaseController.class);
+        logger = LogManager.getLogger(DatabaseManager.class);
     }
 
     public static void init() {
@@ -43,6 +45,7 @@ public class DatabaseController {
         ArrayList<String> models = new ArrayList<>();
         models.add("user");
         models.add("inventory");
+        models.add("deck");
         try {
             db = Path.of("db");
             for (String model : models) {
@@ -52,6 +55,7 @@ public class DatabaseController {
             }
             updateUsersFromDB();
             updateInventoriesFromDB();
+            updateDecksFromDB();
             cards = CSVToShopCards();
         } catch (Exception e) {
             logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
@@ -94,26 +98,41 @@ public class DatabaseController {
     }
 
     private static void updateUsersFromDB() {
-        String users;
-        try {
-            users = readFromFile(dbs.get("user"));
-            Type type = Types.newParameterizedType(List.class, User.class);
-            JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
-            userList = usersAdapter.fromJson(users);
-        } catch (Exception e) {
-            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
-            Utils.printError("corrupted database");
-            System.exit(1);
-        }
+        updateFromDB("user");
     }
 
     private static void updateInventoriesFromDB() {
-        String inventories;
+        updateFromDB("inventory");
+    }
+
+    private static void updateDecksFromDB() {
+        updateFromDB("deck");
+    }
+
+    private static void updateFromDB(String dbName) {
         try {
-            inventories = readFromFile(dbs.get("inventory"));
-            Type type = Types.newParameterizedType(List.class, Inventory.class);
-            JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
-            inventoryList = inventoryAdapter.fromJson(inventories);
+            if (!dbs.containsKey(dbName)) throw new IllegalStateException("Unexpected value: " + dbName);
+            String input = readFromFile(dbs.get(dbName));
+            Type type;
+            switch (dbName) {
+                case "user":
+                    type = Types.newParameterizedType(List.class, User.class);
+                    JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
+                    userList = usersAdapter.fromJson(input);
+                    break;
+                case "inventory":
+                    type = Types.newParameterizedType(List.class, Inventory.class);
+                    JsonAdapter<List<Inventory>> inventoriesAdapter = moshi.adapter(type);
+                    inventoryList = inventoriesAdapter.fromJson(input);
+                    break;
+                case "deck":
+                    type = Types.newParameterizedType(List.class, Deck.class);
+                    JsonAdapter<List<Deck>> decksAdapter = moshi.adapter(type);
+                    deckList = decksAdapter.fromJson(input);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + dbName);
+            }
         } catch (Exception e) {
             logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("corrupted database");
@@ -122,22 +141,41 @@ public class DatabaseController {
     }
 
     public static void updateUsersToDB() {
-        try {
-            Type type = Types.newParameterizedType(List.class, User.class);
-            JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
-            writeToFile(dbs.get("user"), usersAdapter.toJson(userList));
-        } catch (Exception e) {
-            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
-            Utils.printError("corrupted database");
-            System.exit(1);
-        }
+        updateToDB("user");
     }
 
     public static void updateInventoriesToDB() {
+        updateToDB("inventory");
+    }
+
+    public static void updateDecksToDB() {
+        updateToDB("deck");
+    }
+
+    private static void updateToDB(String dbName) {
         try {
-            Type type = Types.newParameterizedType(List.class, Inventory.class);
-            JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
-            writeToFile(dbs.get("inventory"), inventoryAdapter.toJson(inventoryList));
+            String output;
+            Type type;
+            switch (dbName) {
+                case "user":
+                    type = Types.newParameterizedType(List.class, User.class);
+                    JsonAdapter<List<User>> usersAdapter = moshi.adapter(type);
+                    output = usersAdapter.toJson(userList);
+                    break;
+                case "inventory":
+                    type = Types.newParameterizedType(List.class, Inventory.class);
+                    JsonAdapter<List<Inventory>> inventoryAdapter = moshi.adapter(type);
+                    output = inventoryAdapter.toJson(inventoryList);
+                    break;
+                case "deck":
+                    type = Types.newParameterizedType(List.class, Deck.class);
+                    JsonAdapter<List<Deck>> deckAdapter = moshi.adapter(type);
+                    output = deckAdapter.toJson(deckList);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + dbName);
+            }
+            writeToFile(dbs.get(dbName), output);
         } catch (Exception e) {
             logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("corrupted database");

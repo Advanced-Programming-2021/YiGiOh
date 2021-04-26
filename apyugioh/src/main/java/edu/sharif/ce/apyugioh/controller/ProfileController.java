@@ -20,7 +20,6 @@ public class ProfileController {
         logger = LogManager.getLogger(ProfileController.class);
     }
 
-    @Getter
     @Setter
     private User user;
 

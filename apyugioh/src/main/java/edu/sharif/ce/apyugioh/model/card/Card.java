@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.model.card;
 
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

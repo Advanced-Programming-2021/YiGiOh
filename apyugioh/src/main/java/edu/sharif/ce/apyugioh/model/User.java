@@ -1,6 +1,5 @@
 package edu.sharif.ce.apyugioh.model;
 
-import edu.sharif.ce.apyugioh.controller.DatabaseController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,17 +28,17 @@ public class User implements Comparable<User> {
         this.password = Utils.hash(password);
         this.nickname = nickname;
         mainDeckID = -1;
-        DatabaseController.addUser(this);
+        DatabaseManager.addUser(this);
         new Inventory(username);
     }
 
     public static User getUserByUsername(String username) {
-        return DatabaseController.getUserList().stream().filter(e -> e.username.equals(username)).findFirst()
+        return DatabaseManager.getUserList().stream().filter(e -> e.username.equals(username)).findFirst()
                 .orElse(null);
     }
 
     public static User getUserByNickname(String nickname) {
-        return DatabaseController.getUserList().stream().filter(e -> e.nickname.equals(nickname)).findFirst()
+        return DatabaseManager.getUserList().stream().filter(e -> e.nickname.equals(nickname)).findFirst()
                 .orElse(null);
     }
 
@@ -49,12 +48,12 @@ public class User implements Comparable<User> {
 
     public void setPassword(String password) {
         this.password = Utils.hash(password);
-        DatabaseController.updateUsersToDB();
+        DatabaseManager.updateUsersToDB();
     }
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
-        DatabaseController.updateUsersToDB();
+        DatabaseManager.updateUsersToDB();
     }
 
     @Override
