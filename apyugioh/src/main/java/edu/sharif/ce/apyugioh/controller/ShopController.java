@@ -10,8 +10,6 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
-
 public class ShopController {
 
     @Getter
@@ -23,6 +21,9 @@ public class ShopController {
         instance = new ShopController();
         view = new ShopView();
         logger = LogManager.getLogger(ShopController.class);
+    }
+
+    private ShopController() {
     }
 
     @Setter
@@ -43,14 +44,12 @@ public class ShopController {
                         String.valueOf(userInventory.getMoney() - DatabaseManager.getCards().getCardPrice(cardName)));
             }
         } else {
-            view.showError(ShopView.ERROR_CARD_NAME_INVALID);
+            view.showError(ShopView.ERROR_CARD_NAME_INVALID, cardName);
         }
     }
 
     public void showAllCards() {
-        String[] cardNames = DatabaseManager.getCards().getAllCardNames();
-        int[] cardPrices = Arrays.stream(cardNames).mapToInt(e -> DatabaseManager.getCards().getCardPrice(e)).toArray();
-        view.showAllCards(cardNames, cardPrices);
+        view.showAllCards(DatabaseManager.getCards());
     }
 
     public void showCard(String cardName) {

@@ -9,6 +9,9 @@ import edu.sharif.ce.apyugioh.view.DeckView;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class DeckController {
 
     @Getter
@@ -18,6 +21,9 @@ public class DeckController {
     static {
         instance = new DeckController();
         view = new DeckView();
+    }
+
+    private DeckController() {
     }
 
     @Setter
@@ -143,5 +149,29 @@ public class DeckController {
             return true;
         }
         return false;
+    }
+
+    public void showAllDecks() {
+        if (user.getMainDeckID() != -1) {
+            Deck activeDeck = Deck.getDeckByID(user.getMainDeckID());
+            List<Deck> deactivatedDecks = Deck.getUserDecks(user.getUsername()).stream()
+                    .filter(e -> e.getId() != user.getMainDeckID()).collect(Collectors.toList());
+            view.showAll(activeDeck, deactivatedDecks);
+        } else {
+            view.showAll(null, Deck.getUserDecks(user.getUsername()));
+        }
+    }
+
+    public void showDeck(String deckName, boolean isSideDeck) {
+        Deck deck = Deck.getDeckByName(user.getUsername(), deckName);
+        if (deck == null) {
+            view.showError(DeckView.ERROR_DECK_NAME_NOT_FOUND, deckName);
+        } else {
+            view.showDeck(deck, isSideDeck);
+        }
+    }
+
+    public void showAllInventoryCards() {
+        view.showInventory(Inventory.getInventoryByUsername(user.getUsername()));
     }
 }

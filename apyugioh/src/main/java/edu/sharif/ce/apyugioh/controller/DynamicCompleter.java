@@ -36,8 +36,8 @@ public class DynamicCompleter implements Completer {
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
         Objects.requireNonNull(line);
         Objects.requireNonNull(candidates);
-        this.completers.forEach((c) -> {
+        for (Completer c : this.completers) {
             c.complete(reader, line, candidates);
-        });
+        }
     }
 }

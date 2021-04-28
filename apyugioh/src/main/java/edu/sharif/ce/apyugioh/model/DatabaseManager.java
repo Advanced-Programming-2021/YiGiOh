@@ -22,7 +22,6 @@ import java.util.List;
 
 public class DatabaseManager {
 
-    private static Path db;
     private static HashMap<String, Path> dbs;
     private static Moshi moshi;
     @Getter
@@ -47,7 +46,7 @@ public class DatabaseManager {
         models.add("inventory");
         models.add("deck");
         try {
-            db = Path.of("db");
+            Path db = Path.of("db");
             for (String model : models) {
                 if (model.equals("inventory"))
                     dbs.put(model, Path.of("db", model.substring(0, model.length() - 1) + "ies.json"));

@@ -20,6 +20,9 @@ public class ScoreboardController {
         view = new ScoreboardView();
     }
 
+    private ScoreboardController() {
+    }
+
     @Setter
     private User user;
 

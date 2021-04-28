@@ -10,7 +10,6 @@ public class MenuCommand {
 
     @Command(name = "exit", description = "exits out of current menu")
     public void exit() {
-        ProgramController.setState(MenuState.MAIN);
         switch (ProgramController.getState()) {
             case LOGIN:
                 System.exit(0);
@@ -27,6 +26,7 @@ public class MenuCommand {
                 DeckController.getInstance().setUser(null);
                 break;
         }
+        if (!ProgramController.getState().equals(MenuState.LOGIN)) ProgramController.setState(MenuState.MAIN);
     }
 
     @Command(name = "enter", description = "enters another menu")

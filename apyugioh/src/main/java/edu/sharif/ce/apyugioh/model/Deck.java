@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.model;
 
+import edu.sharif.ce.apyugioh.model.card.CardType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Getter
@@ -62,18 +64,24 @@ public class Deck {
         return sideDeck.getOrDefault(cardName, 0);
     }
 
+    public int getMainDeckCardsCount() {
+        return mainDeck.values().stream().mapToInt(e -> e).sum();
+    }
+
+    public int getSideDeckCardsCount() {
+        return sideDeck.values().stream().mapToInt(e -> e).sum();
+    }
+
     public boolean isMainDeckFull() {
-        return mainDeck.values().stream().mapToInt(e -> e).sum() >= 60;
+        return getMainDeckCardsCount() >= 60;
     }
 
     public boolean isDeckValid() {
-        int mainDeckSize = mainDeck.values().stream().mapToInt(e -> e).sum();
-        int sideDeckSize = sideDeck.values().stream().mapToInt(e -> e).sum();
-        return mainDeckSize >= 40 && mainDeckSize <= 60 && sideDeckSize >= 0 && sideDeckSize <= 15;
+        return getMainDeckCardsCount() >= 40 && getMainDeckCardsCount() <= 60 && getSideDeckCardsCount() >= 0 && getSideDeckCardsCount() <= 15;
     }
 
     public boolean isSideDeckFull() {
-        return sideDeck.values().stream().mapToInt(e -> e).sum() >= 15;
+        return getSideDeckCardsCount() >= 15;
     }
 
     public void addCardToDeck(String name, boolean isSideDeck) {
@@ -94,5 +102,28 @@ public class Deck {
             if (mainDeck.get(name) == 0) mainDeck.remove(name);
         }
         DatabaseManager.updateDecksToDB();
+    }
+
+    public Map<String, Integer> getMonsters(boolean isSideDeck) {
+        return new TreeMap<>(getCardsByType(CardType.MONSTER, isSideDeck));
+    }
+
+    public Map<String, Integer> getSpells(boolean isSideDeck) {
+        return new TreeMap<>(getCardsByType(CardType.SPELL, isSideDeck));
+    }
+
+    public Map<String, Integer> getTraps(boolean isSideDeck) {
+        return new TreeMap<>(getCardsByType(CardType.TRAP, isSideDeck));
+    }
+
+    private Map<String, Integer> getCardsByType(CardType type, boolean isSideDeck) {
+        Map<String, Integer> cards = new HashMap<>();
+        Map<String, Integer> deck = isSideDeck ? sideDeck : mainDeck;
+        for (Map.Entry<String, Integer> cardEntry : deck.entrySet()) {
+            if (DatabaseManager.getCards().getCardByName(cardEntry.getKey()).getCardType().equals(type)) {
+                cards.put(cardEntry.getKey(), cardEntry.getValue());
+            }
+        }
+        return cards;
     }
 }

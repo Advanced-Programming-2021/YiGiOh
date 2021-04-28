@@ -20,6 +20,9 @@ public class UserController {
         logger = LogManager.getLogger(UserController.class);
     }
 
+    private UserController() {
+    }
+
     public void registerUser(String username, String password, String nickname) {
         if (User.getUserByUsername(username) != null) {
             view.showError(UserView.ERROR_USER_USERNAME_ALREADY_TAKEN, username);

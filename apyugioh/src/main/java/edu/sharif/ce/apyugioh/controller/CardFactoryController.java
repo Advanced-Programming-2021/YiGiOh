@@ -22,6 +22,9 @@ public class CardFactoryController {
         logger = LogManager.getLogger(CardFactoryController.class);
     }
 
+    private CardFactoryController() {
+    }
+
     public void export(String[] names) {
         ShopCards currentCards = DatabaseManager.getCards();
         ShopCards exportCards = new ShopCards();

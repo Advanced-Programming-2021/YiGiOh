@@ -21,6 +21,9 @@ public class MainMenuController {
         logger = LogManager.getLogger(MainMenuController.class);
     }
 
+    private MainMenuController() {
+    }
+
     @Getter
     @Setter
     private User user;

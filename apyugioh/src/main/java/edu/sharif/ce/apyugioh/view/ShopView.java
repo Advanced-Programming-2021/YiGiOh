@@ -10,6 +10,8 @@ import edu.sharif.ce.apyugioh.model.card.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ShopView extends View {
 
@@ -21,22 +23,54 @@ public class ShopView extends View {
     {
         successMessages.put(SUCCESS_BUY_CARD, "bought %s successfully.\nbalance: %s");
 
-        errorMessages.put(ERROR_CARD_NAME_INVALID, "there is no card with this name");
+        errorMessages.put(ERROR_CARD_NAME_INVALID, "card with name %s doesn't exist");
         errorMessages.put(ERROR_MONEY_NOT_ENOUGH, "not enough money to buy %s.\nyou currently have %s and you need %s more to buy this card");
     }
 
-    public void showAllCards(String[] cardNames, int[] cardPrices) {
-        AsciiTable cards = new AsciiTable();
-        cards.addRule();
-        cards.addRow("name", "price");
-        cards.addRule();
-        for (int i = 0; i < cardNames.length; i++) {
-            cards.addRow(cardNames[i], cardPrices[i]);
-            cards.addRule();
+    public void showAllCards(ShopCards cards) {
+        AsciiTable cardsTable = new AsciiTable();
+        CWC_LongestLine cwc = new CWC_LongestLine();
+        cardsTable.addRule();
+        boolean isEmpty = (cards.getMonsterPrices().values().stream().mapToInt(e -> e).sum() +
+                cards.getSpellPrices().values().stream().mapToInt(e -> e).sum() +
+                cards.getTrapPrices().values().stream().mapToInt(e -> e).sum()) == 0;
+        if (!isEmpty) cardsTable.addRow(null, null, "Shop");
+        else cardsTable.addRow(null, "Shop");
+        addCardsToTable(isEmpty, new TreeMap<>(cards.getMonsterPrices()), new TreeMap<>(cards.getSpellPrices()), new TreeMap<>(cards.getTrapPrices()), cardsTable);
+        cwc.add(10, 30).add(40, ProgramController.getReader().getTerminal().getWidth() / 2);
+        if (!isEmpty) cwc.add(20, 30);
+        cardsTable.getRenderer().setCWC(cwc);
+        System.out.println(cardsTable.render(Math.max(80, ProgramController.getReader().getTerminal().getWidth())));
+    }
+
+    private void addCardsToTable(boolean isEmpty, Map<String, Integer> monsters, Map<String, Integer> spells, Map<String, Integer> traps, AsciiTable table) {
+        table.addRule();
+        if (isEmpty) table.addRow(null, "Monsters:");
+        else table.addRow(null, null, "Monsters:");
+        table.addStrongRule();
+        addCardsToTable(table, monsters);
+        if (isEmpty) table.addRow(null, "Spells:");
+        else table.addRow(null, null, "Spells:");
+        table.addStrongRule();
+        addCardsToTable(table, spells);
+        if (isEmpty) table.addRow(null, "Traps:");
+        else table.addRow(null, null, "Traps:");
+        table.addStrongRule();
+        addCardsToTable(table, traps);
+        table.setTextAlignment(TextAlignment.CENTER);
+        table.getContext().setGrid(U8_Grids.borderStrongDoubleLight());
+    }
+
+    private void addCardsToTable(AsciiTable table, Map<String, Integer> cards) {
+        int counter = 0;
+        for (Map.Entry<String, Integer> card : cards.entrySet()) {
+            if (counter == 0) {
+                table.addRow("", "name", "price");
+                table.addStrongRule();
+            }
+            table.addRow(++counter, card.getKey(), card.getValue());
+            table.addRule();
         }
-        cards.setTextAlignment(TextAlignment.CENTER);
-        cards.getContext().setGrid(U8_Grids.borderDouble());
-        System.out.println(cards.render(Math.max(80, ProgramController.getReader().getTerminal().getWidth())));
     }
 
     public void showCard(Card card) {

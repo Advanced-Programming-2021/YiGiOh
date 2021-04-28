@@ -1,12 +1,14 @@
 package edu.sharif.ce.apyugioh.model;
 
 import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Getter
 @Setter
@@ -46,5 +48,31 @@ public class Inventory {
                 DatabaseManager.updateInventoriesToDB();
             }
         }
+    }
+
+    public int getCardsCount() {
+        return cardStock.values().stream().mapToInt(e -> e).sum();
+    }
+
+    public Map<String, Integer> getMonsters() {
+        return new TreeMap<>(getCardsByType(CardType.MONSTER));
+    }
+
+    public Map<String, Integer> getSpells() {
+        return new TreeMap<>(getCardsByType(CardType.SPELL));
+    }
+
+    public Map<String, Integer> getTraps() {
+        return new TreeMap<>(getCardsByType(CardType.TRAP));
+    }
+
+    private Map<String, Integer> getCardsByType(CardType type) {
+        Map<String, Integer> cards = new HashMap<>();
+        for (Map.Entry<String, Integer> cardEntry : cardStock.entrySet()) {
+            if (DatabaseManager.getCards().getCardByName(cardEntry.getKey()).getCardType().equals(type)) {
+                cards.put(cardEntry.getKey(), cardEntry.getValue());
+            }
+        }
+        return cards;
     }
 }

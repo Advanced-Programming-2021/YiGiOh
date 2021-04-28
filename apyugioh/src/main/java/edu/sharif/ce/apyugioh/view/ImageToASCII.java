@@ -75,6 +75,7 @@ public class ImageToASCII {
         int downLeftEmpty = counter[1][0] == 0 ? 2 : 0;
         int downRightEmpty = counter[1][1] == 0 ? 1 : 0;
         int total = upLeftEmpty + upRightEmpty + downLeftEmpty + downRightEmpty;
+        if (count == 1) return arts[0];
         return arts[total];
     }
 

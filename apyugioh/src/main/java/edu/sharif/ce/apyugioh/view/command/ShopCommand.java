@@ -14,7 +14,7 @@ public class ShopCommand {
     @Command(name = "buy", description = "buy game cards")
     public void buy(@Parameters(index = "0", description = "card name") String name) {
         if (!isAvailable()) return;
-        ShopController.getInstance().buyCard(name.replaceAll("_", " "));
+        ShopController.getInstance().buyCard(name.replaceAll("_", " ").trim());
     }
 
     @Command(name = "show", description = "show all cards")

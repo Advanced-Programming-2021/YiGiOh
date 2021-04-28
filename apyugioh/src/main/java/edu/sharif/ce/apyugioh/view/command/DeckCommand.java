@@ -4,9 +4,9 @@ import edu.sharif.ce.apyugioh.controller.DeckController;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.view.ErrorView;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import picocli.CommandLine.Command;
 
 @Command(name = "deck", mixinStandardHelpOptions = true, description = "deck commands")
 public class DeckCommand {
@@ -14,6 +14,7 @@ public class DeckCommand {
     @Command(name = "create", description = "create a new deck")
     public void create(@Parameters(index = "0", paramLabel = "deck name", description = "deck name") String name) {
         if (!isAvailable()) return;
+        if (!isOptionsValid(name)) return;
         DeckController.getInstance().create(name);
     }
 
@@ -34,7 +35,7 @@ public class DeckCommand {
                         @Option(names = {"-d", "--deck"}, description = "deck name", paramLabel = "deck name") String deckName,
                         @Option(names = {"-s", "--side"}, description = "is side deck", paramLabel = "side deck") boolean isSideDeck) {
         if (!isAvailable()) return;
-        DeckController.getInstance().addCard(deckName, cardName.replaceAll("_", " "), isSideDeck);
+        DeckController.getInstance().addCard(deckName, cardName.replaceAll("_", " ").trim(), isSideDeck);
     }
 
     @Command(name = "remove-card", description = "removes a card from your deck")
@@ -42,7 +43,7 @@ public class DeckCommand {
                            @Option(names = {"-d", "--deck"}, description = "deck name", paramLabel = "deck name") String deckName,
                            @Option(names = {"-s", "--side"}, description = "is side deck", paramLabel = "side deck") boolean isSideDeck) {
         if (!isAvailable()) return;
-        DeckController.getInstance().removeCard(deckName, cardName.replaceAll("_", " "), isSideDeck);
+        DeckController.getInstance().removeCard(deckName, cardName.replaceAll("_", " ").trim(), isSideDeck);
     }
 
     @Command(name = "show", description = "show cards command")
@@ -50,7 +51,16 @@ public class DeckCommand {
                      @Option(names = {"-s", "--side"}, description = "is side deck", paramLabel = "side deck") boolean isSideDeck,
                      @Option(names = {"-a", "--all"}, description = "is all decks", paramLabel = "all decks") boolean isAll,
                      @Option(names = {"-c", "--cards"}, description = "is all cards", paramLabel = "cards") boolean isCards) {
-
+        if (!isAvailable()) return;
+        if (isAll && !isSideDeck && !isCards && deckName == null) {
+            DeckController.getInstance().showAllDecks();
+        } else if (deckName != null && !isAll && !isCards) {
+            DeckController.getInstance().showDeck(deckName, isSideDeck);
+        } else if (isCards && !isAll && !isSideDeck && deckName == null) {
+            DeckController.getInstance().showAllInventoryCards();
+        } else {
+            ErrorView.showError(ErrorView.COMMAND_INVALID);
+        }
     }
 
     private boolean isAvailable() {
@@ -60,6 +70,13 @@ public class DeckCommand {
             ErrorView.showError(ErrorView.COMMAND_INVALID);
             return false;
         }
+    }
+
+    private boolean isOptionsValid(String... options) {
+        for (String option : options) {
+            if (!option.matches("\\w+")) return false;
+        }
+        return true;
     }
 
 }

@@ -50,6 +50,9 @@ public class ProgramController {
         state = MenuState.LOGIN;
     }
 
+    private ProgramController() {
+    }
+
     private static Logger logger = LogManager.getLogger(ProgramController.class);
 
     public static String getPromptTitle() {
