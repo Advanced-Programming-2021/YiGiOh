@@ -116,11 +116,11 @@ public class ShopView extends View {
     }
 
     private void showCardImage(Card card) {
-        String imageName = Utils.firstUpperOnly(card.getName()).replaceAll("[\',]", "")
+        String imageName = Utils.firstUpperOnly(card.getName()).replaceAll("[',]", "")
                 .replaceAll(" ", "");
         Path imagePath = Path.of("assets", "cards", imageName + ".png");
         if (Files.exists(imagePath)) {
-            System.out.println(new ImageToASCII("cards/" + imageName, Utils.getTerminalScale(3), false).getASCII());
+            new ImageToASCII("cards/" + imageName, Utils.getTerminalScale(3), false).print();
         }
     }
 

@@ -1,12 +1,13 @@
 package edu.sharif.ce.apyugioh.model;
 
-import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -37,31 +38,31 @@ public class Field {
     }
 
     public boolean isInHand(GameCard card) {
-        return true;
+        return hand.stream().anyMatch(e -> e.getId() == card.getId());
     }
 
     public boolean isFromMonsterZone(GameCard card) {
-        return true;
+        return Arrays.stream(monsterZone).anyMatch(e -> e.getId() == card.getId());
     }
 
     public boolean isFromSpellZone(GameCard card) {
-        return true;
+        return Arrays.stream(spellZone).anyMatch(e -> e.getId() == card.getId());
     }
 
     public boolean isFromFieldZone(GameCard card) {
-        return true;
+        return fieldZone.getId() == card.getId();
     }
 
     public boolean isFromGraveyard(GameCard card) {
-        return true;
+        return graveyard.stream().anyMatch(e -> e.getId() == card.getId());
     }
 
     public boolean isMonsterZoneFull() {
-        return monsterZone.length >= 5;
+        return Arrays.stream(monsterZone).noneMatch(Objects::nonNull);
     }
 
     public boolean isSpellZoneFull() {
-        return spellZone.length >= 5;
+        return Arrays.stream(spellZone).noneMatch(Objects::nonNull);
     }
 
     public ArrayList<GameCard> getActiveTraps() {

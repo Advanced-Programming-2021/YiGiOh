@@ -61,7 +61,7 @@ public class ProgramController {
 
     public void initialize() {
         logger.info("initialization started");
-        System.out.println(new ImageToASCII("characters/YamiYugi", 4).getASCII());
+        new ImageToASCII("characters/YamiYugi", 4).print();
         DatabaseManager.init();
         parseCommands();
     }

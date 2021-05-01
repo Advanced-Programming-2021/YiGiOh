@@ -4,8 +4,10 @@ import picocli.CommandLine.Help.Ansi;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -123,4 +125,13 @@ public class ImageToASCII {
         return rgb & 0xFF;
     }
 
+    public void print() {
+        OutputStream out = new BufferedOutputStream(System.out);
+        try {
+            out.write((getASCII()).getBytes());
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
