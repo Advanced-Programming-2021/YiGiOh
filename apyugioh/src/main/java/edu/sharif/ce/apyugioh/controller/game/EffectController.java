@@ -10,6 +10,10 @@ public class EffectController {
     private int remainsTurn;
     private int gameControllerID;
 
+    public EffectController(int gameControllerID){
+        this.gameControllerID = gameControllerID;
+    }
+
     public void applyEffect() {
 
     }

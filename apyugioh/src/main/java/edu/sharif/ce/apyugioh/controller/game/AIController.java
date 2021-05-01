@@ -3,6 +3,10 @@ package edu.sharif.ce.apyugioh.controller.game;
 public class AIController {
     private int gameControllerID;
 
+    public AIController(int gameControllerID){
+        this.gameControllerID = gameControllerID;
+    }
+
     public void play() {
 
     }

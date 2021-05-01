@@ -4,6 +4,7 @@ import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.RoundResult;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
+import edu.sharif.ce.apyugioh.view.command.GameView;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +25,7 @@ public class GameController {
     private int id;
     private int numberOfRounds;
     private boolean isFirstPlayerTurn;
+    private GameView view;
     private SelectionController selectionController;
     private GameTurnController gameTurnController;
     private CheatController cheatController;
@@ -68,7 +70,7 @@ public class GameController {
     }
 
     public void summon() {
-
+        gameTurnController.summon();
     }
 
     public void nextPhase() {
@@ -96,7 +98,7 @@ public class GameController {
     }
 
     public void flipSummon() {
-
+        gameTurnController.flipSummon();
     }
 
     public void surrender() {

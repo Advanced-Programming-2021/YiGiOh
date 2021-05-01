@@ -7,6 +7,10 @@ public class AttackController {
     private GameCard attackedMonster;
     private int gameControllerID;
 
+    public AttackController(int gameControllerID){
+        this.gameControllerID = gameControllerID;
+    }
+
     public boolean attack() {
         return true;
     }

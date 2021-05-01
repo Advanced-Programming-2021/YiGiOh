@@ -6,7 +6,13 @@ public class SummonController {
     private GameCard card;
     private int gameControllerID;
 
+    public SummonController(int gameControllerID){
+        this.gameControllerID = gameControllerID;
+        GameController.getGameControllerById(gameControllerID).setSelectionController(null);
+    }
+
     public boolean normalSummon() {
+
         return true;
     }
 

@@ -5,6 +5,10 @@ import edu.sharif.ce.apyugioh.model.User;
 public class CheatController {
     private int gameControllerID;
 
+    public CheatController(int gameControllerID){
+        this.gameControllerID = gameControllerID;
+    }
+
     public static void increaseMoney(User user, int amount) {
 
     }

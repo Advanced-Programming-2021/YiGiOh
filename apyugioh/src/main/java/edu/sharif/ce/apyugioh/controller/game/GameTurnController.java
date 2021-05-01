@@ -1,8 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.model.Phase;
-import edu.sharif.ce.apyugioh.model.card.CardType;
-import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +18,8 @@ public class GameTurnController {
     private List<GameCard> attackedMonsters;
     private List<GameCard> chain;
 
-    public GameTurnController() {
+    public GameTurnController(int gameControllerID) {
+        this.gameControllerID = gameControllerID;
         attackedMonsters = new ArrayList<>();
         chain = new ArrayList<>();
     }
@@ -63,7 +63,18 @@ public class GameTurnController {
     }
 
     public void summon(){
-
+        if (GameController.getGameControllerById(gameControllerID).getSelectionController() == null){
+            //no card is selected yet
+        } else if (true){
+            //you can’t summon this card
+        } else if (!phase.equals(Phase.MAIN1) && !phase.equals(Phase.MAIN2)){
+            //action not allowed in this phase
+        } else if (GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField().isMonsterZoneFull()){
+            //monster card zone is full
+        } else if (isMonsterSetOrSummon){
+            //you already summoned/set on this turn
+        } else{
+        }
     }
 
     public void flipSummon(){
