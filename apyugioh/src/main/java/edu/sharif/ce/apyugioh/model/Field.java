@@ -32,10 +32,6 @@ public class Field {
         return null;
     }
 
-    //card to dast ro montaghel mikone be zamin
-    public void setToMonsterZone(GameCard card) {
-    }
-
     public boolean isInHand(GameCard card) {
         return true;
     }
@@ -66,6 +62,10 @@ public class Field {
 
     public boolean isInField(GameCard card) {
         return true;
+    }
+
+    public int getFirstFreeMonsterZone(){
+        return -1;
     }
 
     public ArrayList<GameCard> getActiveTraps() {

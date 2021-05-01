@@ -65,7 +65,8 @@ public class GameTurnController {
     public void summon(){
         if (GameController.getGameControllerById(gameControllerID).getSelectionController() == null){
             //no card is selected yet
-        } else if (true){
+        } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField().isInField(GameController.getGameControllerById(gameControllerID).getSelectionController().getCard())
+                    || !GameController.getGameControllerById(gameControllerID).getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER)){
             //you can’t summon this card
         } else if (!phase.equals(Phase.MAIN1) && !phase.equals(Phase.MAIN2)){
             //action not allowed in this phase
@@ -74,6 +75,7 @@ public class GameTurnController {
         } else if (isMonsterSetOrSummon){
             //you already summoned/set on this turn
         } else{
+            new SummonController(gameControllerID).normalSummon();
         }
     }
 
