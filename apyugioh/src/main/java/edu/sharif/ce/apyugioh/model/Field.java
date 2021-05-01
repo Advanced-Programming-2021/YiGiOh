@@ -33,6 +33,10 @@ public class Field {
         return null;
     }
 
+    public void setToMonsterZone(GameCard card){
+
+    }
+
     public boolean isInHand(GameCard card) {
         return hand.stream().anyMatch(e -> e.getId() == card.getId());
     }
