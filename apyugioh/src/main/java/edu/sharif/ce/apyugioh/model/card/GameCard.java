@@ -19,4 +19,12 @@ public class GameCard {
         attackModifier = new ArrayList<>();
         defenceModifier = new ArrayList<>();
     }
+
+    public void addAttackModifier(int amount) {
+        attackModifier.add(amount);
+    }
+
+    public void addDefenceModifier(int amount) {
+        defenceModifier.add(amount);
+    }
 }
