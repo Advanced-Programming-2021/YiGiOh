@@ -64,6 +64,10 @@ public class Field {
         return spellZone.length >= 5;
     }
 
+    public boolean isInField(GameCard card) {
+        return true;
+    }
+
     public ArrayList<GameCard> getActiveTraps() {
         return null;
     }
