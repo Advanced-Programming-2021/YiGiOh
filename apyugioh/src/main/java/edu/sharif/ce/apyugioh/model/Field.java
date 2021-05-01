@@ -33,10 +33,6 @@ public class Field {
         return null;
     }
 
-    //card to dast ro montaghel mikone be zamin
-    public void setToMonsterZone(GameCard card) {
-    }
-
     public boolean isInHand(GameCard card) {
         return hand.stream().anyMatch(e -> e.getId() == card.getId());
     }
@@ -63,6 +59,14 @@ public class Field {
 
     public boolean isSpellZoneFull() {
         return Arrays.stream(spellZone).noneMatch(Objects::nonNull);
+    }
+
+    public boolean isInField(GameCard card) {
+        return true;
+    }
+
+    public int getFirstFreeMonsterZone(){
+        return -1;
     }
 
     public ArrayList<GameCard> getActiveTraps() {
