@@ -62,6 +62,14 @@ public class GameTurnController {
         }
     }
 
+    public void summon(){
+
+    }
+
+    public void flipSummon(){
+
+    }
+
     public void changePosition(boolean isChangeToAttack) {
         if (GameController.getGameControllerById(gameControllerID).isCardSelected()) {
             //no card is selected yet
