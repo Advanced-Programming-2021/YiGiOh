@@ -63,6 +63,8 @@ public class SummonController {
     }
 
     public boolean tribute(){
+
+
         return true;
     }
 
