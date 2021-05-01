@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.model;
 
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,6 +40,10 @@ public class Field {
 
     public boolean isInHand(GameCard card) {
         return hand.stream().anyMatch(e -> e.getId() == card.getId());
+    }
+
+    public void putCard(GameCard card , CardLocation destination){
+
     }
 
     public boolean isFromMonsterZone(GameCard card) {

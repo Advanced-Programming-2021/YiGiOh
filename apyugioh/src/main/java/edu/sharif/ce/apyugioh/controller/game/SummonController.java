@@ -1,5 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 public class SummonController {
@@ -34,9 +36,12 @@ public class SummonController {
                 return false;
             if (!tribute())
                 return false;
-        } else{
-
         }
+        CardLocation cardLocation = new CardLocation();
+        cardLocation.setPosition(GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField().getFirstFreeMonsterZone());
+        cardLocation.setFromMonsterZone(true);
+        card.setRevealed(true);
+        GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField().putCard(card,cardLocation);
         //show error summoned successfully
         return true;
     }
