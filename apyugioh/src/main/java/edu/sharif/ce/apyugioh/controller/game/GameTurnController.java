@@ -57,8 +57,7 @@ public class GameTurnController {
         } else if (!(phase.equals(Phase.MAIN1) || phase.equals(Phase.MAIN2))) {
             //you can't do this action in this phase
         } else {
-            new SetController(gameControllerID, GameController.getGameControllerById(gameControllerID)
-                    .getSelectionController().getCard());
+            new SetController(gameControllerID).set();
         }
     }
 
@@ -87,7 +86,7 @@ public class GameTurnController {
         if (GameController.getGameControllerById(gameControllerID).isCardSelected()) {
             //no card is selected yet
         } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField()
-                .isFromMonsterZone(GameController.getGameControllerById(gameControllerID).getSelectionController().getCard())) {
+                .isInMonsterZone(GameController.getGameControllerById(gameControllerID).getSelectionController().getCard())) {
             //you can't change this card position
         } else if (!(phase.equals(Phase.MAIN1) || phase.equals(Phase.MAIN2))) {
             //you can't do this action in this phase

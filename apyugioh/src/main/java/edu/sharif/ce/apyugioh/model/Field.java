@@ -1,14 +1,10 @@
 package edu.sharif.ce.apyugioh.model;
 
-import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Getter
 @Setter
@@ -31,35 +27,130 @@ public class Field {
     }
 
     public GameCard drawCard() {
+        if (deck.size() > 0) {
+            if (isHandFull()) {
+                removeFromHand(hand.get(new Random().nextInt(hand.size())));
+            }
+            putInHand(deck.get(deck.size() - 1));
+            removeFromDeck(deck.get(deck.size() - 1));
+            return hand.get(hand.size() - 1);
+        }
         return null;
     }
 
-    public void setToMonsterZone(GameCard card){
+    public void putInMonsterZone(GameCard card) {
+        if (!isMonsterZoneFull()) {
+            monsterZone[getFirstFreeMonsterZone()] = card;
+        }
+    }
 
+    public void putInSpellZone(GameCard card) {
+        if (!isSpellZoneFull()) {
+            spellZone[getFirstFreeSpellZone()] = card;
+        }
+    }
+
+    public void putInFieldZone(GameCard card) {
+        if (fieldZone != null) {
+            putInGraveyard(fieldZone);
+        }
+        fieldZone = card;
+    }
+
+    public void putInGraveyard(GameCard card) {
+        graveyard.add(card);
+    }
+
+    public void putInBanished(GameCard card) {
+        banished.add(card);
+    }
+
+    public void putInHand(GameCard card) {
+        hand.add(card);
+    }
+
+    public void putInDeck(GameCard card) {
+        deck.add(card);
+    }
+
+    public void removeFromMonsterZone(GameCard card) {
+        for (int i = 0; i < 5; i++) {
+            if (monsterZone[i].getId() == card.getId()) {
+                monsterZone[i] = null;
+                break;
+            }
+        }
+    }
+
+    public void removeFromSpellZone(GameCard card) {
+        for (int i = 0; i < 5; i++) {
+            if (spellZone[i].getId() == card.getId()) {
+                spellZone[i] = null;
+                break;
+            }
+        }
+    }
+
+    public void removeFromFieldZone(GameCard card) {
+        if (isInFieldZone(card)) {
+            fieldZone = null;
+        }
+    }
+
+    public void removeFromGraveyard(GameCard card) {
+        graveyard.removeIf(e -> e.getId() == card.getId());
+    }
+
+    public void removeFromBanished(GameCard card) {
+        banished.removeIf(e -> e.getId() == card.getId());
+    }
+
+    public void removeFromHand(GameCard card) {
+        hand.removeIf(e -> e.getId() == card.getId());
+    }
+
+    public void removeFromDeck(GameCard card) {
+        deck.removeIf(e -> e.getId() == card.getId());
+    }
+
+    public void shuffleDeck(GameCard card) {
+        Collections.shuffle(deck);
+    }
+
+    public boolean isInMonsterZone(GameCard card) {
+        return Arrays.stream(monsterZone).anyMatch(e -> e.getId() == card.getId());
+    }
+
+    public boolean isInSpellZone(GameCard card) {
+        return Arrays.stream(spellZone).anyMatch(e -> e.getId() == card.getId());
+    }
+
+    public boolean isInFieldZone(GameCard card) {
+        return fieldZone.getId() == card.getId();
+    }
+
+    public boolean isInGraveyard(GameCard card) {
+        return graveyard.stream().anyMatch(e -> e.getId() == card.getId());
+    }
+
+    public boolean isInBanished(GameCard card) {
+        return banished.stream().anyMatch(e -> e.getId() == card.getId());
     }
 
     public boolean isInHand(GameCard card) {
         return hand.stream().anyMatch(e -> e.getId() == card.getId());
     }
 
-    public void putCard(GameCard card , CardLocation destination){
-
+    public boolean isInDeck(GameCard card) {
+        return deck.stream().anyMatch(e -> e.getId() == card.getId());
     }
 
-    public boolean isFromMonsterZone(GameCard card) {
-        return Arrays.stream(monsterZone).anyMatch(e -> e.getId() == card.getId());
+    public int getAvailableMonstersInZone() {
+        return (int) Arrays.stream(monsterZone).filter(Objects::nonNull).count();
     }
 
-    public boolean isFromSpellZone(GameCard card) {
-        return Arrays.stream(spellZone).anyMatch(e -> e.getId() == card.getId());
-    }
-
-    public boolean isFromFieldZone(GameCard card) {
-        return fieldZone.getId() == card.getId();
-    }
-
-    public boolean isFromGraveyard(GameCard card) {
-        return graveyard.stream().anyMatch(e -> e.getId() == card.getId());
+    public boolean isHandFull() {
+        return hand.size() >= 6;
     }
 
     public boolean isMonsterZoneFull() {
@@ -71,10 +162,21 @@ public class Field {
     }
 
     public boolean isInField(GameCard card) {
-        return true;
+        return isInMonsterZone(card) || isInSpellZone(card) || isInFieldZone(card) || isInGraveyard(card) ||
+                isInBanished(card) || isInHand(card) || isInDeck(card);
     }
 
-    public int getFirstFreeMonsterZone(){
+    public int getFirstFreeMonsterZone() {
+        for (int i = 0; i < 5; i++) {
+            if (monsterZone[i] == null) return i;
+        }
+        return -1;
+    }
+
+    public int getFirstFreeSpellZone() {
+        for (int i = 0; i < 5; i++) {
+            if (spellZone[i] == null) return i;
+        }
         return -1;
     }
 

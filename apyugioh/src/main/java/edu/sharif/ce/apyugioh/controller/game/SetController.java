@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 
@@ -7,10 +8,10 @@ public class SetController {
     private GameCard card;
     private int gameControllerID;
 
-    public SetController(int gameControllerID, GameCard card) {
+    public SetController(int gameControllerID) {
         this.gameControllerID = gameControllerID;
-        this.card = card;
-        set();
+        card = getGameController().getSelectionController().getCard();
+        getGameController().setSelectionController(null);
     }
 
     public void set() {
@@ -22,23 +23,30 @@ public class SetController {
     }
 
     private void monsterSet() {
-        if (GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().isMonsterZoneFull()) {
+        if (getCurrentPlayerField().isMonsterZoneFull()) {
             //monster card zone is full
         } else if (GameController.getGameControllerById(gameControllerID).getGameTurnController()
                 .isMonsterSetOrSummon()) {
             //you already summoned/set on this turn
         }
-        GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().setToMonsterZone(card);
+        card.setFaceDown(true);
+        getCurrentPlayerField().removeFromHand(card);
+        getCurrentPlayerField().putInMonsterZone(card);
         //set successfully
     }
 
     private void spellTrapSet() {
-        if (GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().isSpellZoneFull()) {
+        if (getCurrentPlayerField().isSpellZoneFull()) {
             //spell card zone is full
         }
         //set successfully
+    }
+
+    private GameController getGameController() {
+        return GameController.getGameControllerById(gameControllerID);
+    }
+
+    private Field getCurrentPlayerField() {
+        return getGameController().getCurrentPlayer().getField();
     }
 }
