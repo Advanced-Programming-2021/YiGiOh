@@ -30,4 +30,8 @@ public class Player {
         field.setDeck(gameDeck);
         field.shuffleDeck();
     }
+
+    public void changeLifePoints(int amount) {
+        lifePoints += amount;
+    }
 }
