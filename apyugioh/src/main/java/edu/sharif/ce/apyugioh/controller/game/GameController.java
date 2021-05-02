@@ -1,6 +1,5 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
-import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.RoundResult;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
@@ -8,24 +7,25 @@ import edu.sharif.ce.apyugioh.view.command.GameView;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
 public class GameController {
     private static List<GameController> gameControllers;
+    private static GameView view;
 
     //initialize block
     static {
         gameControllers = new ArrayList<>();
+        view = new GameView();
     }
 
     private int id;
     private int numberOfRounds;
     private boolean isFirstPlayerTurn;
-    private GameView view;
     private SelectionController selectionController;
     private GameTurnController gameTurnController;
     private CheatController cheatController;
@@ -34,11 +34,17 @@ public class GameController {
     private List<RoundResult> roundResults;
     private List<EffectController> effectControllers;
 
-    public GameController(String firstPlayerName, String secondPlayerName) {
-        //initialize players ...
+    public GameController(Player firstPlayer, Player secondPlayer, int numberOfRounds) {
+        id = LocalDateTime.now().getNano();
+        this.firstPlayer = firstPlayer;
+        this.secondPlayer = secondPlayer;
+        this.numberOfRounds = numberOfRounds;
+        isFirstPlayerTurn = true;
 
         roundResults = new ArrayList<>();
         effectControllers = new ArrayList<>();
+
+        gameControllers.add(this);
     }
 
     public static GameController getGameControllerById(int id) {
@@ -46,7 +52,8 @@ public class GameController {
     }
 
     public void play() {
-
+        System.out.println(firstPlayer.getUser().getNickname());
+        System.out.println(secondPlayer.getUser().getNickname());
     }
 
     public void select(CardLocation location) {

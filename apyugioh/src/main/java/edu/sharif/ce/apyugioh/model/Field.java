@@ -113,7 +113,7 @@ public class Field {
         deck.removeIf(e -> e.getId() == card.getId());
     }
 
-    public void shuffleDeck(GameCard card) {
+    public void shuffleDeck() {
         Collections.shuffle(deck);
     }
 

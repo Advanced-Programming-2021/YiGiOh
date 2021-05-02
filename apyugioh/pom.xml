@@ -120,5 +120,10 @@
             <version>1.18.20</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>de.codeshelf.consoleui</groupId>
+            <artifactId>consoleui</artifactId>
+            <version>0.0.13</version>
+        </dependency>
     </dependencies>
 </project>

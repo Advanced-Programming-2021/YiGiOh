@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.view.ImageToASCII;
@@ -44,10 +45,14 @@ public class ProgramController {
     private static LineReader reader;
     @Getter
     private static DynamicCompleter dynamicCompleter;
+    @Getter
+    @Setter
+    private static int gameControllerID;
 
     static {
         instance = new ProgramController();
         state = MenuState.LOGIN;
+        gameControllerID = -1;
     }
 
     private ProgramController() {
@@ -56,6 +61,13 @@ public class ProgramController {
     private static Logger logger = LogManager.getLogger(ProgramController.class);
 
     public static String getPromptTitle() {
+        if (gameControllerID != -1) {
+            boolean isFirstPlayerTurn = GameController.getGameControllerById(gameControllerID).isFirstPlayerTurn();
+            String playerNickname = isFirstPlayerTurn ? GameController.getGameControllerById(gameControllerID)
+                    .getFirstPlayer().getUser().getNickname() : GameController.getGameControllerById(gameControllerID)
+                    .getSecondPlayer().getUser().getNickname();
+            return Ansi.AUTO.string("@|yellow " + playerNickname + "'s Turn>|@");
+        }
         return Ansi.AUTO.string("@|yellow " + Utils.firstUpperOnly(ProgramController.getState().name()) + " Menu>|@");
     }
 
@@ -145,7 +157,7 @@ public class ProgramController {
 
     @Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},
             subcommands = {MenuCommand.class, UserCommand.class, ProfileCommand.class, ScoreboardCommand.class,
-                    ShopCommand.class, CardCommand.class, DeckCommand.class,
+                    ShopCommand.class, CardCommand.class, DeckCommand.class, DuelCommand.class,
                     PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
     static class CliCommands implements Runnable {
         PrintWriter out;
