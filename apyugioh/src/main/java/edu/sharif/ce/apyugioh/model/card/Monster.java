@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Monster extends Card {
-
+    @Getter
     private final int level;
     private final int attackPoints;
     private final int defensePoints;
