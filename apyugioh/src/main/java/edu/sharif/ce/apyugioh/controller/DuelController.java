@@ -62,8 +62,8 @@ public class DuelController {
         Player secondPlayer = initializePlayer(secondUser, secondDeck);
         Random random = new Random();
         boolean isFirstPlayerTurn = random.nextBoolean();
-        PlayerController firstPlayerController = new PlayerController(firstPlayer);
-        PlayerController secondPlayerController = new PlayerController(secondPlayer);
+        PlayerController firstPlayerController = null;
+        PlayerController secondPlayerController = null;
         GameController gameController = new GameController(isFirstPlayerTurn ? firstPlayerController : secondPlayerController,
                 isFirstPlayerTurn ? secondPlayerController : firstPlayerController, rounds);
         ProgramController.setGameControllerID(gameController.getId());

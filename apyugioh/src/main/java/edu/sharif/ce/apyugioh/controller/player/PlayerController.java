@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class PlayerController {
-    private Player player;
+    protected Player player;
 
     public PlayerController(Player player) {
         this.player = player;

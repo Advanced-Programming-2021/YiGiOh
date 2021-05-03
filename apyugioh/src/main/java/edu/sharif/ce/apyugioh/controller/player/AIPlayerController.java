@@ -1,10 +1,11 @@
-package edu.sharif.ce.apyugioh.controller.game;
+package edu.sharif.ce.apyugioh.controller.player;
 
-public class AIController {
-    private int gameControllerID;
+import edu.sharif.ce.apyugioh.model.Player;
 
-    public AIController(int gameControllerID){
-        this.gameControllerID = gameControllerID;
+public class AIPlayerController extends PlayerController{
+
+    public AIPlayerController(Player player) {
+        super(player);
     }
 
     public void play() {

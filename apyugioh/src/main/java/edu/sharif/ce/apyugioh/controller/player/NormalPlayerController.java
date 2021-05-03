@@ -1,4 +1,11 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
-public class NormalPlayerController {
+import edu.sharif.ce.apyugioh.model.Player;
+
+public class NormalPlayerController extends PlayerController{
+
+    public NormalPlayerController(Player player) {
+        super(player);
+    }
+
 }
