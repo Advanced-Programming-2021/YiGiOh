@@ -1,6 +1,8 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.model.Effects;
+import edu.sharif.ce.apyugioh.model.Field;
+import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.*;
 
 import java.util.ArrayList;
@@ -42,19 +44,14 @@ public class EffectController {
         //get card from view
         if (cardFromGraveyard == null) {
             //show error
-        } else if (!(GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().isInGraveyard(cardFromGraveyard) ||
-                GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                        .getField().isInGraveyard(cardFromGraveyard))) {
+        } else if (!(getCurrentPlayerField().isInGraveyard(cardFromGraveyard) ||
+                getRivalPlayerField().isInGraveyard(cardFromGraveyard))) {
             //this card is not from graveyard
         } else {
-            if (GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().isInGraveyard(cardFromGraveyard)) {
-                GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                        .getField().removeFromGraveyard(cardFromGraveyard);
+            if (getCurrentPlayerField().isInGraveyard(cardFromGraveyard)) {
+                getCurrentPlayerField().removeFromGraveyard(cardFromGraveyard);
             } else {
-                GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                        .getField().removeFromGraveyard(cardFromGraveyard);
+                getRivalPlayerField().removeFromGraveyard(cardFromGraveyard);
             }
             new SummonController(gameControllerID).specialSummon(cardFromGraveyard);
         }
@@ -65,55 +62,44 @@ public class EffectController {
         //get card from deck
         if (cardFromDeck == null) {
             //show error
-        } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().isInDeck(cardFromDeck)) {
+        } else if (!getCurrentPlayerField().isInDeck(cardFromDeck)) {
             //this card is not from your deck
         } else if (!cardFromDeck.getCard().getCardType().equals(CardType.SPELL)) {
             //this card is not spell
         } else if (!((Spell) cardFromDeck.getCard()).getProperty().equals(SpellProperty.FIELD)) {
             //this spell is not field spell
         } else {
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().removeFromDeck(cardFromDeck);
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().putInHand(cardFromDeck);
+            getCurrentPlayerField().removeFromDeck(cardFromDeck);
+            getCurrentPlayerField().putInHand(cardFromDeck);
         }
     }
 
     public void drawCard(int amount) {
-        if (amount + GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().getHand().size() == 8) {
+        if (amount + getCurrentPlayerField().getHand().size() == 8) {
             GameCard cardForRemove = null;
             //get card from hand
             if (cardForRemove == null) {
                 //show error
-            } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().isInHand(cardForRemove)) {
+            } else if (!getCurrentPlayerField().isInHand(cardForRemove)) {
                 //this card is not from hand
             } else {
-                GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                        .getField().removeFromHand(cardForRemove);
+                getCurrentPlayerField().removeFromHand(cardForRemove);
             }
-        } else if (amount + GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().getHand().size() == 9) {
+        } else if (amount + getCurrentPlayerField().getHand().size() == 9) {
             for (int i = 0; i < 2; i++) {
                 GameCard cardForRemove = null;
                 //get card from hand
                 if (cardForRemove == null) {
                     //show error
-                } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                        .getField().isInHand(cardForRemove)) {
+                } else if (!getCurrentPlayerField().isInHand(cardForRemove)) {
                     //this card is not from hand
                 } else {
-                    GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                            .getField().removeFromHand(cardForRemove);
+                    getCurrentPlayerField().removeFromHand(cardForRemove);
                 }
             }
         }
         for (int i = 0; i < amount; i++) {
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().putInHand(GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().drawCard());
+            getCurrentPlayerField().putInHand(getCurrentPlayerField().drawCard());
         }
     }
 
@@ -122,8 +108,7 @@ public class EffectController {
         //get one of rival monster
         if (rivalMonster == null) {
             //show error
-        } else if (!GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                .getField().isInMonsterZone(rivalMonster)) {
+        } else if (!getRivalPlayerField().isInMonsterZone(rivalMonster)) {
             //this card is not from rival monster zone
         } else {
             cardsAffected.add(rivalMonster);
@@ -131,8 +116,7 @@ public class EffectController {
     }
 
     public void flipAllRivalFaceDownMonsters() {
-        for (GameCard rivalMonster : GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                .getField().getMonsterZone()) {
+        for (GameCard rivalMonster : getRivalPlayerField().getMonsterZone()) {
             if (rivalMonster != null) {
                 new SummonController(gameControllerID).flipSummon();
             }
@@ -142,34 +126,27 @@ public class EffectController {
     public void destroyCurrentPlayerMonsters() {
         int monsterIndex = 0;
         for (; monsterIndex < 5; monsterIndex++) {
-            GameCard monsterForRemove = GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().getMonsterZone()[monsterIndex];
+            GameCard monsterForRemove = getCurrentPlayerField().getMonsterZone()[monsterIndex];
 
-            if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField()
-                    .isInMonsterZone(monsterForRemove)) continue;
+            if (!getCurrentPlayerField().isInMonsterZone(monsterForRemove)) continue;
             //remove from monster zone
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().removeFromMonsterZone(monsterForRemove);
+            getCurrentPlayerField().removeFromMonsterZone(monsterForRemove);
             //add monster to graveyard
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().putInGraveyard(monsterForRemove);
+            getCurrentPlayerField().putInGraveyard(monsterForRemove);
         }
     }
 
     public void destroyRivalMonsters() {
         int monsterIndex = 0;
         for (; monsterIndex < 5; monsterIndex++) {
-            GameCard monsterForRemove = GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().getMonsterZone()[monsterIndex];
+            GameCard monsterForRemove = getRivalPlayerField().getMonsterZone()[monsterIndex];
 
-            if (!GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField()
+            if (!getRivalPlayerField()
                     .isInMonsterZone(monsterForRemove)) continue;
             //remove from monster zone
-            GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().removeFromMonsterZone(monsterForRemove);
+            getRivalPlayerField().removeFromMonsterZone(monsterForRemove);
             //add monster to graveyard
-            GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().putInGraveyard(monsterForRemove);
+            getRivalPlayerField().putInGraveyard(monsterForRemove);
         }
     }
 
@@ -178,28 +155,20 @@ public class EffectController {
         //get card from view
         if (cardToRemoveFromHand == null) {
             //show error
-        } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().isInHand(cardToRemoveFromHand)) {
+        } else if (!getCurrentPlayerField().isInHand(cardToRemoveFromHand)) {
             //this card is not from your hand
         } else {
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().removeFromHand(cardToRemoveFromHand);
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().putInGraveyard(cardToRemoveFromHand);
+            getCurrentPlayerField().removeFromHand(cardToRemoveFromHand);
+            getCurrentPlayerField().putInGraveyard(cardToRemoveFromHand);
             List<GameCard> spellTraps = null;
             //get list of spell traps
             for (GameCard spellTrap : spellTraps) {
-                if (GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                        .getField().isInSpellZone(spellTrap)) {
-                    GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                            .getField().removeFromSpellZone(spellTrap);
-                    GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                            .getField().putInGraveyard(spellTrap);
+                if (getCurrentPlayerField().isInSpellZone(spellTrap)) {
+                    getCurrentPlayerField().removeFromSpellZone(spellTrap);
+                    getCurrentPlayerField().putInGraveyard(spellTrap);
                 } else {
-                    GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                            .getField().removeFromSpellZone(spellTrap);
-                    GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                            .getField().putInGraveyard(spellTrap);
+                    getRivalPlayerField().removeFromSpellZone(spellTrap);
+                    getRivalPlayerField().putInGraveyard(spellTrap);
                 }
             }
         }
@@ -211,40 +180,33 @@ public class EffectController {
         if (spellTrap == null) {
             //show error
         } else {
-            if (GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().isInSpellZone(spellTrap)) {
-                GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                        .getField().removeFromSpellZone(spellTrap);
-                GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                        .getField().putInGraveyard(spellTrap);
+            if (getCurrentPlayerField().isInSpellZone(spellTrap)) {
+                getCurrentPlayerField().removeFromSpellZone(spellTrap);
+                getCurrentPlayerField().putInGraveyard(spellTrap);
             } else {
-                GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                        .getField().removeFromSpellZone(spellTrap);
-                GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                        .getField().putInGraveyard(spellTrap);
+                getRivalPlayerField().removeFromSpellZone(spellTrap);
+                getRivalPlayerField().putInGraveyard(spellTrap);
             }
         }
     }
 
     public void yami() {
-        for (GameCard monster : GameController.getGameControllerById(gameControllerID)
-                .getCurrentPlayer().getField().getMonsterZone()) {
-            if (((Monster)monster.getCard()).getType().equals(MonsterType.FIEND)
-                    || ((Monster)monster.getCard()).getType().equals(MonsterType.SPELLCASTER)) {
+        for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (((Monster) monster.getCard()).getType().equals(MonsterType.FIEND)
+                    || ((Monster) monster.getCard()).getType().equals(MonsterType.SPELLCASTER)) {
                 monster.addAttackModifier(200);
                 monster.addDefenceModifier(200);
-            } else if (((Monster)monster.getCard()).getType().equals(MonsterType.FAIRY)) {
+            } else if (((Monster) monster.getCard()).getType().equals(MonsterType.FAIRY)) {
                 monster.addAttackModifier(-200);
                 monster.addDefenceModifier(-200);
             }
         }
-        for (GameCard monster : GameController.getGameControllerById(gameControllerID)
-                .getRivalPlayer().getField().getMonsterZone()) {
-            if (((Monster)monster.getCard()).getType().equals(MonsterType.FIEND)
-                    || ((Monster)monster.getCard()).getType().equals(MonsterType.SPELLCASTER)) {
+        for (GameCard monster : getRivalPlayerField().getMonsterZone()) {
+            if (((Monster) monster.getCard()).getType().equals(MonsterType.FIEND)
+                    || ((Monster) monster.getCard()).getType().equals(MonsterType.SPELLCASTER)) {
                 monster.addAttackModifier(200);
                 monster.addDefenceModifier(200);
-            } else if (((Monster)monster.getCard()).getType().equals(MonsterType.FAIRY)) {
+            } else if (((Monster) monster.getCard()).getType().equals(MonsterType.FAIRY)) {
                 monster.addAttackModifier(-200);
                 monster.addDefenceModifier(-200);
             }
@@ -252,20 +214,18 @@ public class EffectController {
     }
 
     public void forest() {
-        for (GameCard monster : GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().getMonsterZone()) {
-            if (((Monster)monster.getCard()).getType().equals(MonsterType.INSECT)
-                    || ((Monster)monster.getCard()).getType().equals(MonsterType.BEAST)
-                    || ((Monster)monster.getCard()).getType().equals(MonsterType.BEAST_WARRIOR)) {
+        for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (((Monster) monster.getCard()).getType().equals(MonsterType.INSECT)
+                    || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)
+                    || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST_WARRIOR)) {
                 monster.addAttackModifier(200);
                 monster.addDefenceModifier(200);
             }
         }
-        for (GameCard monster : GameController.getGameControllerById(gameControllerID)
-                .getRivalPlayer().getField().getMonsterZone()) {
-            if (((Monster)monster.getCard()).getType().equals(MonsterType.INSECT)
-                    || ((Monster)monster.getCard()).getType().equals(MonsterType.BEAST)
-                    || ((Monster)monster.getCard()).getType().equals(MonsterType.BEAST_WARRIOR)) {
+        for (GameCard monster : getRivalPlayerField().getMonsterZone()) {
+            if (((Monster) monster.getCard()).getType().equals(MonsterType.INSECT)
+                    || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)
+                    || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST_WARRIOR)) {
                 monster.addAttackModifier(200);
                 monster.addDefenceModifier(200);
             }
@@ -273,11 +233,9 @@ public class EffectController {
     }
 
     public void closedForest() {
-        for (GameCard monster : GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().getMonsterZone()) {
-            if (((Monster)monster.getCard()).getType().equals(MonsterType.BEAST)) {
-                int amount = GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                        .getField().getGraveyard().size();
+        for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)) {
+                int amount = getCurrentPlayerField().getGraveyard().size();
                 monster.addAttackModifier(amount);
                 monster.addDefenceModifier(amount);
             }
@@ -285,9 +243,8 @@ public class EffectController {
     }
 
     public void umiiruka() {
-        for (GameCard monster : GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().getMonsterZone()) {
-            if (((Monster)monster.getCard()).getType().equals(MonsterType.AQUA)) {
+        for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (((Monster) monster.getCard()).getType().equals(MonsterType.AQUA)) {
                 monster.addAttackModifier(500);
                 monster.addDefenceModifier(-400);
             }
@@ -301,14 +258,12 @@ public class EffectController {
     }
 
     public void destroyAttackerCard() {
-        GameCard cardToDestroy = GameController.getGameControllerById(gameControllerID)
+        GameCard cardToDestroy = getGameController()
                 .getSelectionController().getCard();
         //remove from monster zone
-        GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().removeFromMonsterZone(cardToDestroy);
+        getCurrentPlayerField().removeFromMonsterZone(cardToDestroy);
         //add to graveyard
-        GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().putInGraveyard(cardToDestroy);
+        getCurrentPlayerField().putInGraveyard(cardToDestroy);
     }
 
     public void specialSummonByRemoveCardFromHand() {
@@ -316,12 +271,10 @@ public class EffectController {
         //get card from view
         if (cardToRemoveFromHand == null) {
             //show error
-        } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().isInHand(cardToRemoveFromHand)) {
+        } else if (!getCurrentPlayerField().isInHand(cardToRemoveFromHand)) {
             //this card is not from your hand
         } else {
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().removeFromHand(cardToRemoveFromHand);
+            getCurrentPlayerField().removeFromHand(cardToRemoveFromHand);
             new SummonController(gameControllerID).specialSummon(effectCard);
         }
     }
@@ -345,11 +298,9 @@ public class EffectController {
             //level is under 7
         } else {
             //remove from graveyard
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().removeFromGraveyard(drawnCard);
+            getCurrentPlayerField().removeFromGraveyard(drawnCard);
             //add card to hand
-            GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                    .getField().putInHand(drawnCard);
+            getCurrentPlayerField().putInHand(drawnCard);
         }
     }
 
@@ -366,42 +317,35 @@ public class EffectController {
     }
 
     public boolean isNeutralizerAttack(GameCard effectCard) {
-        return !GameController.getGameControllerById(gameControllerID).getGameTurnController().getDisposableUsedCards().contains(effectCard);
+        return !getGameTurnController().getDisposableUsedCards().contains(effectCard);
     }
 
     public void destroyRivalFieldZone() {
-        GameCard fieldSpell = GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                .getField().getFieldZone();
+        GameCard fieldSpell = getRivalPlayerField().getFieldZone();
         if (fieldSpell != null) {
             //remove from field zone
-            GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().removeFromFieldZone(fieldSpell);
+            getRivalPlayerField().removeFromFieldZone(fieldSpell);
             //add field spell to graveyard
-            GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().putInGraveyard(fieldSpell);
+            getRivalPlayerField().putInGraveyard(fieldSpell);
         }
     }
 
     public void destroyRivalSpellTraps() {
         int spellTrapIndex = 0;
         for (; spellTrapIndex < 5; spellTrapIndex++) {
-            GameCard spellTrap = GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().getSpellZone()[spellTrapIndex];
+            GameCard spellTrap = getRivalPlayerField().getSpellZone()[spellTrapIndex];
 
-            if (!GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField()
-                    .isInSpellZone(spellTrap)) continue;
+            if (!getRivalPlayerField().isInSpellZone(spellTrap)) continue;
             //remove from spell zone
-            GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().removeFromSpellZone(spellTrap);
+            getRivalPlayerField().removeFromSpellZone(spellTrap);
             //add spell or trap to graveyard
-            GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().putInGraveyard(spellTrap);
+            getRivalPlayerField().putInGraveyard(spellTrap);
         }
     }
 
     public void decreaseAttackerLP(int amount) {
-        GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .changeLifePoints(amount);
+        getCurrentPlayer()
+                .decreaseLifePoints(amount);
     }
 
     public void destroyOneOfRivalMonsters() {
@@ -409,14 +353,11 @@ public class EffectController {
         //Get a monster from view
         if (destructibleCard == null) {
             return;
-        } else if (!GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                .getField().isInMonsterZone(destructibleCard)) {
+        } else if (!getRivalPlayerField().isInMonsterZone(destructibleCard)) {
             //card is not from rival monster zone
         } else {
-            GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().removeFromMonsterZone(destructibleCard);
-            GameController.getGameControllerById(gameControllerID).getRivalPlayer()
-                    .getField().putInGraveyard(destructibleCard);
+            getRivalPlayerField().removeFromMonsterZone(destructibleCard);
+            getRivalPlayerField().putInGraveyard(destructibleCard);
         }
     }
 
@@ -425,13 +366,11 @@ public class EffectController {
     }
 
     public void disposableEffect() {
-        GameController.getGameControllerById(gameControllerID).getGameTurnController()
-                .getDisposableUsedCards().add(effectCard);
+        getGameTurnController().getDisposableUsedCards().add(effectCard);
     }
 
     public void selectFaceUpMonsters() {
-        GameCard[] monsterZone = GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().getMonsterZone();
+        GameCard[] monsterZone = getCurrentPlayerField().getMonsterZone();
         for (GameCard monster : monsterZone) {
             if (!monster.isFaceDown()) cardsAffected.add(monster);
         }
@@ -451,8 +390,7 @@ public class EffectController {
 
     public int combineLevelsOfFaceUpCards() {
         int result = 0;
-        GameCard[] monsterZone = GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
-                .getField().getMonsterZone();
+        GameCard[] monsterZone = getCurrentPlayerField().getMonsterZone();
         for (GameCard gameCard : monsterZone) {
             if (gameCard == null) continue;
             if (!gameCard.getCard().getCardType().equals(CardType.MONSTER)) continue;
@@ -466,5 +404,29 @@ public class EffectController {
 
     public boolean containEffect(Effects effect) {
         return effectCard.getCard().getCardEffects().contains(effect);
+    }
+
+    private Field getCurrentPlayerField() {
+        return getCurrentPlayer().getField();
+    }
+
+    private Field getRivalPlayerField() {
+        return getRivalPlayer().getField();
+    }
+
+    private Player getCurrentPlayer() {
+        return getGameController().getCurrentPlayer();
+    }
+
+    private Player getRivalPlayer() {
+        return getGameController().getRivalPlayer();
+    }
+
+    private GameTurnController getGameTurnController() {
+        return getGameController().getGameTurnController();
+    }
+
+    private GameController getGameController() {
+        return GameController.getGameControllerById(gameControllerID);
     }
 }

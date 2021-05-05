@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.controller.game.GameController;
+import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.view.ImageToASCII;
@@ -62,13 +63,24 @@ public class ProgramController {
 
     public static String getPromptTitle() {
         if (gameControllerID != -1) {
-            boolean isFirstPlayerTurn = GameController.getGameControllerById(gameControllerID).isFirstPlayerTurn();
-            String playerNickname = isFirstPlayerTurn ? GameController.getGameControllerById(gameControllerID)
-                    .getFirstPlayer().getPlayer().getUser().getNickname() : GameController.getGameControllerById(gameControllerID)
-                    .getSecondPlayer().getPlayer().getUser().getNickname();
+            String playerNickname = GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getUser().getNickname();
             return Ansi.AUTO.string("@|yellow " + playerNickname + "'s Turn>|@");
         }
         return Ansi.AUTO.string("@|yellow " + Utils.firstUpperOnly(ProgramController.getState().name()) + " Menu>|@");
+    }
+
+    public static PlayerController getCurrentPlayerController() {
+        if (gameControllerID != -1) {
+            return GameController.getGameControllerById(gameControllerID).getCurrentPlayerController();
+        }
+        return null;
+    }
+
+    public static PlayerController getRivalPlayerController() {
+        if (gameControllerID != -1) {
+            return GameController.getGameControllerById(gameControllerID).getRivalPlayerController();
+        }
+        return null;
     }
 
     public void initialize() {

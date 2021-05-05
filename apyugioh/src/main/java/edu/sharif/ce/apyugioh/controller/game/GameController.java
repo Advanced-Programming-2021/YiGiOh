@@ -18,7 +18,7 @@ import java.util.List;
 public class GameController {
     private static List<GameController> gameControllers;
     @Getter
-    private static edu.sharif.ce.apyugioh.view.GameView view;
+    private static GameView view;
 
     //initialize block
     static {
