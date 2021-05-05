@@ -15,6 +15,7 @@ public class GameTurnController {
     private int gameControllerID;
     private boolean isFirstTurn;
     private boolean isMonsterSetOrSummon;
+    private List<GameCard> disposableUsedCards;
     private List<GameCard> attackedMonsters;
     private List<GameCard> chain;
 
@@ -22,6 +23,7 @@ public class GameTurnController {
         this.gameControllerID = gameControllerID;
         attackedMonsters = new ArrayList<>();
         chain = new ArrayList<>();
+        disposableUsedCards = new ArrayList<>();
     }
 
     public void drawPhase() {
