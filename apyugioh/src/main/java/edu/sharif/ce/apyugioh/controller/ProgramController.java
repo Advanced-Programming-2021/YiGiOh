@@ -169,7 +169,8 @@ public class ProgramController {
 
     @Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},
             subcommands = {MenuCommand.class, UserCommand.class, ProfileCommand.class, ScoreboardCommand.class,
-                    ShopCommand.class, CardCommand.class, DeckCommand.class, DuelCommand.class,
+                    ShopCommand.class, CardCommand.class, DeckCommand.class, DuelCommand.class, SelectCommand.class,
+                    SummonCommand.class, SetCommand.class,
                     PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
     static class CliCommands implements Runnable {
         PrintWriter out;

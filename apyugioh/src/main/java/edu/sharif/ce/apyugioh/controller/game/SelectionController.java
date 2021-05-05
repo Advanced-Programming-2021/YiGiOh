@@ -22,31 +22,23 @@ public class SelectionController {
 
     public void select(CardLocation location) {
         if (location.isInHand())
-            card = getCurrentPlayerField()
-                    .getHand().get(location.getPosition());
+            card = getCurrentPlayerField().getHand().get(location.getPosition());
         else if (location.isFromMonsterZone())
-            card = getCurrentPlayerField()
-                    .getMonsterZone()[location.getPosition()];
+            card = getCurrentPlayerField().getMonsterZone()[location.getPosition()];
         else if (location.isFromSpellZone())
-            card = getCurrentPlayerField()
-                    .getSpellZone()[location.getPosition()];
+            card = getCurrentPlayerField().getSpellZone()[location.getPosition()];
             //field zone is not an array?!!!
         else if (location.isFromFieldZone())
-            card = getCurrentPlayerField()
-                    .getFieldZone();
+            card = getCurrentPlayerField().getFieldZone();
         else if (location.isFromGraveyard())
-            card = getCurrentPlayerField()
-                    .getGraveyard().get(location.getPosition());
+            card = getCurrentPlayerField().getGraveyard().get(location.getPosition());
         else if (location.isFromEnemy()) {
             if (location.isFromMonsterZone())
-                card = getRivalPlayerField()
-                        .getMonsterZone()[location.getPosition()];
+                card = getRivalPlayerField().getMonsterZone()[location.getPosition()];
             else if (location.isFromSpellZone())
-                card = getRivalPlayerField()
-                        .getSpellZone()[location.getPosition()];
+                card = getRivalPlayerField().getSpellZone()[location.getPosition()];
             else if (location.isFromFieldZone())
-                card = getRivalPlayerField()
-                        .getFieldZone();
+                card = getRivalPlayerField().getFieldZone();
         }
         //View Commands ...
     }

@@ -88,7 +88,7 @@ public class GameController {
     }
 
     public void nextPhase() {
-
+        gameTurnController.setPhase(gameTurnController.getPhase().nextPhase());
     }
 
     public void endRound(boolean isFirstPlayerWin) {

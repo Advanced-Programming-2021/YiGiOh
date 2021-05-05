@@ -1,11 +1,14 @@
 package edu.sharif.ce.apyugioh.view.command;
 
 import edu.sharif.ce.apyugioh.controller.CardFactoryController;
+import edu.sharif.ce.apyugioh.controller.game.GameController;
+import edu.sharif.ce.apyugioh.controller.game.SelectionController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.view.ErrorView;
+import edu.sharif.ce.apyugioh.view.View;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Command;
@@ -20,8 +23,24 @@ public class CardCommand {
     @Command(name = "show", description = "show all cards")
     public void show(@Option(names = {"-s", "--selected"}, description = "show selected card") boolean isSelected,
                      @Parameters(index = "0", description = "card name") String name) {
-        if (!isAvailable()) return;
-        ShopController.getInstance().showCard(name.replaceAll("_", " "));
+        if (isSelected) {
+            if (!isShowSelectedAvailable()) return;
+            SelectionController selectionController = GameController.getGameControllerById(ProgramController.
+                    getGameControllerID()).getSelectionController();
+            if (selectionController != null) {
+                if (selectionController.getCard().isRevealed() || ProgramController.getCurrentPlayerController().
+                        getPlayer().getField().isInField(selectionController.getCard())) {
+                    ShopController.getInstance().showCard(selectionController.getCard().getCard().getName());
+                } else {
+                    ErrorView.showError(ErrorView.CARD_NOT_SELECTED);
+                }
+            } else {
+                ErrorView.showError(ErrorView.CARD_NOT_SELECTED);
+            }
+        } else {
+            if (!isAvailable()) return;
+            ShopController.getInstance().showCard(name.replaceAll("_", " "));
+        }
     }
 
     @Command(name = "export", description = "export cards")
@@ -47,6 +66,15 @@ public class CardCommand {
         if (ProgramController.getState().equals(MenuState.SHOP) || ProgramController.getState().equals(MenuState.DECK)
                 || ProgramController.getState().equals(MenuState.DUEL)) {
             return true;
+        } else {
+            ErrorView.showError(ErrorView.COMMAND_INVALID);
+            return false;
+        }
+    }
+
+    private boolean isShowSelectedAvailable() {
+        if (ProgramController.getState().equals(MenuState.DUEL)) {
+            return ProgramController.getGameControllerID() != -1;
         } else {
             ErrorView.showError(ErrorView.COMMAND_INVALID);
             return false;
