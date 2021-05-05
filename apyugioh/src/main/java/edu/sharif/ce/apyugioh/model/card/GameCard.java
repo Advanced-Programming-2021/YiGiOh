@@ -27,4 +27,12 @@ public class GameCard {
     public void addDefenceModifier(int amount) {
         defenceModifier.add(amount);
     }
+
+    public int getCurrentAttack() {
+        return 2000;
+    }
+
+    public int getCurrentDefense() {
+        return 1800;
+    }
 }

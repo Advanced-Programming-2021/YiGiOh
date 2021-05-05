@@ -14,6 +14,14 @@ public class SetController {
         getGameController().setSelectionController(null);
     }
 
+    public void specialSet(GameCard monsterToSet) {
+        if (!monsterToSet.getCard().getCardType().equals(CardType.MONSTER)) {
+            //this card is not a monster
+        } else {
+            monsterSet();
+        }
+    }
+
     public void set() {
         if (card.getCard().getCardType().equals(CardType.MONSTER)) {
             monsterSet();

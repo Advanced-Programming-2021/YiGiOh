@@ -44,7 +44,7 @@ public class SummonController {
         return true;
     }
 
-    public boolean specialSummon() {
+    public boolean specialSummon(GameCard gameCard) {
         return true;
     }
 
