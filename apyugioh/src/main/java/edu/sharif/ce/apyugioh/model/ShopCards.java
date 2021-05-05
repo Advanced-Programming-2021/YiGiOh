@@ -1,5 +1,9 @@
-package edu.sharif.ce.apyugioh.model.card;
+package edu.sharif.ce.apyugioh.model;
 
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.model.card.Spell;
+import edu.sharif.ce.apyugioh.model.card.Trap;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,7 +43,7 @@ public class ShopCards {
     }
 
     public int getMonsterPrice(String monsterName) {
-        Monster monster = monsters.stream().filter(e -> e.name.equalsIgnoreCase(monsterName)).findAny().orElse(null);
+        Monster monster = monsters.stream().filter(e -> e.getName().equalsIgnoreCase(monsterName)).findAny().orElse(null);
         if (monster != null) {
             return monsterPrices.get(monster.getName());
         }
@@ -59,7 +63,7 @@ public class ShopCards {
     }
 
     public int getSpellPrice(String spellName) {
-        Spell spell = spells.stream().filter(e -> e.name.equalsIgnoreCase(spellName)).findAny().orElse(null);
+        Spell spell = spells.stream().filter(e -> e.getName().equalsIgnoreCase(spellName)).findAny().orElse(null);
         if (spell != null) {
             return spellPrices.get(spell.getName());
         }
@@ -79,7 +83,7 @@ public class ShopCards {
     }
 
     public int getTrapPrice(String trapName) {
-        Trap trap = traps.stream().filter(e -> e.name.equalsIgnoreCase(trapName)).findAny().orElse(null);
+        Trap trap = traps.stream().filter(e -> e.getName().equalsIgnoreCase(trapName)).findAny().orElse(null);
         if (trap != null) {
             return trapPrices.get(trap.getName());
         }
@@ -95,7 +99,7 @@ public class ShopCards {
     }
 
     public String[] getAllCardNames() {
-        return getAllCards().stream().map(e -> e.name).sorted().collect(Collectors.toList()).toArray(String[]::new);
+        return getAllCards().stream().map(Card::getName).sorted().collect(Collectors.toList()).toArray(String[]::new);
     }
 
     public String[] getAllCompleterCardNames() {
@@ -111,11 +115,11 @@ public class ShopCards {
     }
 
     public Card getCardByName(String name) {
-        Monster monster = monsters.stream().filter(e -> e.name.equalsIgnoreCase(name)).findAny().orElse(null);
+        Monster monster = monsters.stream().filter(e -> e.getName().equalsIgnoreCase(name)).findAny().orElse(null);
         if (monster != null) return monster;
-        Spell spell = spells.stream().filter(e -> e.name.equalsIgnoreCase(name)).findAny().orElse(null);
+        Spell spell = spells.stream().filter(e -> e.getName().equalsIgnoreCase(name)).findAny().orElse(null);
         if (spell != null) return spell;
-        return traps.stream().filter(e -> e.name.equalsIgnoreCase(name)).findAny().orElse(null);
+        return traps.stream().filter(e -> e.getName().equalsIgnoreCase(name)).findAny().orElse(null);
     }
 
     public boolean addCard(Card card, int price) {

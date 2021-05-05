@@ -10,7 +10,7 @@ public class SummonController {
 
     public SummonController(int gameControllerID) {
         this.gameControllerID = gameControllerID;
-        card = getGameController().getSelectionController().getCard();
+        card = getSelectionController().getCard();
         getGameController().setSelectionController(null);
     }
 
@@ -62,12 +62,20 @@ public class SummonController {
         return true;
     }
 
-    private GameController getGameController() {
-        return GameController.getGameControllerById(gameControllerID);
-    }
-
     private Field getCurrentPlayerField() {
         return getGameController().getCurrentPlayer().getField();
+    }
+
+    private SelectionController getSelectionController() {
+        return getGameController().getSelectionController();
+    }
+
+    private GameTurnController getGameTurnController() {
+        return getGameController().getGameTurnController();
+    }
+
+    private GameController getGameController() {
+        return GameController.getGameControllerById(gameControllerID);
     }
 
 }

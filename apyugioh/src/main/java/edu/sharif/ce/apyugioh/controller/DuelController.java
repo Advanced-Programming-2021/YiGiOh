@@ -1,9 +1,11 @@
 package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.controller.game.GameController;
+import edu.sharif.ce.apyugioh.controller.player.NormalPlayerController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.*;
 import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.GameDeck;
 import edu.sharif.ce.apyugioh.view.DuelView;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -62,10 +64,9 @@ public class DuelController {
         Player secondPlayer = initializePlayer(secondUser, secondDeck);
         Random random = new Random();
         boolean isFirstPlayerTurn = random.nextBoolean();
-        PlayerController firstPlayerController = null;
-        PlayerController secondPlayerController = null;
-        GameController gameController = new GameController(isFirstPlayerTurn ? firstPlayerController : secondPlayerController,
-                isFirstPlayerTurn ? secondPlayerController : firstPlayerController, rounds);
+        PlayerController firstPlayerController = new NormalPlayerController(isFirstPlayerTurn ? firstPlayer : secondPlayer);
+        PlayerController secondPlayerController = new NormalPlayerController(isFirstPlayerTurn ? secondPlayer : firstPlayer);
+        GameController gameController = new GameController(firstPlayerController, secondPlayerController, rounds);
         ProgramController.setGameControllerID(gameController.getId());
         gameController.play();
     }

@@ -1,7 +1,7 @@
 package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
-import edu.sharif.ce.apyugioh.model.card.ShopCards;
+import edu.sharif.ce.apyugioh.model.ShopCards;
 import edu.sharif.ce.apyugioh.view.CardFactoryView;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;

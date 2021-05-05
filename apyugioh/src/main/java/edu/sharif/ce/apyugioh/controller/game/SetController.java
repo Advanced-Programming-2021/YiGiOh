@@ -10,7 +10,7 @@ public class SetController {
 
     public SetController(int gameControllerID) {
         this.gameControllerID = gameControllerID;
-        card = getGameController().getSelectionController().getCard();
+        card = getSelectionController().getCard();
         getGameController().setSelectionController(null);
     }
 
@@ -33,7 +33,7 @@ public class SetController {
     private void monsterSet() {
         if (getCurrentPlayerField().isMonsterZoneFull()) {
             //monster card zone is full
-        } else if (GameController.getGameControllerById(gameControllerID).getGameTurnController()
+        } else if (getGameTurnController()
                 .isMonsterSetOrSummon()) {
             //you already summoned/set on this turn
         }
@@ -50,11 +50,19 @@ public class SetController {
         //set successfully
     }
 
-    private GameController getGameController() {
-        return GameController.getGameControllerById(gameControllerID);
-    }
-
     private Field getCurrentPlayerField() {
         return getGameController().getCurrentPlayer().getField();
+    }
+
+    private SelectionController getSelectionController() {
+        return getGameController().getSelectionController();
+    }
+
+    private GameTurnController getGameTurnController() {
+        return getGameController().getGameTurnController();
+    }
+
+    private GameController getGameController() {
+        return GameController.getGameControllerById(gameControllerID);
     }
 }

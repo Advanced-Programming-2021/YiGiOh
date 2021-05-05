@@ -31,7 +31,11 @@ public class Player {
         field.shuffleDeck();
     }
 
-    public void changeLifePoints(int amount) {
+    public void increaseLifePoints(int amount) {
         lifePoints += amount;
+    }
+
+    public void decreaseLifePoints(int amount) {
+        lifePoints = lifePoints > amount ? lifePoints - amount : 0;
     }
 }

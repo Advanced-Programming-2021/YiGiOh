@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.card.*;
 import lombok.Getter;
@@ -27,34 +28,34 @@ public class GameTurnController {
     }
 
     public void drawPhase() {
-
+        phase = Phase.DRAW;
     }
 
     public void standByPhase() {
-
+        phase = Phase.STANDBY;
     }
 
     public void firstMainPhase() {
-
+        phase = Phase.MAIN1;
     }
 
     public void battlePhase() {
-
+        phase = Phase.BATTLE;
     }
 
     public void secondMainPhase() {
-
+        phase = Phase.MAIN2;
     }
 
     public void endPhase() {
-
+        phase = Phase.END;
     }
 
     public void set() {
-        if (GameController.getGameControllerById(gameControllerID).isCardSelected()) {
+        if (getGameController().isCardSelected()) {
             //no card is selected yet
-        } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField().
-                isInHand(GameController.getGameControllerById(gameControllerID).getSelectionController().getCard())) {
+        } else if (!getCurrentPlayerField().
+                isInHand(getSelectionController().getCard())) {
             //you can't set this card
         } else if (!(phase.equals(Phase.MAIN1) || phase.equals(Phase.MAIN2))) {
             //you can't do this action in this phase
@@ -64,14 +65,14 @@ public class GameTurnController {
     }
 
     public void summon(){
-        if (GameController.getGameControllerById(gameControllerID).getSelectionController() == null){
+        if (getSelectionController() == null){
             //no card is selected yet
-        } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField().isInField(GameController.getGameControllerById(gameControllerID).getSelectionController().getCard())
-                    || !GameController.getGameControllerById(gameControllerID).getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER)){
+        } else if (!getCurrentPlayerField().isInField(getSelectionController().getCard())
+                    || !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER)){
             //you can’t summon this card
         } else if (!phase.equals(Phase.MAIN1) && !phase.equals(Phase.MAIN2)){
             //action not allowed in this phase
-        } else if (GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField().isMonsterZoneFull()){
+        } else if (getCurrentPlayerField().isMonsterZoneFull()){
             //monster card zone is full
         } else if (isMonsterSetOrSummon){
             //you already summoned/set on this turn
@@ -85,15 +86,15 @@ public class GameTurnController {
     }
 
     public void changePosition(boolean isChangeToAttack) {
-        if (GameController.getGameControllerById(gameControllerID).isCardSelected()) {
+        if (getGameController().isCardSelected()) {
             //no card is selected yet
-        } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField()
-                .isInMonsterZone(GameController.getGameControllerById(gameControllerID).getSelectionController().getCard())) {
+        } else if (!getCurrentPlayerField()
+                .isInMonsterZone(getSelectionController().getCard())) {
             //you can't change this card position
         } else if (!(phase.equals(Phase.MAIN1) || phase.equals(Phase.MAIN2))) {
             //you can't do this action in this phase
         } else {
-            if ((isChangeToAttack && GameController.getGameControllerById(gameControllerID).getSelectionController().getCard().isFaceDown())) {
+            if ((isChangeToAttack && getSelectionController().getCard().isFaceDown())) {
 
             }
         }
@@ -105,5 +106,17 @@ public class GameTurnController {
 
     public void makeChain() {
 
+    }
+
+    private Field getCurrentPlayerField() {
+        return getGameController().getCurrentPlayer().getField();
+    }
+
+    private SelectionController getSelectionController() {
+        return getGameController().getSelectionController();
+    }
+
+    private GameController getGameController() {
+        return GameController.getGameControllerById(gameControllerID);
     }
 }

@@ -1,8 +1,9 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.model.Field;
+import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
-import edu.sharif.ce.apyugioh.view.View;
 import lombok.Getter;
 
 public class SelectionController {
@@ -21,32 +22,40 @@ public class SelectionController {
 
     public void select(CardLocation location) {
         if (location.isInHand())
-            card = GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField()
+            card = getCurrentPlayerField()
                     .getHand().get(location.getPosition());
         else if (location.isFromMonsterZone())
-            card = GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField()
+            card = getCurrentPlayerField()
                     .getMonsterZone()[location.getPosition()];
         else if (location.isFromSpellZone())
-            card = GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField()
+            card = getCurrentPlayerField()
                     .getSpellZone()[location.getPosition()];
             //field zone is not an array?!!!
         else if (location.isFromFieldZone())
-            card = GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField()
+            card = getCurrentPlayerField()
                     .getFieldZone();
         else if (location.isFromGraveyard())
-            card = GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField()
+            card = getCurrentPlayerField()
                     .getGraveyard().get(location.getPosition());
         else if (location.isFromEnemy()) {
             if (location.isFromMonsterZone())
-                card = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField()
+                card = getRivalPlayerField()
                         .getMonsterZone()[location.getPosition()];
             else if (location.isFromSpellZone())
-                card = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField()
+                card = getRivalPlayerField()
                         .getSpellZone()[location.getPosition()];
             else if (location.isFromFieldZone())
-                card = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField()
+                card = getRivalPlayerField()
                         .getFieldZone();
         }
         //View Commands ...
+    }
+
+    private Field getCurrentPlayerField() {
+        return GameController.getGameControllerById(gameControllerID).getCurrentPlayer().getField();
+    }
+
+    private Field getRivalPlayerField() {
+        return GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField();
     }
 }

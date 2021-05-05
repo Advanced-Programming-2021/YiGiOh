@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller;
 
-import org.jline.utils.InfoCmp;
+import org.jline.reader.LineReader;
+import org.jline.utils.InfoCmp.Capability;
 import picocli.CommandLine;
 
 import java.nio.charset.StandardCharsets;
@@ -46,7 +47,11 @@ public class Utils {
     }
 
     public static void clearScreen() {
-        ProgramController.getReader().getTerminal().puts(InfoCmp.Capability.clear_screen);
+        if (ProgramController.getReader().isReading()) {
+            ProgramController.getReader().callWidget(LineReader.CLEAR_SCREEN);
+        } else {
+            ProgramController.getReader().getTerminal().puts(Capability.clear_screen);
+        }
     }
 
     public static void printHorizontalCenter(String data) {

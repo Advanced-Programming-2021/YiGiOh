@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 
 import java.util.concurrent.Callable;
 
-@Command(name = "duel", mixinStandardHelpOptions = true, description = "game shop commands")
+@Command(name = "duel", mixinStandardHelpOptions = true, description = "game duel commands")
 public class DuelCommand implements Callable<Integer> {
 
     @Option(names = {"-n", "--new"}, paramLabel = "new", required = true)
@@ -45,7 +45,7 @@ public class DuelCommand implements Callable<Integer> {
 
     private boolean isAvailable() {
         if (ProgramController.getState().equals(MenuState.DUEL)) {
-            return true;
+            return ProgramController.getGameControllerID() == -1;
         } else {
             ErrorView.showError(ErrorView.COMMAND_INVALID);
             return false;
