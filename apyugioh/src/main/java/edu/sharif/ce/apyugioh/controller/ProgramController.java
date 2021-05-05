@@ -64,8 +64,8 @@ public class ProgramController {
         if (gameControllerID != -1) {
             boolean isFirstPlayerTurn = GameController.getGameControllerById(gameControllerID).isFirstPlayerTurn();
             String playerNickname = isFirstPlayerTurn ? GameController.getGameControllerById(gameControllerID)
-                    .getFirstPlayer().getUser().getNickname() : GameController.getGameControllerById(gameControllerID)
-                    .getSecondPlayer().getUser().getNickname();
+                    .getFirstPlayer().getPlayer().getUser().getNickname() : GameController.getGameControllerById(gameControllerID)
+                    .getSecondPlayer().getPlayer().getUser().getNickname();
             return Ansi.AUTO.string("@|yellow " + playerNickname + "'s Turn>|@");
         }
         return Ansi.AUTO.string("@|yellow " + Utils.firstUpperOnly(ProgramController.getState().name()) + " Menu>|@");
