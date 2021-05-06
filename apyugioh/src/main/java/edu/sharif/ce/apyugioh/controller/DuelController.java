@@ -44,8 +44,8 @@ public class DuelController {
         PlayerController secondPlayerController = new NormalPlayerController(isFirstPlayerTurn ? secondPlayer : firstPlayer);
         GameController gameController = new GameController(firstPlayerController, secondPlayerController, rounds);
         ProgramController.setGameControllerID(gameController.getId());
-        logger.info("duel with id {} started between {} and {}", gameController.getId(), firstUser.getNickname(),
-                secondUser.getNickname());
+        logger.info("duel with id {} started between {} and {} with {} rounds", gameController.getId(), firstUser.getNickname(),
+                secondUser.getNickname(), rounds);
         gameController.play();
     }
 

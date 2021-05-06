@@ -67,7 +67,7 @@ public class GameController {
             logger.info("in game with id {}: {} drew {} from deck", id, firstPlayer.getPlayer().getUser()
                     .getNickname(), firstPlayer.getPlayer().getField().drawCard().getCard().getName());
             logger.info("in game with id {}: {} drew {} from deck", id, secondPlayer.getPlayer().getUser()
-                    .getNickname(), firstPlayer.getPlayer().getField().drawCard().getCard().getName());
+                    .getNickname(), secondPlayer.getPlayer().getField().drawCard().getCard().getName());
         }
         gameTurnController = new GameTurnController(id);
         logger.info("in game with id {}: it's {}'s turn", id, isFirstPlayerTurn ? firstPlayer.getPlayer()
@@ -78,9 +78,13 @@ public class GameController {
 
     public void select(CardLocation location) {
         selectionController = new SelectionController(id, location);
+        logger.info("in game with id {}: {} selected from {}", id, selectionController.getCard().getCard().getName(),
+                location);
     }
 
     public void deselect() {
+        logger.info("in game with id {}: {} deselected from {}", id, selectionController.getCard().getCard().getName(),
+                selectionController.getLocation());
         selectionController = null;
     }
 

@@ -13,4 +13,14 @@ public class CardLocation {
     private boolean isFromSpellZone;
     private boolean isFromFieldZone;
     private boolean isFromGraveyard;
+
+    @Override
+    public String toString() {
+        if (isInHand) return (isFromEnemy ? "enemy " : "") + "hand " + position;
+        if (isFromMonsterZone) return (isFromEnemy ? "enemy " : "") + "monster zone " + position;
+        if (isFromSpellZone) return (isFromEnemy ? "enemy " : "") + "spell zone " + position;
+        if (isFromFieldZone) return (isFromEnemy ? "enemy " : "") + "field zone";
+        if (isFromGraveyard) return (isFromEnemy ? "enemy " : "") + "graveyard " + position;
+        return "nothing selected";
+    }
 }
