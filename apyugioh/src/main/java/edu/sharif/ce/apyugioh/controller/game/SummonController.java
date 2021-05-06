@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.model.Field;
+import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 
@@ -15,6 +16,7 @@ public class SummonController {
     static {
         specialCases = new HashSet<>();
         specialCases.add("Beast King Barbaros");
+        specialCases.add("Gate Guardian");
     }
 
     public SummonController(int gameControllerID) {
@@ -32,16 +34,14 @@ public class SummonController {
                 //there are not enough cards to tribute
                 return false;
             }
-            if (!tribute())
+            if (!tribute(1))
                 return false;
         } else if (((Monster) card.getCard()).getLevel() >= 7) {
             if (availableMonsters < 2) {
                 //there are not enough cards to tribute
                 return false;
             }
-            if (!tribute())
-                return false;
-            if (!tribute())
+            if (!tribute(2))
                 return false;
         }
         card.setRevealed(true);
@@ -68,12 +68,13 @@ public class SummonController {
     public boolean flipSummon() {
         card.setRevealed(true);
         card.setFaceDown(false);
-
+        getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
+        getGameTurnController().setChangedPositionMonster(card);
         return true;
     }
 
-    public boolean tribute() {
-        GameCard tributeMonster = getGameController().getCurrentPlayerController().tributeMonster();
+    public boolean tribute(int amount) {
+        GameCard tributeMonster = getGameController().getCurrentPlayerController().tributeMonster(amount);
         if (tributeMonster == null)
             return false;
         getGameController().getCurrentPlayerController().removeCard(tributeMonster);

@@ -88,26 +88,23 @@ public abstract class PlayerController {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
             return;
         }
-        if (!getSelectionController().getLocation().isInHand() ||
-                !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER)) {
+        if (!getSelectionController().getLocation().isInHand()) {
             GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "set");
             return;
         }
-        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
-            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return;
-        }
         getGameController().set();
+        getGameController().deselect();
     }
 
     public void summon() {
+        //checkForSpellOrTrapBanningToSummon
         if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
             return;
         }
         if (!getSelectionController().getLocation().isInHand() ||
                 !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER) ||
-                !((Monster)getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.NORMAL)) {
+                !((Monster) getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.NORMAL)) {
             GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "summon");
             return;
         }
@@ -116,6 +113,48 @@ public abstract class PlayerController {
             return;
         }
         getGameController().summon();
+        getGameController().deselect();
+    }
+
+    public void changePosition(boolean isChangeToAttack) {
+        if (getSelectionController() == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return;
+        }
+        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
+            //you can't change this card position
+            return;
+        }
+        if (!getGameController().getGameTurnController().getPhase().equals(Phase.MAIN1) &&
+                !getGameController().getGameTurnController().getPhase().equals(Phase.MAIN2)){
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return;
+        }
+        getGameController().changePosition(isChangeToAttack);
+        getGameController().deselect();
+    }
+
+    public void flipSummon() {
+        if (getSelectionController() == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return;
+        }
+        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
+            //you can’t change this card position
+            return;
+        }
+        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return;
+        }
+        if (!getSelectionController().getCard().isFaceDown() ||
+                (getGameController().getGameTurnController().getSetOrSummonedMonster() != null
+                        && getGameController().getGameTurnController().getSetOrSummonedMonster().equals(getSelectionController().getCard()))) {
+            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "flip summon");
+            return;
+        }
+        getGameController().flipSummon();
+        getGameController().deselect();
     }
 
     public void nextPhase() {
@@ -142,27 +181,6 @@ public abstract class PlayerController {
 
     }
 
-    public void flipSummon() {
-        if (getSelectionController() == null) {
-            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
-            return;
-        }
-        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())){
-            //you can’t change this card position
-            return;
-        }
-        if (!getSelectionController().getCard().isFaceDown() ||
-                getGameController().getGameTurnController().getSetOrSummonedMonster().equals(getSelectionController().getCard())){
-            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND,"flip summon");
-            return;
-        }
-        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
-            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return;
-        }
-        getGameController().flipSummon();
-    }
-
     public void surrender() {
 
     }
@@ -175,49 +193,31 @@ public abstract class PlayerController {
 
     }
 
-    public void removeCard(GameCard card){
+    public void removeCard(GameCard card) {
 
     }
 
     //SpecialCases
     //TributeMonsterForSummon
-    public GameCard tributeMonster(){
-        return null;
-    }
+    public abstract GameCard tributeMonster(int amount);
 
     //Scanner
-    public GameCard scanMonsterForScanner(){
-        return null;
-    }
-
-    public GameCard tributeMonster(int amount){
-        return null;
-    }
+    public abstract GameCard scanMonsterForScanner();
 
     //Man-Eater Bug
-    public GameCard directRemove(){
-        return null;
-    }
+    public abstract GameCard directRemove();
 
     //TexChanger
-    public GameCard specialCyberseSummon(){
-        return null;
-    }
+    public abstract GameCard specialCyberseSummon();
 
     //HeraldOfCreation
-    public GameCard summonFromGraveyard(){
-        return null;
-    }
+    public abstract GameCard summonFromGraveyard();
 
     //Beast King Barbaros & Tricky
-    public int chooseHowToSummon(){
-        return 0;
-    }
+    public abstract int chooseHowToSummon();
 
     //terratiger
-    public void selectMonsterToSummon(){
-
-    }
+    public abstract void selectMonsterToSummon();
 
     private SelectionController getSelectionController() {
         return getGameController().getSelectionController();

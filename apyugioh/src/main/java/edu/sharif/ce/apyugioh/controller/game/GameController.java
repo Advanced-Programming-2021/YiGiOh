@@ -91,17 +91,16 @@ public class GameController {
     public void set() {
         gameTurnController.set();
     }
+    public void summon() {
+        gameTurnController.summon();
+    }
 
     public void changePosition(boolean isChangeToAttack) {
         gameTurnController.changePosition(isChangeToAttack);
     }
 
-    public void setPosition(boolean isAttack) {
-
-    }
-
-    public void summon() {
-        gameTurnController.summon();
+    public void flipSummon() {
+        gameTurnController.flipSummon();
     }
 
     public void nextPhase() {
@@ -122,10 +121,6 @@ public class GameController {
 
     public void directAttack() {
 
-    }
-
-    public void flipSummon() {
-        gameTurnController.flipSummon();
     }
 
     public void surrender() {
@@ -197,7 +192,7 @@ public class GameController {
             } else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
 
             } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
-                if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS)) {
+                if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
                     effectController.destroyOneOfRivalMonsters();
                 }
             } else if (trigger.equals(Trigger.AFTER_SUMMON)) {

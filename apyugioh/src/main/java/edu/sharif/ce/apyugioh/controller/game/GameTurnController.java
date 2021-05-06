@@ -28,7 +28,8 @@ public class GameTurnController {
     private Phase phase;
     private int gameControllerID;
     private boolean isFirstTurn;
-    private GameCard SetOrSummonedMonster;
+    private GameCard setOrSummonedMonster;
+    private GameCard changedPositionMonster;
     private List<GameCard> disposableUsedCards;
     private List<GameCard> attackedMonsters;
     private List<GameCard> chain;
@@ -93,24 +94,15 @@ public class GameTurnController {
     }
 
     public void set() {
-        if (getGameController().isCardSelected()) {
-            //no card is selected yet
-        } else if (!getCurrentPlayerField().
-                isInHand(getSelectionController().getCard())) {
-            //you can't set this card
-        } else if (!(phase.equals(Phase.MAIN1) || phase.equals(Phase.MAIN2))) {
-            //you can't do this action in this phase
-        } else {
-            if (new SetController(gameControllerID).set())
-                setSetOrSummonedMonster(getSelectionController().getCard());
-        }
+        if (new SetController(gameControllerID).set())
+            setSetOrSummonedMonster(getSelectionController().getCard());
     }
 
     public void summon(){
         if (getCurrentPlayerField().isMonsterZoneFull() &&
                 ((Monster)getSelectionController().getCard().getCard()).getLevel()<=4){
             //monster card zone is full
-        } else if (SetOrSummonedMonster != null){
+        } else if (setOrSummonedMonster != null){
             //you already summoned/set on this turn
         } else {
             if (new SummonController(gameControllerID).normalSummon())
@@ -118,23 +110,22 @@ public class GameTurnController {
         }
     }
 
-    public void flipSummon() {
-
+    public void changePosition(boolean isChangeToAttack) {
+        if (isChangeToAttack == (!getSelectionController().getCard().isFaceDown())){
+            //this card is already in the wanted position
+            return;
+        }
+        if (changedPositionMonster != null && changedPositionMonster.equals(getSelectionController().getCard())){
+            //you already changed this card position in this turn
+            return;
+        }
+        getSelectionController().getCard().setRevealed(true);
+        getSelectionController().getCard().setFaceDown(!isChangeToAttack);
+        //monster card position changed successfully
     }
 
-    public void changePosition(boolean isChangeToAttack) {
-        if (getGameController().isCardSelected()) {
-            //no card is selected yet
-        } else if (!getCurrentPlayerField()
-                .isInMonsterZone(getSelectionController().getCard())) {
-            //you can't change this card position
-        } else if (!(phase.equals(Phase.MAIN1) || phase.equals(Phase.MAIN2))) {
-            //you can't do this action in this phase
-        } else {
-            if ((isChangeToAttack && getSelectionController().getCard().isFaceDown())) {
-
-            }
-        }
+    public void flipSummon() {
+        new SummonController(gameControllerID).flipSummon();
     }
 
     public boolean hasMonsterAttacked(GameCard monster) {

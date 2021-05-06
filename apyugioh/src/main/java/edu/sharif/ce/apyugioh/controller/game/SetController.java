@@ -1,8 +1,10 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.model.Field;
+import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.view.GameView;
 
 public class SetController {
     private GameCard card;
@@ -31,6 +33,10 @@ public class SetController {
     }
 
     private boolean monsterSet() {
+        if (!getGameTurnController().getPhase().equals(Phase.MAIN1) && !getGameTurnController().getPhase().equals(Phase.MAIN2)){
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return false;
+        }
         if (getCurrentPlayerField().isMonsterZoneFull()) {
             //monster card zone is full
             return false;
