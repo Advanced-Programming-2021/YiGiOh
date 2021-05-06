@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -121,11 +122,29 @@ public class GameTurnController {
         }
         getSelectionController().getCard().setRevealed(true);
         getSelectionController().getCard().setFaceDown(!isChangeToAttack);
+        setChangedPositionMonster(getSelectionController().getCard());
         //monster card position changed successfully
     }
 
     public void flipSummon() {
         new SummonController(gameControllerID).flipSummon();
+    }
+
+    public void attack(int position){
+
+    }
+
+    public void directAttack(){
+        if (attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId())){
+            //this card already attacked
+            return;
+        }
+        //needs change
+        if (getGameController().getRivalPlayer().getField().getFirstFreeMonsterZoneIndex()>0 || (false)){
+            //you can't attack the opponent card directly
+            return;
+        }
+        new AttackController(gameControllerID).directAttack();
     }
 
     public boolean hasMonsterAttacked(GameCard monster) {

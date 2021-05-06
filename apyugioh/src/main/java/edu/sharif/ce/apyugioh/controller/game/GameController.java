@@ -103,6 +103,14 @@ public class GameController {
         gameTurnController.flipSummon();
     }
 
+    public void attack(int position) {
+
+    }
+
+    public void directAttack() {
+        gameTurnController.directAttack();
+    }
+
     public void nextPhase() {
         gameTurnController.nextPhase();
     }
@@ -112,14 +120,6 @@ public class GameController {
     }
 
     public void startRound() {
-
-    }
-
-    public void attack(int position) {
-
-    }
-
-    public void directAttack() {
 
     }
 

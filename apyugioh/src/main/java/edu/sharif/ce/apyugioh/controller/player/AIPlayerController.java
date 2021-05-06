@@ -65,4 +65,9 @@ public class AIPlayerController extends PlayerController{
     public void selectMonsterToSummon(){
 
     }
+
+    //EquipMonster
+    public void equipMonster(){
+
+    }
 }

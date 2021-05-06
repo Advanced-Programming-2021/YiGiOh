@@ -157,6 +157,27 @@ public abstract class PlayerController {
         getGameController().deselect();
     }
 
+    public void attack(int position) {
+
+    }
+
+    public void directAttack() {
+        if (getSelectionController().getCard() == null){
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return;
+        }
+        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())){
+            //you can't attack with this card
+            return;
+        }
+        if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)){
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return;
+        }
+        getGameController().directAttack();
+        getGameController().deselect();
+    }
+
     public void nextPhase() {
         getGameController().nextPhase();
     }
@@ -167,14 +188,6 @@ public abstract class PlayerController {
 
     public void startRound() {
         getGameController().startRound();
-    }
-
-    public void attack(int position) {
-
-    }
-
-    public void directAttack() {
-
     }
 
     public void activeEffect() {
@@ -218,6 +231,9 @@ public abstract class PlayerController {
 
     //terratiger
     public abstract void selectMonsterToSummon();
+
+    //EquipMonster
+    public abstract void equipMonster();
 
     private SelectionController getSelectionController() {
         return getGameController().getSelectionController();

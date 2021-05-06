@@ -46,4 +46,9 @@ public class NormalPlayerController extends PlayerController{
 
     }
 
+    //EquipMonster
+    public void equipMonster(){
+
+    }
+
 }
