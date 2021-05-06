@@ -5,6 +5,7 @@ import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.card.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.antlr.v4.tool.ast.GrammarASTErrorNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ public class GameTurnController {
     private Phase phase;
     private int gameControllerID;
     private boolean isFirstTurn;
-    private boolean isMonsterSetOrSummon;
+    private GameCard SetOrSummonedMonster;
     private List<GameCard> disposableUsedCards;
     private List<GameCard> attackedMonsters;
     private List<GameCard> chain;
@@ -65,16 +66,10 @@ public class GameTurnController {
     }
 
     public void summon(){
-        if (getSelectionController() == null){
-            //no card is selected yet
-        } else if (!getCurrentPlayerField().isInField(getSelectionController().getCard())
-                    || !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER)){
-            //you can’t summon this card
-        } else if (!phase.equals(Phase.MAIN1) && !phase.equals(Phase.MAIN2)){
-            //action not allowed in this phase
-        } else if (getCurrentPlayerField().isMonsterZoneFull()){
+        if (getCurrentPlayerField().isMonsterZoneFull() &&
+                ((Monster)getSelectionController().getCard().getCard()).getLevel()<=4){
             //monster card zone is full
-        } else if (isMonsterSetOrSummon){
+        } else if (SetOrSummonedMonster != null){
             //you already summoned/set on this turn
         } else{
             new SummonController(gameControllerID).normalSummon();

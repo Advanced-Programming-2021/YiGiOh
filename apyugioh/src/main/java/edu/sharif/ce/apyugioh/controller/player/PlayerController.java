@@ -4,10 +4,8 @@ import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.game.SelectionController;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.card.CardLocation;
-import edu.sharif.ce.apyugioh.model.card.CardType;
+import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
-import edu.sharif.ce.apyugioh.model.card.GameCard;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -108,7 +106,8 @@ public abstract class PlayerController {
             return;
         }
         if (!getSelectionController().getLocation().isInHand() ||
-                !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER)) {
+                !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER) ||
+                !((Monster)getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.NORMAL)) {
             GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "summon");
             return;
         }
@@ -144,7 +143,24 @@ public abstract class PlayerController {
     }
 
     public void flipSummon() {
-
+        if (getSelectionController() == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return;
+        }
+        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())){
+            //you can’t change this card position
+            return;
+        }
+        if (!getSelectionController().getCard().isFaceDown() ||
+                getGameController().getGameTurnController().getSetOrSummonedMonster().equals(getSelectionController().getCard())){
+            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND,"flip summon");
+            return;
+        }
+        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return;
+        }
+        getGameController().flipSummon();
     }
 
     public void surrender() {
@@ -156,6 +172,50 @@ public abstract class PlayerController {
     }
 
     public void exchangeSideDeckCards() {
+
+    }
+
+    public void removeCard(GameCard card){
+
+    }
+
+    //SpecialCases
+    //TributeMonsterForSummon
+    public GameCard tributeMonster(){
+        return null;
+    }
+
+    //Scanner
+    public GameCard scanMonsterForScanner(){
+        return null;
+    }
+
+    public GameCard tributeMonster(int amount){
+        return null;
+    }
+
+    //Man-Eater Bug
+    public GameCard directRemove(){
+        return null;
+    }
+
+    //TexChanger
+    public GameCard specialCyberseSummon(){
+        return null;
+    }
+
+    //HeraldOfCreation
+    public GameCard summonFromGraveyard(){
+        return null;
+    }
+
+    //Beast King Barbaros & Tricky
+    public int chooseHowToSummon(){
+        return 0;
+    }
+
+    //terratiger
+    public void selectMonsterToSummon(){
 
     }
 

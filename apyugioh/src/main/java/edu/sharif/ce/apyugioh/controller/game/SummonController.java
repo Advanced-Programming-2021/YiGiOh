@@ -15,6 +15,9 @@ public class SummonController {
     }
 
     public boolean normalSummon() {
+        //specialCases
+        if (isSpecialCase())
+            return specialSummon(getSelectionController().getCard());
         int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZone();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
@@ -34,10 +37,18 @@ public class SummonController {
                 return false;
         }
         card.setRevealed(true);
+        card.setFaceDown(false);
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
+        getGameController().activeEffect();
         //show error summoned successfully
         return true;
+    }
+
+    public boolean isSpecialCase(){
+        if (getSelectionController().getCard().getCard().getName().equals("Beast King Barbaros"))
+            return true;
+        return false;
     }
 
     public boolean tributeSummon() {
@@ -53,12 +64,17 @@ public class SummonController {
     }
 
     public boolean flipSummon() {
+        card.setRevealed(true);
+        card.setFaceDown(false);
+
         return true;
     }
 
     public boolean tribute() {
-
-
+        GameCard tributeMonster = getGameController().getCurrentPlayerController().tributeMonster();
+        if (tributeMonster == null)
+            return false;
+        getGameController().getCurrentPlayerController().removeCard(tributeMonster);
         return true;
     }
 

@@ -33,13 +33,13 @@ public class SetController {
     private void monsterSet() {
         if (getCurrentPlayerField().isMonsterZoneFull()) {
             //monster card zone is full
-        } else if (getGameTurnController()
-                .isMonsterSetOrSummon()) {
+        } else if (getGameTurnController().getSetOrSummonedMonster() != null) {
             //you already summoned/set on this turn
         }
         card.setFaceDown(true);
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
+        getGameTurnController().setSetOrSummonedMonster(card);
         //set successfully
     }
 
