@@ -1,11 +1,16 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Phase;
-import edu.sharif.ce.apyugioh.model.card.*;
+import edu.sharif.ce.apyugioh.model.Player;
+import edu.sharif.ce.apyugioh.model.card.CardType;
+import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Monster;
 import lombok.Getter;
 import lombok.Setter;
-import org.antlr.v4.tool.ast.GrammarASTErrorNode;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +18,13 @@ import java.util.List;
 @Getter
 @Setter
 public class GameTurnController {
+
+    private static Logger logger;
+
+    static {
+        logger = LogManager.getLogger(GameTurnController.class);
+    }
+
     private Phase phase;
     private int gameControllerID;
     private boolean isFirstTurn;
@@ -28,7 +40,35 @@ public class GameTurnController {
         disposableUsedCards = new ArrayList<>();
     }
 
+    public void nextPhase() {
+        switch (phase) {
+            case DRAW:
+                standByPhase();
+                break;
+            case STANDBY:
+                firstMainPhase();
+                break;
+            case MAIN1:
+                battlePhase();
+                break;
+            case BATTLE:
+                secondMainPhase();
+                break;
+            case MAIN2:
+                endPhase();
+                break;
+            case END:
+                drawPhase();
+                break;
+        }
+        logger.info("in game with id {}: it's {} phase", gameControllerID,
+                Utils.firstUpperOnly(phase.name().replaceAll("(\\d)", " $1")));
+        GameController.getView().showPhase(phase);
+    }
+
     public void drawPhase() {
+        logger.info("in game with id {}: {} drew {} from deck", gameControllerID, getCurrentPlayer().getUser()
+                .getNickname(), getCurrentPlayerField().drawCard().getCard().getName());
         phase = Phase.DRAW;
     }
 
@@ -71,12 +111,12 @@ public class GameTurnController {
             //monster card zone is full
         } else if (SetOrSummonedMonster != null){
             //you already summoned/set on this turn
-        } else{
+        } else {
             new SummonController(gameControllerID).normalSummon();
         }
     }
 
-    public void flipSummon(){
+    public void flipSummon() {
 
     }
 
@@ -104,7 +144,19 @@ public class GameTurnController {
     }
 
     private Field getCurrentPlayerField() {
-        return getGameController().getCurrentPlayer().getField();
+        return getCurrentPlayer().getField();
+    }
+
+    private Field getRivalPlayerField() {
+        return getRivalPlayer().getField();
+    }
+
+    private Player getCurrentPlayer() {
+        return getGameController().getCurrentPlayer();
+    }
+
+    private Player getRivalPlayer() {
+        return getGameController().getRivalPlayer();
     }
 
     private SelectionController getSelectionController() {
