@@ -101,7 +101,8 @@ public class GameTurnController {
         } else if (!(phase.equals(Phase.MAIN1) || phase.equals(Phase.MAIN2))) {
             //you can't do this action in this phase
         } else {
-            new SetController(gameControllerID).set();
+            if (new SetController(gameControllerID).set())
+                setSetOrSummonedMonster(getSelectionController().getCard());
         }
     }
 
@@ -112,7 +113,8 @@ public class GameTurnController {
         } else if (SetOrSummonedMonster != null){
             //you already summoned/set on this turn
         } else {
-            new SummonController(gameControllerID).normalSummon();
+            if (new SummonController(gameControllerID).normalSummon())
+                setSetOrSummonedMonster(getSelectionController().getCard());
         }
     }
 

@@ -22,32 +22,37 @@ public class SetController {
         }
     }
 
-    public void set() {
+    public boolean set() {
         if (card.getCard().getCardType().equals(CardType.MONSTER)) {
-            monsterSet();
+            return monsterSet();
         } else {
-            spellTrapSet();
+            return spellTrapSet();
         }
     }
 
-    private void monsterSet() {
+    private boolean monsterSet() {
         if (getCurrentPlayerField().isMonsterZoneFull()) {
             //monster card zone is full
+            return false;
         } else if (getGameTurnController().getSetOrSummonedMonster() != null) {
             //you already summoned/set on this turn
+            return false;
         }
         card.setFaceDown(true);
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
         getGameTurnController().setSetOrSummonedMonster(card);
         //set successfully
+        return true;
     }
 
-    private void spellTrapSet() {
+    private boolean spellTrapSet() {
         if (getCurrentPlayerField().isSpellZoneFull()) {
             //spell card zone is full
+            return false;
         }
         //set successfully
+        return true;
     }
 
     private Field getCurrentPlayerField() {
