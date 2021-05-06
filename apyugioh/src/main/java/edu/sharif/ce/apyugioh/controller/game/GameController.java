@@ -8,6 +8,8 @@ import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,11 +21,13 @@ public class GameController {
     private static List<GameController> gameControllers;
     @Getter
     private static GameView view;
+    private static Logger logger;
 
     //initialize block
     static {
         gameControllers = new ArrayList<>();
         view = new GameView();
+        logger = LogManager.getLogger(GameController.class);
     }
 
     private int id;
@@ -59,15 +63,28 @@ public class GameController {
     }
 
     public void play() {
-        System.out.println(firstPlayer.getPlayer().getUser().getNickname());
-        System.out.println(secondPlayer.getPlayer().getUser().getNickname());
+        for (int i = 0; i < 3; i++) {
+            logger.info("in game with id {}: {} drew {} from deck", id, firstPlayer.getPlayer().getUser()
+                    .getNickname(), firstPlayer.getPlayer().getField().drawCard().getCard().getName());
+            logger.info("in game with id {}: {} drew {} from deck", id, secondPlayer.getPlayer().getUser()
+                    .getNickname(), secondPlayer.getPlayer().getField().drawCard().getCard().getName());
+        }
+        gameTurnController = new GameTurnController(id);
+        logger.info("in game with id {}: it's {}'s turn", id, isFirstPlayerTurn ? firstPlayer.getPlayer()
+                .getUser().getNickname() : secondPlayer.getPlayer().getUser().getNickname());
+        gameTurnController.drawPhase();
+        showCurrentPlayerBoard();
     }
 
     public void select(CardLocation location) {
         selectionController = new SelectionController(id, location);
+        logger.info("in game with id {}: {} selected from {}", id, selectionController.getCard().getCard().getName(),
+                location);
     }
 
     public void deselect() {
+        logger.info("in game with id {}: {} deselected from {}", id, selectionController.getCard().getCard().getName(),
+                selectionController.getLocation());
         selectionController = null;
     }
 
@@ -88,7 +105,7 @@ public class GameController {
     }
 
     public void nextPhase() {
-        gameTurnController.setPhase(gameTurnController.getPhase().nextPhase());
+        gameTurnController.nextPhase();
     }
 
     public void endRound(boolean isFirstPlayerWin) {
@@ -199,6 +216,14 @@ public class GameController {
 
             }
         }
+    }
+
+    public void showCurrentPlayerBoard() {
+        getView().showBoard(getCurrentPlayer(), getRivalPlayer());
+    }
+
+    public void showRivalPlayerBoard() {
+        getView().showBoard(getRivalPlayer(), getCurrentPlayer());
     }
 
     public boolean isCardSelected() {

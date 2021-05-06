@@ -15,10 +15,7 @@ public class SummonController {
     }
 
     public boolean normalSummon() {
-        //specialCases
-        if (isSpecialCase())
-            return specialSummon(getSelectionController().getCard());
-        int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZone();
+        int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
                 //there are not enough cards to tribute

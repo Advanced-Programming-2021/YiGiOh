@@ -8,6 +8,8 @@ import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.DeckView;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,10 +19,12 @@ public class DeckController {
     @Getter
     private static DeckController instance;
     private static DeckView view;
+    private static Logger logger;
 
     static {
         instance = new DeckController();
         view = new DeckView();
+        logger = LogManager.getLogger(DeckController.class);
     }
 
     private DeckController() {
@@ -33,6 +37,7 @@ public class DeckController {
         Deck deck = Deck.getDeckByName(user.getUsername(), name);
         if (deck == null) {
             new Deck(user.getUsername(), name);
+            logger.info("{} created deck {}", user.getNickname(), name);
             view.showSuccess(DeckView.SUCCESS_DECK_CREATE);
         } else {
             view.showError(DeckView.ERROR_DECK_NAME_ALREADY_EXISTS, name);
@@ -45,6 +50,7 @@ public class DeckController {
             view.showError(DeckView.ERROR_DECK_NAME_NOT_FOUND, name);
         } else {
             Deck.remove(deck.getId());
+            logger.info("{} removed deck {}", user.getNickname(), name);
             if (user.getMainDeckID() == deck.getId()) {
                 user.setMainDeckID(-1);
                 DatabaseManager.updateUsersToDB();
@@ -59,6 +65,7 @@ public class DeckController {
             view.showError(DeckView.ERROR_DECK_NAME_NOT_FOUND, name);
         } else {
             user.setMainDeckID(deck.getId());
+            logger.info("{} activated deck {}", user.getNickname(), name);
             view.showSuccess(DeckView.SUCCESS_DECK_ACTIVATE);
             DatabaseManager.updateUsersToDB();
         }
@@ -88,6 +95,7 @@ public class DeckController {
             return;
         }
         deck.addCardToDeck(card.getName(), isSide);
+        logger.info("{} added card {} to {} deck {}", user.getNickname(), card.getName(), isSide ? "side" : "main", deck.getName());
         view.showSuccess(DeckView.SUCCESS_DECK_CARD_ADD);
     }
 
@@ -107,6 +115,7 @@ public class DeckController {
             }
         }
         deck.removeCardFromDeck(card.getName(), isSide);
+        logger.info("{} removed card {} from {} deck {}", user.getNickname(), card.getName(), isSide ? "side" : "main", deck.getName());
         view.showSuccess(DeckView.SUCCESS_DECK_CARD_REMOVE);
     }
 

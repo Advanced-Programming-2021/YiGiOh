@@ -46,6 +46,10 @@ public class Utils {
         System.out.println(CommandLine.Help.Ansi.AUTO.string("@|green " + message + "|@"));
     }
 
+    public static void printInfo(String message) {
+        System.out.println(CommandLine.Help.Ansi.AUTO.string("@|blue " + message + "|@"));
+    }
+
     public static void clearScreen() {
         if (ProgramController.getReader().isReading()) {
             ProgramController.getReader().callWidget(LineReader.CLEAR_SCREEN);
