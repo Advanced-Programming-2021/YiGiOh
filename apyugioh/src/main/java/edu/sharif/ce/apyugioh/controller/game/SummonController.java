@@ -4,9 +4,18 @@ import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 
+import java.util.HashSet;
+
 public class SummonController {
+
+    private static HashSet<String> specialCases;
     private GameCard card;
     private int gameControllerID;
+
+    static {
+        specialCases = new HashSet<>();
+        specialCases.add("Beast King Barbaros");
+    }
 
     public SummonController(int gameControllerID) {
         this.gameControllerID = gameControllerID;
@@ -15,7 +24,7 @@ public class SummonController {
     }
 
     public boolean normalSummon() {
-        if (isSpecialCase())
+        if (specialCases.contains(getSelectionController().getCard().getCard().getName()))
             return specialSummon(getSelectionController().getCard());
         int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
@@ -42,12 +51,6 @@ public class SummonController {
         getGameController().activeEffect();
         //show error summoned successfully
         return true;
-    }
-
-    public boolean isSpecialCase(){
-        if (getSelectionController().getCard().getCard().getName().equals("Beast King Barbaros"))
-            return true;
-        return false;
     }
 
     public boolean tributeSummon() {
