@@ -22,7 +22,7 @@ public class CardCommand {
 
     @Command(name = "show", description = "show all cards")
     public void show(@Option(names = {"-s", "--selected"}, description = "show selected card") boolean isSelected,
-                     @Parameters(index = "0", description = "card name") String name) {
+                     @Parameters(index = "0", description = "card name", defaultValue = "") String name) {
         if (isSelected) {
             if (!isShowSelectedAvailable()) return;
             SelectionController selectionController = GameController.getGameControllerById(ProgramController.

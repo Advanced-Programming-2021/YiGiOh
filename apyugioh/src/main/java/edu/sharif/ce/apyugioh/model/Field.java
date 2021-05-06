@@ -40,13 +40,13 @@ public class Field {
 
     public void putInMonsterZone(GameCard card) {
         if (!isMonsterZoneFull()) {
-            monsterZone[getFirstFreeMonsterZone()] = card;
+            monsterZone[getFirstFreeMonsterZoneIndex()] = card;
         }
     }
 
     public void putInSpellZone(GameCard card) {
         if (!isSpellZoneFull()) {
-            spellZone[getFirstFreeSpellZone()] = card;
+            spellZone[getFirstFreeSpellZoneIndex()] = card;
         }
     }
 
@@ -118,15 +118,15 @@ public class Field {
     }
 
     public boolean isInMonsterZone(GameCard card) {
-        return Arrays.stream(monsterZone).anyMatch(e -> e.getId() == card.getId());
+        return Arrays.stream(monsterZone).anyMatch(e -> e != null && e.getId() == card.getId());
     }
 
     public boolean isInSpellZone(GameCard card) {
-        return Arrays.stream(spellZone).anyMatch(e -> e.getId() == card.getId());
+        return Arrays.stream(spellZone).anyMatch(e -> e != null && e.getId() == card.getId());
     }
 
     public boolean isInFieldZone(GameCard card) {
-        return fieldZone.getId() == card.getId();
+        return fieldZone != null && fieldZone.getId() == card.getId();
     }
 
     public boolean isInGraveyard(GameCard card) {
@@ -145,7 +145,7 @@ public class Field {
         return deck.stream().anyMatch(e -> e.getId() == card.getId());
     }
 
-    public int getAvailableMonstersInZone() {
+    public int getAvailableMonstersInZoneCount() {
         return (int) Arrays.stream(monsterZone).filter(Objects::nonNull).count();
     }
 
@@ -166,14 +166,14 @@ public class Field {
                 isInBanished(card) || isInHand(card) || isInDeck(card);
     }
 
-    public int getFirstFreeMonsterZone() {
+    public int getFirstFreeMonsterZoneIndex() {
         for (int i = 0; i < 5; i++) {
             if (monsterZone[i] == null) return i;
         }
         return -1;
     }
 
-    public int getFirstFreeSpellZone() {
+    public int getFirstFreeSpellZoneIndex() {
         for (int i = 0; i < 5; i++) {
             if (spellZone[i] == null) return i;
         }
