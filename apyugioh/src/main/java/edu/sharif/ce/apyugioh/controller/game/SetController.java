@@ -38,17 +38,17 @@ public class SetController {
             return false;
         }
         if (getCurrentPlayerField().isMonsterZoneFull()) {
-            //monster card zone is full
+            GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
             return false;
         } else if (getGameTurnController().getSetOrSummonedMonster() != null) {
-            //you already summoned/set on this turn
+            GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
             return false;
         }
         card.setFaceDown(true);
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
         getGameTurnController().setSetOrSummonedMonster(card);
-        //set successfully
+        GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
         return true;
     }
 
@@ -57,7 +57,7 @@ public class SetController {
             //spell card zone is full
             return false;
         }
-        //set successfully
+        GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
         return true;
     }
 

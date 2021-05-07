@@ -122,7 +122,7 @@ public abstract class PlayerController {
             return;
         }
         if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
-            //you can't change this card position
+            GameController.getView().showError(GameView.ERROR_CANT_CHANGE_CARD_POSITION);
             return;
         }
         if (!getGameController().getGameTurnController().getPhase().equals(Phase.MAIN1) &&
@@ -140,7 +140,7 @@ public abstract class PlayerController {
             return;
         }
         if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
-            //you can’t change this card position
+            GameController.getView().showError(GameView.ERROR_CANT_CHANGE_CARD_POSITION);
             return;
         }
         if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
@@ -158,6 +158,10 @@ public abstract class PlayerController {
     }
 
     public void attack(int position) {
+        if (getSelectionController() == null){
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return;
+        }
 
     }
 
@@ -167,7 +171,7 @@ public abstract class PlayerController {
             return;
         }
         if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())){
-            //you can't attack with this card
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return;
         }
         if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)){

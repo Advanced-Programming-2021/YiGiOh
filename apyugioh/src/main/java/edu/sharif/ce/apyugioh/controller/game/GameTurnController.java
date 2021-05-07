@@ -7,6 +7,7 @@ import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -102,9 +103,9 @@ public class GameTurnController {
     public void summon(){
         if (getCurrentPlayerField().isMonsterZoneFull() &&
                 ((Monster)getSelectionController().getCard().getCard()).getLevel()<=4){
-            //monster card zone is full
+            GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
         } else if (setOrSummonedMonster != null){
-            //you already summoned/set on this turn
+            GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
         } else {
             if (new SummonController(gameControllerID).normalSummon())
                 setSetOrSummonedMonster(getSelectionController().getCard());
@@ -113,17 +114,17 @@ public class GameTurnController {
 
     public void changePosition(boolean isChangeToAttack) {
         if (isChangeToAttack == (!getSelectionController().getCard().isFaceDown())){
-            //this card is already in the wanted position
+            GameController.getView().showError(GameView.ERROR_ALREADY_IN_WANTED_POSITION);
             return;
         }
         if (changedPositionMonster != null && changedPositionMonster.equals(getSelectionController().getCard())){
-            //you already changed this card position in this turn
+            GameController.getView().showError(GameView.ERROR_ALREADY_CHANGED_POSITION_IN_TURN);
             return;
         }
         getSelectionController().getCard().setRevealed(true);
         getSelectionController().getCard().setFaceDown(!isChangeToAttack);
         setChangedPositionMonster(getSelectionController().getCard());
-        //monster card position changed successfully
+        GameController.getView().showSuccess(GameView.SUCCESS_CHANGE_POSITION_SUCCESSFUL);
     }
 
     public void flipSummon() {
@@ -136,12 +137,12 @@ public class GameTurnController {
 
     public void directAttack(){
         if (attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId())){
-            //this card already attacked
+            GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
             return;
         }
         //needs change
         if (getGameController().getRivalPlayer().getField().getFirstFreeMonsterZoneIndex()>0 || (false)){
-            //you can't attack the opponent card directly
+            GameController.getView().showError(GameView.ERROR_CANT_DIRECTLY_ATTACK);
             return;
         }
         new AttackController(gameControllerID).directAttack();

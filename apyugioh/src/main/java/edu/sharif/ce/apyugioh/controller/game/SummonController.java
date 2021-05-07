@@ -4,6 +4,7 @@ import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.view.GameView;
 
 import java.util.HashSet;
 
@@ -30,14 +31,14 @@ public class SummonController {
         int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
-                //there are not enough cards to tribute
+                GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
                 return false;
             }
             if (!tribute(1))
                 return false;
         } else if (((Monster) card.getCard()).getLevel() >= 7) {
             if (availableMonsters < 2) {
-                //there are not enough cards to tribute
+                GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
                 return false;
             }
             if (!tribute(2))
@@ -48,7 +49,7 @@ public class SummonController {
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
         getGameController().activeEffect();
-        //show error summoned successfully
+        GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
         return true;
     }
 
@@ -69,6 +70,7 @@ public class SummonController {
         card.setFaceDown(false);
         getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
         getGameTurnController().setChangedPositionMonster(card);
+        GameController.getView().showSuccess(GameView.SUCCESS_FLIP_SUMMON_SUCCESSFUL);
         return true;
     }
 
