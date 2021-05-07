@@ -107,7 +107,7 @@ public class GameController {
     }
 
     public void attack(int position) {
-
+        gameTurnController.attack(position);
     }
 
     public void directAttack() {

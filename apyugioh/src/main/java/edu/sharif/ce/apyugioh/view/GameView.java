@@ -25,6 +25,7 @@ public class GameView extends View {
     public static final int ERROR_ALREADY_CHANGED_POSITION_IN_TURN = -12;
     public static final int ERROR_CANT_DIRECTLY_ATTACK = -13;
     public static final int ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE = -14;
+    public static final int ERROR_NO_CARD_TO_ATTACK_TO = -15;
 
 
     public static final int SUCCESS_SELECTION_SUCCESSFUL = 1;
@@ -50,6 +51,7 @@ public class GameView extends View {
         errorMessages.put(ERROR_ALREADY_CHANGED_POSITION_IN_TURN, "you already changed this card position in this turn");
         errorMessages.put(ERROR_CANT_DIRECTLY_ATTACK, "you can't attack the opponent card directly");
         errorMessages.put(ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE, "there are not enough cards for tribute");
+        errorMessages.put(ERROR_NO_CARD_TO_ATTACK_TO, "there is no card to attack here");
 
         successMessages.put(SUCCESS_SELECTION_SUCCESSFUL, "%s selected successfully");
         successMessages.put(SUCCESS_DESELECTION_SUCCESSFUL, "%s deselected successfully");

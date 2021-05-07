@@ -4,6 +4,7 @@ import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
+import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
@@ -137,17 +138,24 @@ public class GameTurnController {
     }
 
     public void attack(int position) {
-
+        if (attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId())) {
+            GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
+            return;
+        }
+        if (position < 1 || position > 5 || getGameController().getRivalPlayer().getField().getMonsterZone()[position-1] == null) {
+            GameController.getView().showError(GameView.ERROR_NO_CARD_TO_ATTACK_TO);
+            return;
+        }
     }
 
     public void directAttack() {
         if (attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId())) {
-            //this card already attacked
+            GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
             return;
         }
         //needs change
         if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0 || (false)) {
-            //you can't attack the opponent card directly
+            GameController.getView().showError(GameView.ERROR_CANT_DIRECTLY_ATTACK);
             return;
         }
         new AttackController(gameControllerID).directAttack();

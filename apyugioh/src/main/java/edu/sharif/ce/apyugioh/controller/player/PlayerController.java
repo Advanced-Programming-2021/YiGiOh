@@ -161,7 +161,16 @@ public abstract class PlayerController {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
             return;
         }
-
+        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())){
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
+            return;
+        }
+        if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)){
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return;
+        }
+        getGameController().attack(position);
+        getGameController().deselect();
     }
 
     public void directAttack() {
