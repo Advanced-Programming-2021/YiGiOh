@@ -25,14 +25,13 @@ public class SummonController {
     private GameCard card;
     private int gameControllerID;
 
-    public SummonController(int gameControllerID) {
+    public SummonController(int gameControllerID,GameCard card) {
         this.gameControllerID = gameControllerID;
-        card = getSelectionController().getCard();
     }
 
     public boolean normalSummon() {
         if (specialCases.contains(card.getCard().getName()))
-            return specialSummon(card);
+            return specialSummon();
         int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
@@ -65,7 +64,7 @@ public class SummonController {
         return true;
     }
 
-    public boolean specialSummon(GameCard gameCard) {
+    public boolean specialSummon(){
         return true;
     }
 

@@ -1,10 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
-import edu.sharif.ce.apyugioh.model.Field;
-import edu.sharif.ce.apyugioh.model.Phase;
-import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.Trigger;
+import edu.sharif.ce.apyugioh.model.*;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
@@ -111,8 +108,10 @@ public class GameTurnController {
         } else if (setOrSummonedMonster != null) {
             logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
             GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
-        } else {
-            if (new SummonController(gameControllerID).normalSummon())
+        }else if (getGameController().applyEffect(Trigger.BEFORE_SUMMON).equals(EffectResponse.SUMMON_CANT_BE_DONE)){
+            GameController.getView().showError(GameView.ERROR_CANT_BE_SUMMONED);
+        }  else {
+            if (new SummonController(gameControllerID,getSelectionController().getCard()).normalSummon())
                 setSetOrSummonedMonster(getSelectionController().getCard());
         }
         getGameController().deselect();
@@ -134,7 +133,7 @@ public class GameTurnController {
     }
 
     public void flipSummon() {
-        new SummonController(gameControllerID).flipSummon();
+        new SummonController(gameControllerID,getSelectionController().getCard()).flipSummon();
     }
 
     public void attack(int position) {
@@ -146,6 +145,11 @@ public class GameTurnController {
             GameController.getView().showError(GameView.ERROR_NO_CARD_TO_ATTACK_TO);
             return;
         }
+        if (getGameController().applyEffect(Trigger.BEFORE_ATTACK).equals(EffectResponse.ATTACK_CANT_BE_DONE)){
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
+            return;
+        }
+        new AttackController(gameControllerID,position).attack();
     }
 
     public void directAttack() {

@@ -53,7 +53,7 @@ public class EffectController {
             } else {
                 getRivalPlayerField().removeFromGraveyard(cardFromGraveyard);
             }
-            new SummonController(gameControllerID).specialSummon(cardFromGraveyard);
+            new SummonController(gameControllerID,cardFromGraveyard).specialSummon();
         }
     }
 
@@ -118,7 +118,7 @@ public class EffectController {
     public void flipAllRivalFaceDownMonsters() {
         for (GameCard rivalMonster : getRivalPlayerField().getMonsterZone()) {
             if (rivalMonster != null) {
-                new SummonController(gameControllerID).flipSummon();
+                new SummonController(gameControllerID,rivalMonster).flipSummon();
             }
         }
     }
@@ -287,7 +287,7 @@ public class EffectController {
             //this card is not from your hand
         } else {
             getCurrentPlayerField().removeFromHand(cardToRemoveFromHand);
-            new SummonController(gameControllerID).specialSummon(effectCard);
+            new SummonController(gameControllerID,effectCard).specialSummon();
         }
     }
 
@@ -324,7 +324,7 @@ public class EffectController {
         } else if (monsterToSummon.getCard().getCardEffects().size() != 0) {
             //this monster has some effects
         } else {
-            new SummonController(gameControllerID).specialSummon(monsterToSummon);
+            new SummonController(gameControllerID,monsterToSummon).specialSummon();
         }
     }
 
