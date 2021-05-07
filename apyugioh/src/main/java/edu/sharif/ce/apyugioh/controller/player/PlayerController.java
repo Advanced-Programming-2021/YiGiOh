@@ -247,6 +247,22 @@ public abstract class PlayerController {
     //EquipMonster
     public abstract void equipMonster();
 
+    //Select card from graveyard
+    public abstract GameCard selectCardFromGraveyard();
+
+    //Select card from monster zone
+    public abstract GameCard selectCardFromMonsterZone();
+
+    //Select card from both graveyards
+    public abstract GameCard selectCardFromAllGraveyards();
+
+    //Select card from hand
+    public abstract GameCard selectCardFromHand();
+
+    //Select card from deck
+    public abstract GameCard selectCardFromDeck();
+
+
     private SelectionController getSelectionController() {
         return getGameController().getSelectionController();
     }

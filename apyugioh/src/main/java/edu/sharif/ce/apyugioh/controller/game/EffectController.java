@@ -4,6 +4,7 @@ import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.*;
+import edu.sharif.ce.apyugioh.view.GameView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +42,12 @@ public class EffectController {
 
     public void specialSummonFromGraveyard() {
         GameCard cardFromGraveyard = null;
-        //get card from view
+        cardFromGraveyard = getGameController().getCurrentPlayerController().selectCardFromGraveyard();
         if (cardFromGraveyard == null) {
-            //show error
+            GameController.getView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
         } else if (!(getCurrentPlayerField().isInGraveyard(cardFromGraveyard) ||
                 getRivalPlayerField().isInGraveyard(cardFromGraveyard))) {
-            //this card is not from graveyard
+            GameController.getView().showError(GameView.ERROR_NOT_FROM_PLACE,"graveyard");
         } else {
             if (getCurrentPlayerField().isInGraveyard(cardFromGraveyard)) {
                 getCurrentPlayerField().removeFromGraveyard(cardFromGraveyard);

@@ -70,4 +70,32 @@ public class AIPlayerController extends PlayerController{
     public void equipMonster(){
 
     }
+
+    //Select card from graveyard
+    public GameCard selectCardFromGraveyard(){
+        return null;
+    }
+
+    //Select card from monster zone
+    public GameCard selectCardFromMonsterZone(){
+        return null;
+    }
+
+    //Select card from both graveyards
+    public GameCard selectCardFromAllGraveyards(){
+        return null;
+    }
+
+    //Select card from hand
+    public GameCard selectCardFromHand(){
+        return null;
+    }
+
+    //Select card from deck
+    public GameCard selectCardFromDeck(){
+        return null;
+    }
+
+
+
 }
