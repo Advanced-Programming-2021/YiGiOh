@@ -10,6 +10,7 @@ import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class DatabaseManager {
 
@@ -57,6 +59,7 @@ public class DatabaseManager {
             updateDecksFromDB();
             cards = CSVToShopCards();
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
             Utils.printError("couldn't initialize database");
             System.exit(1);
@@ -200,11 +203,13 @@ public class DatabaseManager {
                 Spell spell = new Spell(Utils.firstUpperOnly(spellMap.get("name")), spellMap.get("description"), SpellProperty.
                         valueOf(spellMap.get("icon (property)").toUpperCase().replaceAll("-", "_")),
                         SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
+                spell.setCardEffects(getCardEffects(spell.getName(), CardType.SPELL));
                 cards.addSpell(spell, Integer.parseInt(spellMap.get("price")));
             } else {
                 Trap trap = new Trap(Utils.firstUpperOnly(spellMap.get("name")), spellMap.get("description"), SpellProperty.
                         valueOf(spellMap.get("icon (property)").toUpperCase().replaceAll("-", "_")),
                         SpellLimit.valueOf(spellMap.get("status").toUpperCase()));
+                trap.setCardEffects(getCardEffects(trap.getName(), CardType.TRAP));
                 cards.addTrap(trap, Integer.parseInt(spellMap.get("price")));
             }
         }
@@ -216,10 +221,26 @@ public class DatabaseManager {
                     Integer.parseInt(monsterMap.get("level")), Integer.parseInt(monsterMap.get("atk")),
                     Integer.parseInt(monsterMap.get("def")), MonsterAttribute.valueOf(monsterMap.get("attribute").toUpperCase()),
                     MonsterType.valueOf(monsterMap.get("monster type").replaceAll("[- ]", "_")
-                            .toUpperCase()), monsterMap.get("card type").equalsIgnoreCase("NORMAL") ?
-                    MonsterEffect.NORMAL : MonsterEffect.CONTINUOUS);
+                            .toUpperCase()), MonsterEffect.valueOf(monsterMap.get("card type").toUpperCase()));
+            monster.setCardEffects(getCardEffects(monster.getName(), CardType.MONSTER));
             cards.addMonster(monster, Integer.parseInt(monsterMap.get("price")));
         }
+    }
+
+    private static List<Effects> getCardEffects(String cardName, CardType type) {
+        Path effectsPath = Path.of("assets", "shop", type.name().toLowerCase(),
+                Utils.firstUpperOnly(cardName).replaceAll(" ", "") + ".json");
+        try {
+            String effects = Files.readString(effectsPath);
+            JsonAdapter<CardEffects> effectsAdapter = moshi.adapter(CardEffects.class);
+            return effectsAdapter.fromJson(effects).effects;
+        } catch (IOException ignored) {
+            //System.out.println(effectsPath);
+        } catch (Exception e) {
+            System.out.println(effectsPath);
+            logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
+        }
+        return new ArrayList<>();
     }
 
     public static Path exportShopCards(ShopCards cards) {
@@ -243,5 +264,9 @@ public class DatabaseManager {
             System.exit(1);
         }
         return true;
+    }
+
+    private static class CardEffects {
+        List<Effects> effects;
     }
 }

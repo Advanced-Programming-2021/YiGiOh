@@ -3,6 +3,7 @@ package edu.sharif.ce.apyugioh.model.card;
 import edu.sharif.ce.apyugioh.model.Effects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -15,5 +16,6 @@ public class Card {
     protected String description;
     @EqualsAndHashCode.Include
     protected CardType cardType;
+    @Setter
     protected List<Effects> cardEffects;
 }
