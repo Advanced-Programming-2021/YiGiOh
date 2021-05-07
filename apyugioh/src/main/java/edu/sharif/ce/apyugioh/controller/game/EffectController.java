@@ -19,13 +19,13 @@ public class EffectController {
         cardsAffected = new ArrayList<>();
     }
 
-    public static boolean canBeDestroyedInNormalAttack(GameCard effectCard) {
+    public boolean canBeDestroyedInNormalAttack(GameCard effectCard) {
         if (effectCard.getCard().getCardEffects().contains(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK))
             return true;
         return false;
     }
 
-    public static void decreaseAttackInNormalSummon(GameCard effectCard, int amount) {
+    public void decreaseAttackInNormalSummon(GameCard effectCard, int amount) {
         if (effectCard.getCard().getCardEffects().contains(Effects.DECREASE_ATTACK_POWER_IN_NORMAL_SUMMON)) {
             effectCard.addAttackModifier(amount);
         }
@@ -251,6 +251,19 @@ public class EffectController {
         }
     }
 
+    public void swordOfDarkDestruction() {
+        GameCard equipMonster = null;
+        //get monster form view
+        if (equipMonster == null) {
+            //show error
+        } else if (!GameController.getGameControllerById(gameControllerID).getCurrentPlayer()
+                .getField().isInMonsterZone(equipMonster)) {
+            //card is not from monster zone
+        } else {
+            
+        }
+    }
+
     public void destroyAllRivalCards() {
         destroyRivalMonsters();
         destroyRivalSpellTraps();
@@ -258,8 +271,7 @@ public class EffectController {
     }
 
     public void destroyAttackerCard() {
-        GameCard cardToDestroy = getGameController()
-                .getSelectionController().getCard();
+        GameCard cardToDestroy = getGameController().getSelectionController().getCard();
         //remove from monster zone
         getCurrentPlayerField().removeFromMonsterZone(cardToDestroy);
         //add to graveyard
@@ -344,8 +356,7 @@ public class EffectController {
     }
 
     public void decreaseAttackerLP(int amount) {
-        getCurrentPlayer()
-                .decreaseLifePoints(amount);
+        getCurrentPlayer().decreaseLifePoints(amount);
     }
 
     public void destroyOneOfRivalMonsters() {
