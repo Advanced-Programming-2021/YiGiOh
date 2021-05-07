@@ -148,8 +148,7 @@ public abstract class PlayerController {
             return;
         }
         if (!getSelectionController().getCard().isFaceDown() ||
-                (getGameController().getGameTurnController().getSetOrSummonedMonster() != null
-                        && getGameController().getGameTurnController().getSetOrSummonedMonster().equals(getSelectionController().getCard()))) {
+                (getSelectionController().getCard().equals(getGameController().getGameTurnController().getSetOrSummonedMonster()))) {
             GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "flip summon");
             return;
         }

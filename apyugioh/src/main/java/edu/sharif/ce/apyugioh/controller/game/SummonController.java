@@ -37,7 +37,7 @@ public class SummonController {
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
                 logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
-                //there are not enough cards to tribute
+                GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
                 return false;
             }
             if (!tribute(1))
@@ -45,7 +45,7 @@ public class SummonController {
         } else if (((Monster) card.getCard()).getLevel() >= 7) {
             if (availableMonsters < 2) {
                 logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
-                //there are not enough cards to tribute
+                GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
                 return false;
             }
             if (!tribute(2))

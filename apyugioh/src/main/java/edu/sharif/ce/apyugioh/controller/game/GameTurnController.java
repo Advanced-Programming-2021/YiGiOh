@@ -106,10 +106,10 @@ public class GameTurnController {
                 ((Monster) getSelectionController().getCard().getCard()).getLevel() <= 4) {
             logger.info("in game with id {}: can't summon | monster zone full", gameControllerID);
             System.out.println(getCurrentPlayerField().isMonsterZoneFull());
-            //monster card zone is full
+            GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
         } else if (setOrSummonedMonster != null) {
             logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
-            //you already summoned/set on this turn
+            GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
         } else {
             if (new SummonController(gameControllerID).normalSummon())
                 setSetOrSummonedMonster(getSelectionController().getCard());
@@ -119,11 +119,11 @@ public class GameTurnController {
 
     public void changePosition(boolean isChangeToAttack) {
         if (isChangeToAttack == (!getSelectionController().getCard().isFaceDown())) {
-            //this card is already in the wanted position
+            GameController.getView().showError(GameView.ERROR_ALREADY_IN_WANTED_POSITION);
             return;
         }
-        if (changedPositionMonster != null && changedPositionMonster.equals(getSelectionController().getCard())) {
-            //you already changed this card position in this turn
+        if (getSelectionController().getCard().equals(changedPositionMonster)) {
+            GameController.getView().showError(GameView.ERROR_ALREADY_CHANGED_POSITION_IN_TURN);
             return;
         }
         getSelectionController().getCard().setRevealed(true);
