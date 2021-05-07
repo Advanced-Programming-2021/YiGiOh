@@ -28,6 +28,8 @@ public class GameView extends View {
     public static final int ERROR_NO_CARD_TO_ATTACK_TO = -15;
     public static final int ERROR_CANT_BE_SUMMONED = -16;
     public static final int ERROR_NOT_FROM_PLACE = -17;
+    public static final int ERROR_CANT_ATTACK_IN_FIRST_TURN = -18;
+
 
 
     public static final int SUCCESS_SELECTION_SUCCESSFUL = 1;
@@ -56,6 +58,7 @@ public class GameView extends View {
         errorMessages.put(ERROR_NO_CARD_TO_ATTACK_TO, "there is no card to attack here");
         errorMessages.put(ERROR_CANT_BE_SUMMONED, "you can't summon any monster");
         errorMessages.put(ERROR_NOT_FROM_PLACE, "this card is not from %s");
+        errorMessages.put(ERROR_CANT_ATTACK_IN_FIRST_TURN, "you can't have a battle in the first turn of game");
 
 
         successMessages.put(SUCCESS_SELECTION_SUCCESSFUL, "%s selected successfully");

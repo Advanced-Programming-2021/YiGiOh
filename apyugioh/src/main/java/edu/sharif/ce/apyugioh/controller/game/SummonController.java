@@ -55,8 +55,6 @@ public class SummonController {
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
         logger.info("in game with id {}: summon successful", gameControllerID);
-        getGameController().activeEffect();
-        GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
         return true;
     }
 
@@ -75,9 +73,7 @@ public class SummonController {
     public boolean flipSummon() {
         card.setRevealed(true);
         card.setFaceDown(false);
-        getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
         getGameTurnController().setChangedPositionMonster(card);
-        GameController.getView().showSuccess(GameView.SUCCESS_FLIP_SUMMON_SUCCESSFUL);
         return true;
     }
 

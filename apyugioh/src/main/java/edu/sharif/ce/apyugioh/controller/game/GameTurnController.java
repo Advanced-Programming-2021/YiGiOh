@@ -39,6 +39,7 @@ public class GameTurnController {
         attackedMonsters = new ArrayList<>();
         chain = new ArrayList<>();
         disposableUsedCards = new ArrayList<>();
+        getGameController().setPassedTurns(getGameController().getPassedTurns() + 1);
     }
 
     public void nextPhase() {
@@ -96,7 +97,6 @@ public class GameTurnController {
     public void set() {
         if (new SetController(gameControllerID).set())
             setSetOrSummonedMonster(getSelectionController().getCard());
-        getGameController().deselect();
     }
 
     public void summon() {
@@ -113,8 +113,12 @@ public class GameTurnController {
         } else {
             if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon())
                 setSetOrSummonedMonster(getSelectionController().getCard());
+                getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,
+                        getSelectionController().getCard()));
+                getGameController().applyEffect(Trigger.AFTER_SUMMON);
+                GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
+            }
         }
-        getGameController().deselect();
     }
 
     public void changePosition(boolean isChangeToAttack) {
@@ -137,7 +141,11 @@ public class GameTurnController {
     }
 
     public void attack(int position) {
-        if (attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId())) {
+        if (getGameController().getPassedTurns() == 1) {
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_IN_FIRST_TURN);
+            return;
+        }
+        if (hasMonsterAttacked(getSelectionController().getCard())) {
             GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
             return;
         }
@@ -153,20 +161,28 @@ public class GameTurnController {
     }
 
     public void directAttack() {
-        if (attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId())) {
+        if (getGameController().getPassedTurns() == 1) {
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_IN_FIRST_TURN);
+            return;
+        }
+        if (hasMonsterAttacked(getSelectionController().getCard())) {
             GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
             return;
         }
-        //needs change
-        if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0 || (false)) {
+        if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0 || getGameController().applyEffect(Trigger.BEFORE_ATTACK).equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
             GameController.getView().showError(GameView.ERROR_CANT_DIRECTLY_ATTACK);
             return;
         }
-        new AttackController(gameControllerID).directAttack();
+        getGameController().setAttackController(new AttackController(gameControllerID));
+        if (getGameController().getAttackController().directAttack()) {
+            GameController.getView().showSuccess(GameView.SUCCESS_DIRECT_ATTACK_SUCCESSFUL,
+                    String.valueOf(((Monster)getSelectionController().getCard().getCard()).getAttackPoints()));
+        }
+        attackedMonsters.add(getSelectionController().getCard());
     }
 
     public boolean hasMonsterAttacked(GameCard monster) {
-        return true;
+        return attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId());
     }
 
     public void makeChain() {

@@ -27,4 +27,5 @@ public class Monster extends Card {
         this.effect = effect;
         summon = level > 4 ? MonsterSummon.TRIBUTE : MonsterSummon.NORMAL;
     }
+
 }

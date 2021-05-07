@@ -1,7 +1,9 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.view.GameView;
 
 import java.util.List;
 
@@ -15,42 +17,58 @@ public class AttackController {
         this.gameControllerID = gameControllerID;
     }
 
-    public AttackController(int gameControllerID,int position){
+    public AttackController(int gameControllerID,int position) {
         attackingMonster = GameController.getGameControllerById(gameControllerID).getSelectionController().getCard();
         attackedMonster = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField().getMonsterZone()[position];
         this.gameControllerID = gameControllerID;
     }
 
     public boolean attack() {
+        boolean wasRevealed = attackedMonster.isRevealed();
+        if (!wasRevealed) {
+            new SummonController(gameControllerID, attackedMonster).flipSummon();
+            attackedMonster.setFaceDown(true);
+        }
+        int playerPoints = getAttackPoints(attackingMonster);
+        int rivalPoints = 0;
+        if (attackedMonster.isFaceDown()){
+            rivalPoints = getDefensePoints(attackedMonster);
+        }else{
+            rivalPoints = getAttackPoints(attackedMonster);
+        }
+        if (!wasRevealed){
+            getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,attackedMonster));
+            getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
+        }
         return true;
     }
 
     public boolean directAttack() {
-        getGameController().getRivalPlayer().setLifePoints(getGameController().getRivalPlayer().getLifePoints() - getAttackPoints());
+        getGameController().getRivalPlayer().setLifePoints(getGameController().getRivalPlayer().getLifePoints() - getAttackPoints(attackingMonster));
         return true;
     }
 
-    public int getAttackPoints(){
-        int attackPoints = ((Monster)attackingMonster.getCard()).getAttackPoints();
-        for(Integer modifier:attackingMonster.getAttackModifier())
+    public int getAttackPoints(GameCard card){
+        int attackPoints = ((Monster)card.getCard()).getAttackPoints();
+        for(Integer modifier:card.getAttackModifier())
             attackPoints += modifier;
         if (attackPoints < 0)
             attackPoints = 0;
         //special Cases
-        if (attackingMonster.getCard().getName().equals("The Calculator")){
+        if (card.getCard().getName().equals("The Calculator")){
             int levelsSum = 0;
-            for(GameCard card:getGameController().getCurrentPlayer().getField().getMonsterZone()){
-                if (card.isRevealed())
-                    levelsSum += ((Monster)card.getCard()).getLevel();
+            for(GameCard summingCard:getGameController().getCurrentPlayer().getField().getMonsterZone()){
+                if (summingCard.isRevealed())
+                    levelsSum += ((Monster)summingCard.getCard()).getLevel();
             }
             attackPoints = levelsSum*300;
         }
         return attackPoints;
     }
 
-    public int getDefensePoint(){
-        int defensePoints = ((Monster)attackedMonster.getCard()).getDefensePoints();
-        for (Integer modifier : attackingMonster.getDefenceModifier())
+    public int getDefensePoints(GameCard card){
+        int defensePoints = ((Monster)card.getCard()).getDefensePoints();
+        for (Integer modifier : card.getDefenceModifier())
             defensePoints += modifier;
         if (defensePoints < 0)
             defensePoints = 0;

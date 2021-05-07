@@ -32,7 +32,9 @@ public class GameController {
 
     private int id;
     private int numberOfRounds;
+    private int passedTurns;
     private boolean isFirstPlayerTurn;
+    private AttackController attackController;
     private SelectionController selectionController;
     private GameTurnController gameTurnController;
     private CheatController cheatController;
@@ -227,6 +229,18 @@ public class GameController {
             }
         }
         return null;
+    }
+
+    public List<EffectController> getCurrentPlayerEffectControllers(){
+        if (getCurrentPlayer().equals(firstPlayer))
+            return firstPlayerEffectControllers;
+        return secondPlayerEffectControllers;
+    }
+
+    public List<EffectController> getRivalPlayerEffectControllers(){
+        if (getRivalPlayer().equals(firstPlayer))
+            return firstPlayerEffectControllers;
+        return secondPlayerEffectControllers;
     }
 
     public void showCurrentPlayerBoard() {
