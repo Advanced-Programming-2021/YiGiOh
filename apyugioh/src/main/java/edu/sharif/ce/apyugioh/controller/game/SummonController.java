@@ -4,10 +4,19 @@ import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 
 public class SummonController {
+
+    private static Logger logger;
+
+    static {
+        logger = LogManager.getLogger(SummonController.class);
+    }
+
 
     private static HashSet<String> specialCases;
     private GameCard card;
@@ -31,6 +40,7 @@ public class SummonController {
         int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
+                logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
                 //there are not enough cards to tribute
                 return false;
             }
@@ -38,6 +48,7 @@ public class SummonController {
                 return false;
         } else if (((Monster) card.getCard()).getLevel() >= 7) {
             if (availableMonsters < 2) {
+                logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
                 //there are not enough cards to tribute
                 return false;
             }
@@ -48,6 +59,7 @@ public class SummonController {
         card.setFaceDown(false);
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
+        logger.info("in game with id {}: summon successful", gameControllerID);
         getGameController().activeEffect();
         //show error summoned successfully
         return true;

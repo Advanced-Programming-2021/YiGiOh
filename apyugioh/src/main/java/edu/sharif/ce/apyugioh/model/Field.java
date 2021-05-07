@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.model;
 
 import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Monster;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -154,7 +155,10 @@ public class Field {
     }
 
     public boolean isMonsterZoneFull() {
-        return Arrays.stream(monsterZone).noneMatch(Objects::nonNull);
+        for (GameCard monster : monsterZone) {
+            if (monster == null) return false;
+        }
+        return true;
     }
 
     public boolean isSpellZoneFull() {

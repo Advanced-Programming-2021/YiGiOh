@@ -99,11 +99,14 @@ public class GameTurnController {
             setSetOrSummonedMonster(getSelectionController().getCard());
     }
 
-    public void summon(){
+    public void summon() {
         if (getCurrentPlayerField().isMonsterZoneFull() &&
-                ((Monster)getSelectionController().getCard().getCard()).getLevel()<=4){
+                ((Monster) getSelectionController().getCard().getCard()).getLevel() <= 4) {
+            logger.info("in game with id {}: can't summon | monster zone full", gameControllerID);
+            System.out.println(getCurrentPlayerField().isMonsterZoneFull());
             //monster card zone is full
-        } else if (setOrSummonedMonster != null){
+        } else if (SetOrSummonedMonster != null) {
+            logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
             //you already summoned/set on this turn
         } else {
             if (new SummonController(gameControllerID).normalSummon())
