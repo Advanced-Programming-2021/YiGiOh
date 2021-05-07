@@ -31,7 +31,6 @@ public class SummonController {
     public SummonController(int gameControllerID) {
         this.gameControllerID = gameControllerID;
         card = getSelectionController().getCard();
-        getGameController().setSelectionController(null);
     }
 
     public boolean normalSummon() {
