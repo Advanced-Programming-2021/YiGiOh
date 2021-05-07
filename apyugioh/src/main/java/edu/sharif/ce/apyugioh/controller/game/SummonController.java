@@ -12,21 +12,17 @@ import java.util.HashSet;
 public class SummonController {
 
     private static Logger logger;
+    private static HashSet<String> specialCases;
 
     static {
         logger = LogManager.getLogger(SummonController.class);
-    }
-
-
-    private static HashSet<String> specialCases;
-    private GameCard card;
-    private int gameControllerID;
-
-    static {
         specialCases = new HashSet<>();
         specialCases.add("Beast King Barbaros");
         specialCases.add("Gate Guardian");
     }
+
+    private GameCard card;
+    private int gameControllerID;
 
     public SummonController(int gameControllerID) {
         this.gameControllerID = gameControllerID;
@@ -34,8 +30,8 @@ public class SummonController {
     }
 
     public boolean normalSummon() {
-        if (specialCases.contains(getSelectionController().getCard().getCard().getName()))
-            return specialSummon(getSelectionController().getCard());
+        if (specialCases.contains(card.getCard().getName()))
+            return specialSummon(card);
         int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
@@ -85,10 +81,15 @@ public class SummonController {
     }
 
     public boolean tribute(int amount) {
-        GameCard tributeMonster = getGameController().getCurrentPlayerController().tributeMonster(amount);
-        if (tributeMonster == null)
-            return false;
-        getGameController().getCurrentPlayerController().removeCard(tributeMonster);
+        GameCard[] tributeMonsters = getGameController().getCurrentPlayerController().tributeMonster(amount);
+        if (tributeMonsters == null) return false;
+        for (GameCard tributeMonster : tributeMonsters) {
+            if (tributeMonster == null)
+                return false;
+        }
+        for (GameCard tributeMonster : tributeMonsters) {
+            getGameController().getCurrentPlayerController().removeCard(tributeMonster);
+        }
         return true;
     }
 

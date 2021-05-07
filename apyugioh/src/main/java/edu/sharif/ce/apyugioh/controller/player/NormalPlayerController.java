@@ -17,7 +17,7 @@ public class NormalPlayerController extends PlayerController{
     }
 
     //TributeMonsterForSummon
-    public GameCard tributeMonster(int amount){
+    public GameCard[] tributeMonster(int amount){
         return null;
     }
 

@@ -212,7 +212,7 @@ public abstract class PlayerController {
 
     //SpecialCases
     //TributeMonsterForSummon
-    public abstract GameCard tributeMonster(int amount);
+    public abstract GameCard[] tributeMonster(int amount);
 
     //Scanner
     public abstract GameCard scanMonsterForScanner();

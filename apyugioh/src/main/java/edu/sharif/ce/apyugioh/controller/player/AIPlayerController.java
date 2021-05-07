@@ -32,7 +32,7 @@ public class AIPlayerController extends PlayerController{
     //special Cases
 
     //TributeMonsterForSummon
-    public GameCard tributeMonster(int amount){
+    public GameCard[] tributeMonster(int amount){
         return null;
     }
 

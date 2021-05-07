@@ -97,6 +97,7 @@ public class GameTurnController {
     public void set() {
         if (new SetController(gameControllerID).set())
             setSetOrSummonedMonster(getSelectionController().getCard());
+        getGameController().deselect();
     }
 
     public void summon() {
@@ -105,21 +106,22 @@ public class GameTurnController {
             logger.info("in game with id {}: can't summon | monster zone full", gameControllerID);
             System.out.println(getCurrentPlayerField().isMonsterZoneFull());
             //monster card zone is full
-        } else if (SetOrSummonedMonster != null) {
+        } else if (setOrSummonedMonster != null) {
             logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
             //you already summoned/set on this turn
         } else {
             if (new SummonController(gameControllerID).normalSummon())
                 setSetOrSummonedMonster(getSelectionController().getCard());
         }
+        getGameController().deselect();
     }
 
     public void changePosition(boolean isChangeToAttack) {
-        if (isChangeToAttack == (!getSelectionController().getCard().isFaceDown())){
+        if (isChangeToAttack == (!getSelectionController().getCard().isFaceDown())) {
             //this card is already in the wanted position
             return;
         }
-        if (changedPositionMonster != null && changedPositionMonster.equals(getSelectionController().getCard())){
+        if (changedPositionMonster != null && changedPositionMonster.equals(getSelectionController().getCard())) {
             //you already changed this card position in this turn
             return;
         }
@@ -133,17 +135,17 @@ public class GameTurnController {
         new SummonController(gameControllerID).flipSummon();
     }
 
-    public void attack(int position){
+    public void attack(int position) {
 
     }
 
-    public void directAttack(){
-        if (attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId())){
+    public void directAttack() {
+        if (attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId())) {
             //this card already attacked
             return;
         }
         //needs change
-        if (getGameController().getRivalPlayer().getField().getFirstFreeMonsterZoneIndex()>0 || (false)){
+        if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0 || (false)) {
             //you can't attack the opponent card directly
             return;
         }

@@ -83,14 +83,17 @@ public class GameController {
     }
 
     public void deselect() {
-        logger.info("in game with id {}: {} deselected from {}", id, selectionController.getCard().getCard().getName(),
-                selectionController.getLocation());
-        selectionController = null;
+        if (selectionController != null) {
+            logger.info("in game with id {}: {} deselected from {}", id, selectionController.getCard().getCard().getName(),
+                    selectionController.getLocation());
+            selectionController = null;
+        }
     }
 
     public void set() {
         gameTurnController.set();
     }
+
     public void summon() {
         gameTurnController.summon();
     }

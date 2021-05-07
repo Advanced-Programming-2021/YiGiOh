@@ -13,7 +13,6 @@ public class SetController {
     public SetController(int gameControllerID) {
         this.gameControllerID = gameControllerID;
         card = getSelectionController().getCard();
-        getGameController().setSelectionController(null);
     }
 
     public void specialSet(GameCard monsterToSet) {
