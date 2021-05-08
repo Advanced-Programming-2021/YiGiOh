@@ -62,13 +62,13 @@ public class AIPlayerController extends PlayerController{
     }
 
     //terratiger
-    public void selectMonsterToSummon(){
-
+    public GameCard selectMonsterToSummon(){
+        return null;
     }
 
     //EquipMonster
-    public void equipMonster(){
-
+    public GameCard equipMonster(){
+        return null;
     }
 
     //Select card from graveyard
@@ -96,6 +96,10 @@ public class AIPlayerController extends PlayerController{
         return null;
     }
 
+    @Override
+    public boolean confirm(String message) {
+        return true;
+    }
 
 
 }

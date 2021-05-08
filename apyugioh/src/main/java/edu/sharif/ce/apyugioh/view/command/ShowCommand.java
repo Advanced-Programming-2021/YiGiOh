@@ -15,6 +15,12 @@ public class ShowCommand {
         GameController.getGameControllerById(ProgramController.getGameControllerID()).showCurrentPlayerBoard();
     }
 
+    @Command(name = "graveyard", mixinStandardHelpOptions = true, description = "show graveyard")
+    public void showGraveyard() {
+        if (!isAvailable()) return;
+        GameController.getGameControllerById(ProgramController.getGameControllerID()).showCurrentPlayerBoard();
+    }
+
     private boolean isAvailable() {
         if (ProgramController.getState().equals(MenuState.DUEL)) {
             return ProgramController.getGameControllerID() != -1;

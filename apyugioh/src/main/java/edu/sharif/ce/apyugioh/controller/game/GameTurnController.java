@@ -100,6 +100,7 @@ public class GameTurnController {
     }
 
     public void summon() {
+        EffectResponse response;
         if (getCurrentPlayerField().isMonsterZoneFull() &&
                 ((Monster) getSelectionController().getCard().getCard()).getLevel() <= 4) {
             logger.info("in game with id {}: can't summon | monster zone full", gameControllerID);
@@ -108,10 +109,11 @@ public class GameTurnController {
         } else if (setOrSummonedMonster != null) {
             logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
             GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
-        } else if (getGameController().applyEffect(Trigger.BEFORE_SUMMON).equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
+        } else if ((response = getGameController().applyEffect(Trigger.BEFORE_SUMMON)) != null
+                && response.equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
             GameController.getView().showError(GameView.ERROR_CANT_BE_SUMMONED);
         } else {
-            if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()){
+            if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()) {
                 setSetOrSummonedMonster(getSelectionController().getCard());
                 getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,
                         getSelectionController().getCard()));
@@ -176,7 +178,7 @@ public class GameTurnController {
         getGameController().setAttackController(new AttackController(gameControllerID));
         if (getGameController().getAttackController().directAttack()) {
             GameController.getView().showSuccess(GameView.SUCCESS_DIRECT_ATTACK_SUCCESSFUL,
-                    String.valueOf(((Monster)getSelectionController().getCard().getCard()).getAttackPoints()));
+                    String.valueOf(((Monster) getSelectionController().getCard().getCard()).getAttackPoints()));
         }
         attackedMonsters.add(getSelectionController().getCard());
     }

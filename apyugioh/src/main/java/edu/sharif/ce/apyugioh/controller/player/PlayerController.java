@@ -104,7 +104,7 @@ public abstract class PlayerController {
         }
         if (!getSelectionController().getLocation().isInHand() ||
                 !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER) ||
-                !((Monster) getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.NORMAL)) {
+                ((Monster) getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.RITUAL)) {
             GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "summon");
             return;
         }
@@ -157,37 +157,31 @@ public abstract class PlayerController {
     }
 
     public void attack(int position) {
-        if (getSelectionController() == null){
-            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
-            return;
-        }
-        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())){
-            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
-            return;
-        }
-        if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)){
-            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return;
-        }
+        if (checkBeforeAttack()) return;
         getGameController().attack(position);
         getGameController().deselect();
     }
 
     public void directAttack() {
-        if (getSelectionController().getCard() == null){
+        if (checkBeforeAttack()) return;
+        getGameController().directAttack();
+        getGameController().deselect();
+    }
+
+    private boolean checkBeforeAttack() {
+        if (getSelectionController() == null){
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
-            return;
+            return true;
         }
         if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())){
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
-            return;
+            return true;
         }
         if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)){
             GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return;
+            return true;
         }
-        getGameController().directAttack();
-        getGameController().deselect();
+        return false;
     }
 
     public void nextPhase() {
@@ -238,10 +232,10 @@ public abstract class PlayerController {
     public abstract int chooseHowToSummon();
 
     //terratiger
-    public abstract void selectMonsterToSummon();
+    public abstract GameCard selectMonsterToSummon();
 
     //EquipMonster
-    public abstract void equipMonster();
+    public abstract GameCard equipMonster();
 
     //Select card from graveyard
     public abstract GameCard selectCardFromGraveyard();
@@ -258,16 +252,18 @@ public abstract class PlayerController {
     //Select card from deck
     public abstract GameCard selectCardFromDeck();
 
+    public abstract boolean confirm(String message);
 
-    private SelectionController getSelectionController() {
+
+    protected SelectionController getSelectionController() {
         return getGameController().getSelectionController();
     }
 
-    private Phase getPhase() {
+    protected Phase getPhase() {
         return getGameController().getGameTurnController().getPhase();
     }
 
-    private GameController getGameController() {
+    protected GameController getGameController() {
         return GameController.getGameControllerById(gameControllerID);
     }
 }

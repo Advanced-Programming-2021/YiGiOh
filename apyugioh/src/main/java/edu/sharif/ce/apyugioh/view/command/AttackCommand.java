@@ -3,29 +3,33 @@ package edu.sharif.ce.apyugioh.view.command;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.view.ErrorView;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 import java.util.concurrent.Callable;
 
-@Command(name = "set", mixinStandardHelpOptions = true, description = "card set commands")
-public class SetCommand implements Callable<Integer> {
+@Command(name = "attack", mixinStandardHelpOptions = true, description = "duel attack commands")
+public class AttackCommand implements Callable<Integer> {
 
-    @Option(names = {"-p", "--position"}, description = "set card position", paramLabel = "position")
-    String state;
+    @Parameters(arity = "0..1", defaultValue = "-1", paramLabel = "position", description = "card position")
+    int position;
 
     @Override
     public Integer call() {
         if (!isAvailable()) return -1;
-        if (state == null) {
-            ProgramController.getCurrentPlayerController().set();
-        } else if (state.equalsIgnoreCase("attack") || state.equalsIgnoreCase("defense")) {
-            ProgramController.getCurrentPlayerController().changePosition(state.equalsIgnoreCase("attack"));
+        if (position > 0 && position < 6) {
+            ProgramController.getCurrentPlayerController().attack(position);
         } else {
             ErrorView.showError(ErrorView.COMMAND_INVALID);
             return -1;
         }
         return 0;
+    }
+
+    @Command(name = "direct", mixinStandardHelpOptions = true, description = "direct attack to opponent")
+    public void directAttack() {
+        if (!isAvailable()) return;
+        ProgramController.getCurrentPlayerController().directAttack();
     }
 
     private boolean isAvailable() {
@@ -36,5 +40,4 @@ public class SetCommand implements Callable<Integer> {
             return false;
         }
     }
-
 }

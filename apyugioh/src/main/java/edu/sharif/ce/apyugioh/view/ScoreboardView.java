@@ -14,7 +14,7 @@ public class ScoreboardView extends View {
         AsciiTable scoreboard = new AsciiTable();
         scoreboard.addRule();
         scoreboard.addRow("rank", "nickname", "score");
-        scoreboard.addRule();
+        scoreboard.addStrongRule();
         int counter = 0;
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
@@ -27,7 +27,7 @@ public class ScoreboardView extends View {
             scoreboard.addRule();
         }
         scoreboard.setTextAlignment(TextAlignment.CENTER);
-        scoreboard.getContext().setGrid(U8_Grids.borderDouble());
+        scoreboard.getContext().setGrid(U8_Grids.borderStrongDoubleLight());
         System.out.println(scoreboard.render(Math.max(80, ProgramController.getReader().getTerminal().getWidth())));
     }
 }

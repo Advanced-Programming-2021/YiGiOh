@@ -199,8 +199,9 @@ public class GameController {
     }
 
     public void removeCard(GameCard card){
-        getPlayerByCard(card).getField().removeFromMonsterZone(card);
-        getPlayerByCard(card).getField().putInGraveyard(card);
+        Player cardPlayer = getPlayerByCard(card);
+        cardPlayer.getField().removeFromMonsterZone(card);
+        cardPlayer.getField().putInGraveyard(card);
     }
 
     public void knockOutMonster(GameCard monster){
@@ -261,11 +262,17 @@ public class GameController {
         getView().showBoard(getRivalPlayer(), getCurrentPlayer());
     }
 
+    public void showCurrentPlayerGraveyard() {
+        getView().showGraveyard(getCurrentPlayer());
+    }
+
     public boolean isCardSelected() {
         return selectionController != null;
     }
 
     public Player getPlayerByCard(GameCard card){
+        if (getCurrentPlayer().getField().isInField(card)) return getCurrentPlayer();
+        if (getRivalPlayer().getField().isInField(card)) return getRivalPlayer();
         return null;
     }
 

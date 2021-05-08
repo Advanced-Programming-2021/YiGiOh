@@ -114,6 +114,7 @@ public class ProgramController {
             }
         } catch (Throwable t) {
             t.printStackTrace();
+            logger.error("Exception: Cause: {}\nDetails: {}", t.getCause(), t.getMessage());
         } finally {
             AnsiConsole.systemUninstall();
         }
@@ -170,7 +171,7 @@ public class ProgramController {
     @Command(name = "", description = {"Yu-Gi-Oh! Duel Links"},
             subcommands = {MenuCommand.class, UserCommand.class, ProfileCommand.class, ScoreboardCommand.class,
                     ShopCommand.class, CardCommand.class, DeckCommand.class, DuelCommand.class, SelectCommand.class,
-                    SummonCommand.class, SetCommand.class, NextCommand.class, ShowCommand.class,
+                    SummonCommand.class, SetCommand.class, NextCommand.class, ShowCommand.class, AttackCommand.class,
                     PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
     static class CliCommands implements Runnable {
         PrintWriter out;

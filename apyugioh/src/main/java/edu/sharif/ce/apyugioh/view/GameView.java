@@ -1,13 +1,22 @@
 package edu.sharif.ce.apyugioh.view;
 
+import de.codeshelf.consoleui.prompt.*;
+import de.codeshelf.consoleui.prompt.builder.ExpandableChoicePromptBuilder;
+import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder;
+import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciithemes.u8.U8_Grids;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
+import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 public class GameView extends View {
 
@@ -29,7 +38,6 @@ public class GameView extends View {
     public static final int ERROR_CANT_BE_SUMMONED = -16;
     public static final int ERROR_NOT_FROM_PLACE = -17;
     public static final int ERROR_CANT_ATTACK_IN_FIRST_TURN = -18;
-
 
 
     public static final int SUCCESS_SELECTION_SUCCESSFUL = 1;
@@ -68,6 +76,49 @@ public class GameView extends View {
         successMessages.put(SUCCESS_CHANGE_POSITION_SUCCESSFUL, "monster card position changed successfully");
         successMessages.put(SUCCESS_FLIP_SUMMON_SUCCESSFUL, "flip summoned successfully");
         successMessages.put(SUCCESS_DIRECT_ATTACK_SUCCESSFUL, "you opponent receives %s battle damage");
+    }
+
+    public void showGraveyard(Player player) {
+        AsciiTable graveyardTable = new AsciiTable();
+        graveyardTable.addRule();
+        graveyardTable.addRow("", "name");
+        graveyardTable.addStrongRule();
+        int counter = 0;
+        for (GameCard card : player.getField().getGraveyard()) {
+            graveyardTable.addRow(++counter, card.getCard().getName());
+            graveyardTable.addRule();
+        }
+        graveyardTable.setTextAlignment(TextAlignment.CENTER);
+        graveyardTable.getContext().setGrid(U8_Grids.borderStrongDoubleLight());
+        System.out.println(graveyardTable.render(Math.max(80, ProgramController.getReader().getTerminal().getWidth())));
+    }
+
+    public boolean confirm(String message) {
+        String[] options = {"Yes", "No"};
+        return promptChoice(options, "").equalsIgnoreCase("yes");
+    }
+
+    public String promptChoice(String[] options) {
+        return promptChoice(options, "Choose the card you want");
+    }
+
+    public String promptChoice(String[] options, String message) {
+        ConsolePrompt prompt = new ConsolePrompt();
+        PromptBuilder builder = prompt.getPromptBuilder();
+        ListPromptBuilder choicePrompt = builder.createListPrompt().name("tribute").message(message);
+        for (String option : options) {
+            choicePrompt = choicePrompt.newItem(option).add();
+        }
+        choicePrompt = choicePrompt.newItem("cancel").add();
+        builder = choicePrompt.addPrompt();
+        try {
+            HashMap<String, ? extends PromtResultItemIF> results = prompt.prompt(builder.build());
+            String result = ((ListResult) results.get("tribute")).getSelectedId();
+            return result.equals("cancel") ? null : result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void showPhase(Phase phase) {

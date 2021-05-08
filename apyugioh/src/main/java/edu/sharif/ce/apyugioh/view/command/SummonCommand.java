@@ -3,6 +3,7 @@ package edu.sharif.ce.apyugioh.view.command;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.view.ErrorView;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 
 import java.util.concurrent.Callable;
@@ -10,10 +11,17 @@ import java.util.concurrent.Callable;
 @Command(name = "summon", mixinStandardHelpOptions = true, description = "monster summon commands")
 public class SummonCommand implements Callable<Integer> {
 
+    @Option(names = {"-f", "--flip"}, description = "card flip", paramLabel = "flip")
+    boolean isFlip;
+
     @Override
     public Integer call() {
         if (!isAvailable()) return -1;
-        ProgramController.getCurrentPlayerController().summon();
+        if (!isFlip) {
+            ProgramController.getCurrentPlayerController().summon();
+        } else {
+            ProgramController.getCurrentPlayerController().flipSummon();
+        }
         return 0;
     }
 

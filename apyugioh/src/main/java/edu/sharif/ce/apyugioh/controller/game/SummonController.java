@@ -27,6 +27,7 @@ public class SummonController {
 
     public SummonController(int gameControllerID,GameCard card) {
         this.gameControllerID = gameControllerID;
+        this.card = card;
     }
 
     public boolean normalSummon() {
