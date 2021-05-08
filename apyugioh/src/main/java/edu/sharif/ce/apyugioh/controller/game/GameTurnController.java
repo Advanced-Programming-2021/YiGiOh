@@ -111,7 +111,7 @@ public class GameTurnController {
         } else if (getGameController().applyEffect(Trigger.BEFORE_SUMMON).equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
             GameController.getView().showError(GameView.ERROR_CANT_BE_SUMMONED);
         } else {
-            if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon())
+            if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()){
                 setSetOrSummonedMonster(getSelectionController().getCard());
                 getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,
                         getSelectionController().getCard()));

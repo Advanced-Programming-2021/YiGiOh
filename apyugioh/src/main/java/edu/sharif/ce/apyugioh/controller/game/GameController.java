@@ -198,6 +198,16 @@ public class GameController {
         }
     }
 
+    public void removeCard(GameCard card){
+        getPlayerByCard(card).getField().removeFromMonsterZone(card);
+        getPlayerByCard(card).getField().putInGraveyard(card);
+    }
+
+    public void knockOutMonster(GameCard monster){
+        removeCard(monster);
+
+    }
+
     public EffectResponse applyEffect(Trigger trigger) {
         for (EffectController effectController : firstPlayerEffectControllers) {
             if (trigger.equals(Trigger.SET)) {
@@ -253,6 +263,10 @@ public class GameController {
 
     public boolean isCardSelected() {
         return selectionController != null;
+    }
+
+    public Player getPlayerByCard(GameCard card){
+        return null;
     }
 
     public PlayerController getCurrentPlayerController() {

@@ -85,7 +85,7 @@ public class SummonController {
                 return false;
         }
         for (GameCard tributeMonster : tributeMonsters) {
-            getGameController().getCurrentPlayerController().removeCard(tributeMonster);
+            getGameController().removeCard(tributeMonster);
         }
         return true;
     }

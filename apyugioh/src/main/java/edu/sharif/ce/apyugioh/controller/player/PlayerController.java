@@ -218,10 +218,6 @@ public abstract class PlayerController {
 
     }
 
-    public void removeCard(GameCard card) {
-
-    }
-
     //SpecialCases
     //TributeMonsterForSummon
     public abstract GameCard[] tributeMonster(int amount);
