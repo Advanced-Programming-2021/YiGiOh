@@ -205,7 +205,7 @@ public class GameController {
 
     public void knockOutMonster(GameCard monster){
         removeCard(monster);
-
+        applyEffect(Trigger.AFTER_MONSTER_KNOCK_OUT);
     }
 
     public EffectResponse applyEffect(Trigger trigger) {

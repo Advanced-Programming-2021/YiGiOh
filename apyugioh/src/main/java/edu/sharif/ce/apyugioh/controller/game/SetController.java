@@ -1,9 +1,11 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Monster;
 import edu.sharif.ce.apyugioh.view.GameView;
 
 public class SetController {
@@ -32,6 +34,10 @@ public class SetController {
     }
 
     private boolean monsterSet() {
+        if (((Monster)card.getCard()).getLevel() > 8){
+            Utils.printError("you can't normally set this monster");
+            return false;
+        }
         if (!getGameTurnController().getPhase().equals(Phase.MAIN1) && !getGameTurnController().getPhase().equals(Phase.MAIN2)){
             GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
             return false;
