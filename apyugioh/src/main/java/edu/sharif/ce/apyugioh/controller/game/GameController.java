@@ -202,6 +202,10 @@ public class GameController {
         cardPlayer.getField().putInGraveyard(card);
     }
 
+    public void removeEffects(GameCard card){
+
+    }
+
     public void knockOutMonster(GameCard monster){
         removeCard(monster);
         applyEffect(Trigger.AFTER_MONSTER_KNOCK_OUT);

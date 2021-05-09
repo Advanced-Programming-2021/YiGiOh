@@ -23,7 +23,7 @@ public class AttackController {
 
     public AttackController(int gameControllerID, int position) {
         attackingMonster = GameController.getGameControllerById(gameControllerID).getSelectionController().getCard();
-        attackedMonster = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField().getMonsterZone()[position];
+        attackedMonster = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField().getMonsterZone()[position-1];
         this.gameControllerID = gameControllerID;
     }
 

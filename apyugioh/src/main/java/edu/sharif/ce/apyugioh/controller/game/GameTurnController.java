@@ -118,6 +118,7 @@ public class GameTurnController {
                 getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,
                         getSelectionController().getCard()));
                 getGameController().applyEffect(Trigger.AFTER_SUMMON);
+                getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
                 GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
             }
         }
@@ -139,7 +140,10 @@ public class GameTurnController {
     }
 
     public void flipSummon() {
-        new SummonController(gameControllerID, getSelectionController().getCard()).flipSummon();
+        if (new SummonController(gameControllerID, getSelectionController().getCard()).flipSummon()){
+            getGameController().applyEffect(Trigger.AFTER_SUMMON);
+            getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
+        }
     }
 
     public void attack(int position) {
@@ -159,7 +163,10 @@ public class GameTurnController {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return;
         }
-        new AttackController(gameControllerID, position).attack();
+        getGameController().setAttackController(new AttackController(gameControllerID, position));
+        getGameController().getAttackController().attack();
+        attackedMonsters.add(getSelectionController().getCard());
+        getGameController().applyEffect(Trigger.AFTER_ATTACK);
     }
 
     public void directAttack() {
@@ -181,6 +188,7 @@ public class GameTurnController {
                     String.valueOf(((Monster) getSelectionController().getCard().getCard()).getAttackPoints()));
         }
         attackedMonsters.add(getSelectionController().getCard());
+        getGameController().applyEffect(Trigger.AFTER_ATTACK);
     }
 
     public boolean hasMonsterAttacked(GameCard monster) {
