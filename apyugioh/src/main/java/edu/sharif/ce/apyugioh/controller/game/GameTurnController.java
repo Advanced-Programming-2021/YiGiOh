@@ -115,8 +115,6 @@ public class GameTurnController {
         } else {
             if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()) {
                 setSetOrSummonedMonster(getSelectionController().getCard());
-                getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,
-                        getSelectionController().getCard()));
                 getGameController().applyEffect(Trigger.AFTER_SUMMON);
                 getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
                 GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);

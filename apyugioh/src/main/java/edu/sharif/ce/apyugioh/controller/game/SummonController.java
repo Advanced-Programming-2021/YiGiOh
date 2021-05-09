@@ -20,6 +20,7 @@ public class SummonController {
         specialCases = new HashSet<>();
         specialCases.add("Beast King Barbaros");
         specialCases.add("Gate Guardian");
+        specialCases.add("The Tricky");
     }
 
     private GameCard card;
@@ -55,11 +56,8 @@ public class SummonController {
         card.setFaceDown(false);
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
+        getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
         logger.info("in game with id {}: summon successful", gameControllerID);
-        return true;
-    }
-
-    public boolean tributeSummon() {
         return true;
     }
 
@@ -75,6 +73,7 @@ public class SummonController {
         card.setRevealed(true);
         card.setFaceDown(false);
         getGameTurnController().setChangedPositionMonster(card);
+        getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
         return true;
     }
 
