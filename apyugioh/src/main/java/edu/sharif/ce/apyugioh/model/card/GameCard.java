@@ -15,7 +15,7 @@ public class GameCard {
     private boolean isRevealed;
     private int id;
 
-    public GameCard(){
+    public GameCard() {
         attackModifier = new ArrayList<>();
         defenceModifier = new ArrayList<>();
     }
@@ -28,11 +28,35 @@ public class GameCard {
         defenceModifier.add(amount);
     }
 
+    public void removeAttackModifier(int amount) {
+        attackModifier.remove(Integer.valueOf(amount));
+    }
+
+    public void removeDefenceModifier(int amount) {
+        defenceModifier.remove(Integer.valueOf(amount));
+    }
+
     public int getCurrentAttack() {
-        return 2000;
+        if (card.getCardType().equals(CardType.MONSTER)) {
+            Monster monster = (Monster) card;
+            int finalAttack = monster.getAttackPoints();
+            for (int modifier : attackModifier) {
+                finalAttack += modifier;
+            }
+            return Math.max(finalAttack, 0);
+        }
+        return 0;
     }
 
     public int getCurrentDefense() {
-        return 1800;
+        if (card.getCardType().equals(CardType.MONSTER)) {
+            Monster monster = (Monster) card;
+            int finalDefense = monster.getDefensePoints();
+            for (int modifier : defenceModifier) {
+                finalDefense += modifier;
+            }
+            return Math.max(finalDefense, 0);
+        }
+        return 0;
     }
 }

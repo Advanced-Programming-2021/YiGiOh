@@ -1,7 +1,8 @@
 package edu.sharif.ce.apyugioh.view;
 
-import de.codeshelf.consoleui.prompt.*;
-import de.codeshelf.consoleui.prompt.builder.ExpandableChoicePromptBuilder;
+import de.codeshelf.consoleui.prompt.ConsolePrompt;
+import de.codeshelf.consoleui.prompt.ListResult;
+import de.codeshelf.consoleui.prompt.PromtResultItemIF;
 import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder;
 import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 import de.vandermeer.asciitable.AsciiTable;
@@ -9,14 +10,14 @@ import de.vandermeer.asciithemes.u8.U8_Grids;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
-import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.User;
+import edu.sharif.ce.apyugioh.model.RoundResult;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 public class GameView extends View {
 
@@ -98,8 +99,8 @@ public class GameView extends View {
     }
 
     public boolean confirm(String message) {
-        String[] options = {"Yes", "No"};
-        return promptChoice(options, "").equalsIgnoreCase("yes");
+        String[] options = {"yes"};
+        return promptChoice(options, message).equalsIgnoreCase("yes");
     }
 
     public String promptChoice(String[] options) {
@@ -204,8 +205,7 @@ public class GameView extends View {
             return "";
         } else {
             if (player.getField().getMonsterZone()[position].isRevealed()) {
-                return (player.getField().getMonsterZone()[position].isFaceDown() ? "Defense" : "Offense")
-                        + "<br>" + player.getField().getMonsterZone()[position].getCard().getName();
+                return getMonsterSpecifications(player, position);
             } else {
                 return (player.getField().getMonsterZone()[position].isFaceDown() ? "Defense" : "Offense")
                         + "<br>Hidden Monster";
@@ -229,8 +229,7 @@ public class GameView extends View {
         if (player.getField().getMonsterZone()[position] == null) {
             return "";
         } else {
-            return (player.getField().getMonsterZone()[position].isFaceDown() ? "Defense" : "Offense")
-                    + "<br>" + player.getField().getMonsterZone()[position].getCard().getName();
+            return getMonsterSpecifications(player, position);
         }
     }
 
@@ -240,5 +239,25 @@ public class GameView extends View {
         } else {
             return player.getField().getSpellZone()[position].getCard().getName();
         }
+    }
+
+    @NotNull
+    private String getMonsterSpecifications(Player player, int position) {
+        GameCard monster = player.getField().getMonsterZone()[position];
+        return (monster.isFaceDown() ? "Defense" : "Offense") + "<br>" + monster.getCard().getName() + "<br>"
+                + (monster.isFaceDown() ? "" : "* ") + monster.getCurrentAttack() + (monster.isFaceDown() ? "" : " *") + "<br>"
+                + (monster.isFaceDown() ? "* " : "") + monster.getCurrentDefense() + (monster.isFaceDown() ? " *" : "");
+    }
+
+    public void showRoundResult(List<RoundResult> results, Player firstPlayer, Player secondPlayer) {
+        Utils.printInfo((results.get(results.size() - 1).isFirstPlayerWin() ? firstPlayer.getUser().getNickname() : secondPlayer.getUser().getNickname()) + " won the round!");
+        int firstPlayerWinCount = (int) results.stream().filter(RoundResult::isFirstPlayerWin).count();
+        int secondPlayerWinCount = (int) results.stream().filter(e -> !e.isFirstPlayerWin()).count();
+        Utils.printInfo("the score is: " + firstPlayerWinCount + " - " + secondPlayerWinCount);
+    }
+
+    public void showGameResult(Player winner, int numberOfRounds, int winnerLP) {
+        Utils.printInfo(winner.getUser().getNickname() + " won the game!");
+        Utils.printInfo(winner.getUser().getNickname() + " earned " + (numberOfRounds * 1000 + winnerLP) + " coins!");
     }
 }

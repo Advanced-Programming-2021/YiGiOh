@@ -21,24 +21,25 @@ public class SelectionController {
     }
 
     public void select(CardLocation location) {
-        if (location.isInHand())
-            card = getCurrentPlayerField().getHand().get(location.getPosition());
-        else if (location.isFromMonsterZone())
-            card = getCurrentPlayerField().getMonsterZone()[location.getPosition()];
-        else if (location.isFromSpellZone())
-            card = getCurrentPlayerField().getSpellZone()[location.getPosition()];
-            //field zone is not an array?!!!
-        else if (location.isFromFieldZone())
-            card = getCurrentPlayerField().getFieldZone();
-        else if (location.isFromGraveyard())
-            card = getCurrentPlayerField().getGraveyard().get(location.getPosition());
-        else if (location.isFromEnemy()) {
+        if (location.isFromEnemy()) {
             if (location.isFromMonsterZone())
                 card = getRivalPlayerField().getMonsterZone()[location.getPosition()];
             else if (location.isFromSpellZone())
                 card = getRivalPlayerField().getSpellZone()[location.getPosition()];
             else if (location.isFromFieldZone())
                 card = getRivalPlayerField().getFieldZone();
+        } else {
+            if (location.isInHand())
+                card = getCurrentPlayerField().getHand().get(location.getPosition());
+            else if (location.isFromMonsterZone())
+                card = getCurrentPlayerField().getMonsterZone()[location.getPosition()];
+            else if (location.isFromSpellZone())
+                card = getCurrentPlayerField().getSpellZone()[location.getPosition()];
+                //field zone is not an array?!!!
+            else if (location.isFromFieldZone())
+                card = getCurrentPlayerField().getFieldZone();
+            else if (location.isFromGraveyard())
+                card = getCurrentPlayerField().getGraveyard().get(location.getPosition());
         }
         //View Commands ...
     }

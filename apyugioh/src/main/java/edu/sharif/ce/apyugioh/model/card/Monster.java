@@ -25,7 +25,11 @@ public class Monster extends Card {
         this.attribute = attribute;
         this.type = type;
         this.effect = effect;
-        summon = level > 4 ? MonsterSummon.TRIBUTE : MonsterSummon.NORMAL;
+        if (name.equals("Crab Turtle") || name.equals("Skull Guardian")) {
+            summon = MonsterSummon.RITUAL;
+        } else {
+            summon = level > 4 ? MonsterSummon.TRIBUTE : MonsterSummon.NORMAL;
+        }
     }
 
 }

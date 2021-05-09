@@ -33,8 +33,16 @@ public class AttackCommand implements Callable<Integer> {
     }
 
     private boolean isAvailable() {
+        return isDuelCommandsAvailable();
+    }
+
+    static boolean isDuelCommandsAvailable() {
         if (ProgramController.getState().equals(MenuState.DUEL)) {
-            return ProgramController.getGameControllerID() != -1;
+            if (ProgramController.getGameControllerID() == -1) {
+                ErrorView.showError(ErrorView.COMMAND_INVALID);
+                return false;
+            }
+            return true;
         } else {
             ErrorView.showError(ErrorView.COMMAND_INVALID);
             return false;

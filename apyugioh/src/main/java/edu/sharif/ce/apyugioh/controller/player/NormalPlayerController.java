@@ -48,9 +48,9 @@ public class NormalPlayerController extends PlayerController {
 
     //TexChanger
     public GameCard specialCyberseSummon() {
-        List<GameCard> availableMonsters = getGameController().getCurrentPlayer().getField().getGraveyard();
-        availableMonsters.addAll(getGameController().getCurrentPlayer().getField().getHand());
-        availableMonsters.addAll(getGameController().getCurrentPlayer().getField().getDeck());
+        List<GameCard> availableMonsters = player.getField().getGraveyard();
+        availableMonsters.addAll(player.getField().getHand());
+        availableMonsters.addAll(player.getField().getDeck());
         availableMonsters = availableMonsters.stream().filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
                 .filter(e -> ((Monster) e.getCard()).getType().equals(MonsterType.CYBERSE)).collect(Collectors.toList());
         return getGameCard(availableMonsters);
@@ -58,7 +58,7 @@ public class NormalPlayerController extends PlayerController {
 
     //HeraldOfCreation
     public GameCard summonFromGraveyard() {
-        List<GameCard> availableMonsters = getGameController().getCurrentPlayer().getField().getGraveyard().stream()
+        List<GameCard> availableMonsters = player.getField().getGraveyard().stream()
                 .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
                 .filter(e -> ((Monster) e.getCard()).getLevel() >= 7).collect(Collectors.toList());
         return getGameCard(availableMonsters);
@@ -71,7 +71,7 @@ public class NormalPlayerController extends PlayerController {
 
     //terratiger
     public GameCard selectMonsterToSummon() {
-        List<GameCard> availableMonsters = getGameController().getCurrentPlayer().getField().getHand().stream()
+        List<GameCard> availableMonsters = player.getField().getHand().stream()
                 .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
                 .filter(e -> ((Monster) e.getCard()).getLevel() <= 4).collect(Collectors.toList());
         return getGameCard(availableMonsters);
@@ -85,7 +85,7 @@ public class NormalPlayerController extends PlayerController {
 
     //Select card from graveyard
     public GameCard selectCardFromGraveyard() {
-        List<GameCard> availableMonsters = getGameController().getCurrentPlayer().getField().getGraveyard();
+        List<GameCard> availableMonsters = player.getField().getGraveyard();
         return getGameCard(availableMonsters);
     }
 
@@ -97,30 +97,31 @@ public class NormalPlayerController extends PlayerController {
 
     //Select card from both graveyards
     public GameCard selectCardFromAllGraveyards() {
-        List<GameCard> availableMonsters = getGameController().getCurrentPlayer().getField().getGraveyard();
+        List<GameCard> availableMonsters = player.getField().getGraveyard();
         availableMonsters.addAll(getGameController().getRivalPlayer().getField().getGraveyard());
         return getGameCard(availableMonsters);
     }
 
     //Select card from hand
     public GameCard selectCardFromHand() {
-        List<GameCard> availableMonsters = getGameController().getCurrentPlayer().getField().getHand();
+        List<GameCard> availableMonsters = player.getField().getHand();
         return getGameCard(availableMonsters);
     }
 
     //Select card from deck
     public GameCard selectCardFromDeck() {
-        List<GameCard> availableMonsters = getGameController().getCurrentPlayer().getField().getDeck();
+        List<GameCard> availableMonsters = player.getField().getDeck();
         return getGameCard(availableMonsters);
     }
-
 
     public GameCard selectFieldSpellFromDeck() {
         return null;
     }
 
     public GameCard selectRivalMonster() {
-        return null;
+        List<GameCard> availableMonsters = Arrays.stream(getGameController().getRivalPlayer().getField().
+                getMonsterZone()).filter(Objects::nonNull).collect(Collectors.toList());
+        return getGameCard(availableMonsters);
     }
 
     public GameCard[] selectSpellTrapsFromField(int amount) {

@@ -6,6 +6,7 @@ import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 import edu.sharif.ce.apyugioh.view.GameView;
+import javafx.scene.effect.Effect;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -60,12 +61,15 @@ public class GameTurnController {
                 endPhase();
                 break;
             case END:
-                drawPhase();
+                getGameController().setFirstPlayerTurn(!getGameController().isFirstPlayerTurn());
+                getGameController().startRound();
                 break;
         }
-        logger.info("in game with id {}: it's {} phase", gameControllerID,
-                Utils.firstUpperOnly(phase.name().replaceAll("(\\d)", " $1")));
-        GameController.getView().showPhase(phase);
+        if (!phase.equals(Phase.END) || getGameController().getGameTurnController().equals(this)) {
+            logger.info("in game with id {}: it's {} phase", gameControllerID,
+                    Utils.firstUpperOnly(phase.name().replaceAll("(\\d)", " $1")));
+            GameController.getView().showPhase(phase);
+        }
     }
 
     public void drawPhase() {
@@ -145,19 +149,13 @@ public class GameTurnController {
     }
 
     public void attack(int position) {
-        if (getGameController().getPassedTurns() == 1) {
-            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_IN_FIRST_TURN);
-            return;
-        }
-        if (hasMonsterAttacked(getSelectionController().getCard())) {
-            GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
-            return;
-        }
+        if (isAttackImpossible()) return;
         if (position < 1 || position > 5 || getGameController().getRivalPlayer().getField().getMonsterZone()[position - 1] == null) {
             GameController.getView().showError(GameView.ERROR_NO_CARD_TO_ATTACK_TO);
             return;
         }
-        if (getGameController().applyEffect(Trigger.BEFORE_ATTACK).equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
+        EffectResponse response;
+        if ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return;
         }
@@ -168,15 +166,9 @@ public class GameTurnController {
     }
 
     public void directAttack() {
-        if (getGameController().getPassedTurns() == 1) {
-            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_IN_FIRST_TURN);
-            return;
-        }
-        if (hasMonsterAttacked(getSelectionController().getCard())) {
-            GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
-            return;
-        }
-        if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0 || getGameController().applyEffect(Trigger.BEFORE_ATTACK).equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
+        if (isAttackImpossible()) return;
+        EffectResponse response;
+        if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0 || ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE))) {
             GameController.getView().showError(GameView.ERROR_CANT_DIRECTLY_ATTACK);
             return;
         }
@@ -187,6 +179,22 @@ public class GameTurnController {
         }
         attackedMonsters.add(getSelectionController().getCard());
         getGameController().applyEffect(Trigger.AFTER_ATTACK);
+    }
+
+    private boolean isAttackImpossible() {
+        if (getSelectionController().getCard().isFaceDown()) {
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
+            return true;
+        }
+        if (getGameController().getPassedTurns() == 1) {
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_IN_FIRST_TURN);
+            return true;
+        }
+        if (hasMonsterAttacked(getSelectionController().getCard())) {
+            GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
+            return true;
+        }
+        return false;
     }
 
     public boolean hasMonsterAttacked(GameCard monster) {

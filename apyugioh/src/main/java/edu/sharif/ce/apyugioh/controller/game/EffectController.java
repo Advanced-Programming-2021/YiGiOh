@@ -27,6 +27,7 @@ public class EffectController {
         this.gameControllerID = gameControllerID;
         cardsAffected = new ArrayList<>();
         isUsedThisTurn = false;
+        this.effectCard = effectCard;
     }
 
     public void specialSummonFromGraveyard() {
@@ -442,7 +443,7 @@ public class EffectController {
     }
 
     public boolean containEffect(Effects effect) {
-        return effectCard.getCard().getCardEffects().contains(effect);
+        return effectCard.getCard().getCardEffects() != null && effectCard.getCard().getCardEffects().contains(effect);
     }
 
     public GameCard selectCardToRemoveFromHand() {

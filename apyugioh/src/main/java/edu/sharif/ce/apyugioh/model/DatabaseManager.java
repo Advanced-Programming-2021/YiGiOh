@@ -237,7 +237,6 @@ public class DatabaseManager {
         } catch (IOException ignored) {
             //System.out.println(effectsPath);
         } catch (Exception e) {
-            System.out.println(effectsPath);
             logger.error("Exception caused by: {}\nDetails: {}", e.getCause(), e.getMessage());
         }
         return new ArrayList<>();

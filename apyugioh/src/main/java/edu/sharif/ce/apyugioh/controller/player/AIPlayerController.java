@@ -97,6 +97,31 @@ public class AIPlayerController extends PlayerController{
     }
 
     @Override
+    public GameCard selectFieldSpellFromDeck() {
+        return null;
+    }
+
+    @Override
+    public GameCard selectRivalMonster() {
+        return null;
+    }
+
+    @Override
+    public GameCard[] selectSpellTrapsFromField(int amount) {
+        return new GameCard[0];
+    }
+
+    @Override
+    public GameCard selectCardFromGraveyard(int mostLevel) {
+        return null;
+    }
+
+    @Override
+    public GameCard selectNormalCardFromHand(int mostLevel) {
+        return null;
+    }
+
+    @Override
     public boolean confirm(String message) {
         return true;
     }

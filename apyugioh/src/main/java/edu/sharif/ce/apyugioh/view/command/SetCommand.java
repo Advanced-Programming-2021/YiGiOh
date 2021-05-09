@@ -8,7 +8,7 @@ import picocli.CommandLine.Command;
 
 import java.util.concurrent.Callable;
 
-@Command(name = "set", mixinStandardHelpOptions = true, description = "card set commands")
+@Command(name = "set", mixinStandardHelpOptions = true, description = "card set command")
 public class SetCommand implements Callable<Integer> {
 
     @Option(names = {"-p", "--position"}, description = "set card position", paramLabel = "position")
@@ -29,12 +29,7 @@ public class SetCommand implements Callable<Integer> {
     }
 
     private boolean isAvailable() {
-        if (ProgramController.getState().equals(MenuState.DUEL)) {
-            return ProgramController.getGameControllerID() != -1;
-        } else {
-            ErrorView.showError(ErrorView.COMMAND_INVALID);
-            return false;
-        }
+        return AttackCommand.isDuelCommandsAvailable();
     }
 
 }

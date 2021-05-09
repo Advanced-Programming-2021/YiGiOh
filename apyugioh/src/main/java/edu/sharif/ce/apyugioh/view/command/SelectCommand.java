@@ -72,12 +72,7 @@ public class SelectCommand implements Callable<Integer> {
     }
 
     private boolean isAvailable() {
-        if (ProgramController.getState().equals(MenuState.DUEL)) {
-            return ProgramController.getGameControllerID() != -1;
-        } else {
-            ErrorView.showError(ErrorView.COMMAND_INVALID);
-            return false;
-        }
+        return AttackCommand.isDuelCommandsAvailable();
     }
 
 }

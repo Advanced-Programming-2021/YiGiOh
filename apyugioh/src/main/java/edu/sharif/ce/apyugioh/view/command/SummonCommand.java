@@ -8,7 +8,7 @@ import picocli.CommandLine.Command;
 
 import java.util.concurrent.Callable;
 
-@Command(name = "summon", mixinStandardHelpOptions = true, description = "monster summon commands")
+@Command(name = "summon", mixinStandardHelpOptions = true, description = "monster summon command")
 public class SummonCommand implements Callable<Integer> {
 
     @Option(names = {"-f", "--flip"}, description = "card flip", paramLabel = "flip")
@@ -26,12 +26,7 @@ public class SummonCommand implements Callable<Integer> {
     }
 
     private boolean isAvailable() {
-        if (ProgramController.getState().equals(MenuState.DUEL)) {
-            return ProgramController.getGameControllerID() != -1;
-        } else {
-            ErrorView.showError(ErrorView.COMMAND_INVALID);
-            return false;
-        }
+        return AttackCommand.isDuelCommandsAvailable();
     }
 
 }

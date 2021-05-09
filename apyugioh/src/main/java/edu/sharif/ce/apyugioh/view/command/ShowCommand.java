@@ -18,16 +18,11 @@ public class ShowCommand {
     @Command(name = "graveyard", mixinStandardHelpOptions = true, description = "show graveyard")
     public void showGraveyard() {
         if (!isAvailable()) return;
-        GameController.getGameControllerById(ProgramController.getGameControllerID()).showCurrentPlayerBoard();
+        GameController.getGameControllerById(ProgramController.getGameControllerID()).showCurrentPlayerGraveyard();
     }
 
     private boolean isAvailable() {
-        if (ProgramController.getState().equals(MenuState.DUEL)) {
-            return ProgramController.getGameControllerID() != -1;
-        } else {
-            ErrorView.showError(ErrorView.COMMAND_INVALID);
-            return false;
-        }
+        return AttackCommand.isDuelCommandsAvailable();
     }
 
 }

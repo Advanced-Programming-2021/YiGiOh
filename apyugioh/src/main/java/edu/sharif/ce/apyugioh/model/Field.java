@@ -76,6 +76,7 @@ public class Field {
 
     public void removeFromMonsterZone(GameCard card) {
         for (int i = 0; i < 5; i++) {
+            if (monsterZone[i] == null) continue;
             if (monsterZone[i].getId() == card.getId()) {
                 monsterZone[i] = null;
                 break;
@@ -85,6 +86,7 @@ public class Field {
 
     public void removeFromSpellZone(GameCard card) {
         for (int i = 0; i < 5; i++) {
+            if (spellZone[i] == null) continue;
             if (spellZone[i].getId() == card.getId()) {
                 spellZone[i] = null;
                 break;

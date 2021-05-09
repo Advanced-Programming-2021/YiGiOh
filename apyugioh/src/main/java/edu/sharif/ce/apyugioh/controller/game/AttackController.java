@@ -23,7 +23,7 @@ public class AttackController {
 
     public AttackController(int gameControllerID, int position) {
         attackingMonster = GameController.getGameControllerById(gameControllerID).getSelectionController().getCard();
-        attackedMonster = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField().getMonsterZone()[position-1];
+        attackedMonster = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField().getMonsterZone()[position - 1];
         this.gameControllerID = gameControllerID;
     }
 
@@ -37,7 +37,7 @@ public class AttackController {
         if (attackedMonster.isFaceDown())
             attackToDefensiveMonster(getAttackPoints(attackingMonster),getDefensePoints(attackedMonster));
         else
-            attackToOffensiveMonster(getAttackPoints(attackingMonster),getAttackPoints(attackingMonster));
+            attackToOffensiveMonster(getAttackPoints(attackingMonster),getAttackPoints(attackedMonster));
         if (!wasRevealed) {
             getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, attackedMonster));
             getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
