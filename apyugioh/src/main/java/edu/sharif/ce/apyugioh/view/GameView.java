@@ -38,6 +38,7 @@ public class GameView extends View {
     public static final int ERROR_CANT_BE_SUMMONED = -16;
     public static final int ERROR_NOT_FROM_PLACE = -17;
     public static final int ERROR_CANT_ATTACK_IN_FIRST_TURN = -18;
+    public static final int ERROR_WRONG_CARD_TYPE = -19;
 
 
     public static final int SUCCESS_SELECTION_SUCCESSFUL = 1;
@@ -47,6 +48,7 @@ public class GameView extends View {
     public static final int SUCCESS_CHANGE_POSITION_SUCCESSFUL = 5;
     public static final int SUCCESS_FLIP_SUMMON_SUCCESSFUL = 6;
     public static final int SUCCESS_DIRECT_ATTACK_SUCCESSFUL = 7;
+    public static final int SUCCESS_EFFECT = 8;
 
     {
         errorMessages.put(ERROR_SELECTION_CARD_POSITION_INVALID, "card position invalid");
@@ -67,6 +69,7 @@ public class GameView extends View {
         errorMessages.put(ERROR_CANT_BE_SUMMONED, "you can't summon any monster");
         errorMessages.put(ERROR_NOT_FROM_PLACE, "this card is not from %s");
         errorMessages.put(ERROR_CANT_ATTACK_IN_FIRST_TURN, "you can't have a battle in the first turn of game");
+        errorMessages.put(ERROR_WRONG_CARD_TYPE, "this card in not a %s");
 
 
         successMessages.put(SUCCESS_SELECTION_SUCCESSFUL, "%s selected successfully");
@@ -76,6 +79,7 @@ public class GameView extends View {
         successMessages.put(SUCCESS_CHANGE_POSITION_SUCCESSFUL, "monster card position changed successfully");
         successMessages.put(SUCCESS_FLIP_SUMMON_SUCCESSFUL, "flip summoned successfully");
         successMessages.put(SUCCESS_DIRECT_ATTACK_SUCCESSFUL, "you opponent receives %s battle damage");
+        successMessages.put(SUCCESS_EFFECT, "%s effect successfully done");
     }
 
     public void showGraveyard(Player player) {

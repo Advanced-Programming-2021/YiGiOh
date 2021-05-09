@@ -6,9 +6,11 @@ import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 import edu.sharif.ce.apyugioh.view.GameView;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class AttackController {
     private GameCard attackingMonster;
     private GameCard attackedMonster;

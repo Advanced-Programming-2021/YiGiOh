@@ -19,7 +19,7 @@ public class SetController {
 
     public void specialSet(GameCard monsterToSet) {
         if (!monsterToSet.getCard().getCardType().equals(CardType.MONSTER)) {
-            //this card is not a monster
+            GameController.getView().showError(GameView.ERROR_WRONG_CARD_TYPE, "monster");
         } else {
             monsterSet();
         }

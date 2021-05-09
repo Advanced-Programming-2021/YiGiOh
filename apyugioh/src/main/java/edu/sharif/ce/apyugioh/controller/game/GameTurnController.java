@@ -30,7 +30,7 @@ public class GameTurnController {
     private boolean isFirstTurn;
     private GameCard setOrSummonedMonster;
     private GameCard changedPositionMonster;
-    private List<GameCard> disposableUsedCards;
+    private List<EffectController> disposableUsedEffects;
     private List<GameCard> attackedMonsters;
     private List<GameCard> chain;
 
@@ -38,7 +38,7 @@ public class GameTurnController {
         this.gameControllerID = gameControllerID;
         attackedMonsters = new ArrayList<>();
         chain = new ArrayList<>();
-        disposableUsedCards = new ArrayList<>();
+        disposableUsedEffects = new ArrayList<>();
         getGameController().setPassedTurns(getGameController().getPassedTurns() + 1);
     }
 

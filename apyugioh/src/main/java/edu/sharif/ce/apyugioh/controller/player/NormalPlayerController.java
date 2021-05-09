@@ -114,6 +114,28 @@ public class NormalPlayerController extends PlayerController {
         return getGameCard(availableMonsters);
     }
 
+
+    public GameCard selectFieldSpellFromDeck() {
+        return null;
+    }
+
+    public GameCard selectRivalMonster() {
+        return null;
+    }
+
+    public GameCard[] selectSpellTrapsFromField(int amount) {
+        return null;
+    }
+
+    //Select card from graveyard with level less than mostLevel
+    public GameCard selectCardFromGraveyard(int mostLevel){
+        return null;
+    }
+
+    public GameCard selectNormalCardFromHand(int mostLevel){
+        return null;
+    }
+
     @Override
     public boolean confirm(String message) {
         return GameController.getView().confirm(message);

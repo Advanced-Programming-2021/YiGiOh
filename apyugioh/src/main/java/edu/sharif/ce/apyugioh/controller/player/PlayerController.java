@@ -252,6 +252,21 @@ public abstract class PlayerController {
     //Select card from deck
     public abstract GameCard selectCardFromDeck();
 
+    //Select field spell from deck
+    public abstract GameCard selectFieldSpellFromDeck();
+
+    //Select one of rival monsters
+    public abstract GameCard selectRivalMonster();
+
+    //Select at most two spell or trap form field
+    public abstract GameCard[] selectSpellTrapsFromField(int amount);
+
+    //Select card from graveyard with level less than mostLevel
+    public abstract GameCard selectCardFromGraveyard(int mostLevel);
+
+    //Select normal card(without effect) from hand with level less than mostLevel
+    public abstract GameCard selectNormalCardFromHand(int mostLevel);
+
     public abstract boolean confirm(String message);
 
 

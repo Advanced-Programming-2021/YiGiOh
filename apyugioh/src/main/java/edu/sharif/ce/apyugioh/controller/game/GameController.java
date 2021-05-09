@@ -184,15 +184,13 @@ public class GameController {
                 } if (cardEffect.equals(Effects.UMIIRUKA)) {
                     effectController.umiiruka();
                 } if (cardEffect.equals(Effects.SWORD_OF_DARK_DESTRUCTION)) {
-
+                    effectController.swordOfDarkDestruction();
                 } if (cardEffect.equals(Effects.BLACK_PENDANT)) {
-
+                    effectController.blackPendant();
                 } if (cardEffect.equals(Effects.UNITED_WE_STAND)) {
-
+                    effectController.unitedWeStand();
                 } if (cardEffect.equals(Effects.MAGNUM_SHIELD)) {
-
-                } if (cardEffect.equals(Effects.MIND_CRUSH)) {
-
+                    effectController.magnumShield();
                 }
             }
         }
@@ -210,46 +208,117 @@ public class GameController {
     }
 
     public EffectResponse applyEffect(Trigger trigger) {
-        for (EffectController effectController : firstPlayerEffectControllers) {
-            if (trigger.equals(Trigger.SET)) {
+        for (EffectController effectController : getCurrentPlayerEffectControllers()) {
+            //ignore disposable effects
+            if (gameTurnController.getDisposableUsedEffects().contains(effectController)) continue;
+            //effects without trigger
+            if (effectController.containEffect(Effects.SELECT_ALL_MONSTERS)) {
+                effectController.selectAllMonsters();
+            }
+            if (effectController.containEffect(Effects.SELECT_FACE_UP_MONSTERS)) {
+                effectController.selectFaceUpMonsters();
+            }
+            //Calculator
+            if (effectController.containEffect(Effects.COMBINE_LEVELS_OF) &&
+                    effectController.containEffect(Effects.SET_ATTACK)) {
+                effectController.combineLevelsOfFaceUpCards();
+            }
+            //Scanner
+            if (effectController.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
+                effectController.scanDestroyedRivalMonster();
+                effectController.disposableEffect();
+            }
+            //effects with trigger
+            if (trigger.equals(Trigger.DRAW)) {
+                //Herald of Creation
+                if (effectController.containEffect(Effects.HERALD_OF_CREATION)) {
+                    effectController.drawCardFromGraveyard(7);
+                    effectController.disposableEffect();
+                }
+            }
+            else if (trigger.equals(Trigger.SET)) {
 
-            } else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
+            }
+            else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
 
-            } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
+            }
+            else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
+                //Man-Eater Bug
                 if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
                     effectController.destroyOneOfRivalMonsters();
                 }
-            } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
-                if (effectController.containEffect(Effects.ADD_ATTACK_TO_FACE_UP_CARDS)) {
-                    effectController.selectFaceUpMonsters();
+            }
+            else if (trigger.equals(Trigger.AFTER_SUMMON)) {
+                //command night
+                if (effectController.containEffect(Effects.ADD_ATTACK_TO_ALL_MONSTERS)) {
                     //we can change this value (400) if we want
                     effectController.changeAttack(400);
                 }
-            } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
-                if (effectController.containEffect(Effects.CAN_NOT_BE_ATTACKED_WHEN_WE_HAVE_ANOTHER_MONSTER)) {
-                    //need AttackController
-                } if (effectController.containEffect(Effects.ZERO_ATTACK_POWER_FOR_ATTACKER_ON_THAT_TURN)) {
-
+            }
+            else if (trigger.equals(Trigger.AFTER_NORMAL_SUMMON)) {
+                if (effectController.containEffect(Effects.TERRATIGER)) {
+                    effectController.specialSetFromHand();
                 }
-            } else if (trigger.equals(Trigger.AFTER_ATTACK)) {
+            }
+            else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
+                //command night
+                if (effectController.containEffect(Effects.CAN_NOT_BE_ATTACKED_WHEN_WE_HAVE_ANOTHER_MONSTER) &&
+                        attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    if (!effectController.canBeAttacked()) {
+                        return EffectResponse.ATTACK_CANT_BE_DONE;
+                    }
+                }
+                //Suijin
+                if (effectController.containEffect(Effects.ZERO_ATTACK_POWER_FOR_ATTACKER_ON_THAT_TURN)
+                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    effectController.setZeroAttackForAttackerCard();
+                }
+                //Marshmallon
+                if (effectController.containEffect(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK)
+                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    return EffectResponse.ATTACKED_CARD_CANT_BE_DESTROYED;
+                } if (effectController.containEffect(Effects.DECREASE_ATTACKER_LP_IF_FACE_DOWN)
+                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    effectController.decreaseAttackerLP(1000);
+                }
+                //Texchanger
+                if (effectController.containEffect(Effects.NEUTRAL_ONE_ATTACK_IN_EACH_TURN)
+                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    effectController.disposableEffect();
+                    return EffectResponse.ATTACK_CANT_BE_DONE;
+                } if (effectController.containEffect(Effects.SPECIAL_SUMMON_A_NORMAL_CYBERSE_MONSTER)
+                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    effectController.summonNormalCyberseMonster();
+                }
+            }
+            else if (trigger.equals(Trigger.AFTER_ATTACK)) {
+                //Yomi ship & Exploder Dragon
                 if (effectController.containEffect(Effects.DESTROY_ATTACKER_CARD_IF_DESTROYED)) {
-                    effectController.destroyAttackerCard();
+                    effectController.destroyAttackerCardIfDestroyed();
                 }
-            } else if (trigger.equals(Trigger.ALWAYS)) {
-
+                //Exploder Dragon
+                if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)) {
+                    return EffectResponse.LPS_DOESNT_CHANGE;
+                }
+            }
+            else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
+                //Mirage Dragon
+                if (effectController.containEffect(Effects.RIVAL_CANT_ACTIVE_TRAP)) {
+                    return EffectResponse.ACTIVE_TRAP_CANT_BE_DONE;
+                }
             }
         }
         return null;
     }
 
     public List<EffectController> getCurrentPlayerEffectControllers(){
-        if (getCurrentPlayer().equals(firstPlayer))
+        if (getCurrentPlayerController().equals(firstPlayer))
             return firstPlayerEffectControllers;
         return secondPlayerEffectControllers;
     }
 
     public List<EffectController> getRivalPlayerEffectControllers(){
-        if (getRivalPlayer().equals(firstPlayer))
+        if (getRivalPlayerController().equals(firstPlayer))
             return firstPlayerEffectControllers;
         return secondPlayerEffectControllers;
     }
