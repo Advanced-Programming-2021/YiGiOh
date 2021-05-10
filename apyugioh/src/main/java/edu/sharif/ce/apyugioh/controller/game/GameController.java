@@ -390,6 +390,12 @@ public class GameController {
         ProgramController.setGameControllerID(-1);
     }
 
+    public PlayerController getPlayerControllerByPlayer(Player player){
+        if (firstPlayer.getPlayer().equals(player))
+            return firstPlayer;
+        return secondPlayer;
+    }
+
     public List<EffectController> getCurrentPlayerEffectControllers() {
         if (getCurrentPlayerController().equals(firstPlayer))
             return firstPlayerEffectControllers;

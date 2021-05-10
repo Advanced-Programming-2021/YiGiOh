@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.model.Field;
+import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
@@ -9,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
+import java.util.List;
 
 public class SummonController {
 
@@ -23,18 +25,20 @@ public class SummonController {
         specialCases.add("The Tricky");
     }
 
+    private Player summoningPlayer;
     private GameCard card;
     private int gameControllerID;
 
     public SummonController(int gameControllerID,GameCard card) {
         this.gameControllerID = gameControllerID;
         this.card = card;
+        summoningPlayer = getGameController().getPlayerByCard(card);
     }
 
     public boolean normalSummon() {
         if (specialCases.contains(card.getCard().getName()))
             return specialSummon();
-        int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZoneCount();
+        int availableMonsters = summoningPlayer.getField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
                 logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
@@ -54,10 +58,12 @@ public class SummonController {
         }
         card.setRevealed(true);
         card.setFaceDown(false);
-        getCurrentPlayerField().removeFromHand(card);
-        getCurrentPlayerField().putInMonsterZone(card);
-        getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
+        summoningPlayer.getField().removeFromHand(card);
+        summoningPlayer.getField().putInMonsterZone(card);
+        getEffectControllersByPlayer().add(new EffectController(gameControllerID,card));
         logger.info("in game with id {}: summon successful", gameControllerID);
+        getGameController().applyEffect(Trigger.AFTER_SUMMON);
+        getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
         return true;
     }
 
@@ -73,12 +79,14 @@ public class SummonController {
         card.setRevealed(true);
         card.setFaceDown(false);
         getGameTurnController().setChangedPositionMonster(card);
-        getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
+        getEffectControllersByPlayer().add(new EffectController(gameControllerID,card));
+        getGameController().applyEffect(Trigger.AFTER_SUMMON);
+        getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
         return true;
     }
 
     public boolean tribute(int amount) {
-        GameCard[] tributeMonsters = getGameController().getCurrentPlayerController().tributeMonster(amount);
+        GameCard[] tributeMonsters = getGameController().getPlayerControllerByPlayer(summoningPlayer).tributeMonster(amount);
         if (tributeMonsters == null) return false;
         for (GameCard tributeMonster : tributeMonsters) {
             if (tributeMonster == null)
@@ -90,12 +98,10 @@ public class SummonController {
         return true;
     }
 
-    private Field getCurrentPlayerField() {
-        return getGameController().getCurrentPlayer().getField();
-    }
-
-    private SelectionController getSelectionController() {
-        return getGameController().getSelectionController();
+    private List<EffectController> getEffectControllersByPlayer(){
+        if (summoningPlayer.equals(getGameController().getFirstPlayer()))
+            return getGameController().getFirstPlayerEffectControllers();
+        return getGameController().getSecondPlayerEffectControllers();
     }
 
     private GameTurnController getGameTurnController() {

@@ -119,8 +119,6 @@ public class GameTurnController {
         } else {
             if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()) {
                 setSetOrSummonedMonster(getSelectionController().getCard());
-                getGameController().applyEffect(Trigger.AFTER_SUMMON);
-                getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
                 GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
             }
         }
@@ -142,10 +140,7 @@ public class GameTurnController {
     }
 
     public void flipSummon() {
-        if (new SummonController(gameControllerID, getSelectionController().getCard()).flipSummon()){
-            getGameController().applyEffect(Trigger.AFTER_SUMMON);
-            getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
-        }
+        new SummonController(gameControllerID, getSelectionController().getCard()).flipSummon();
     }
 
     public void attack(int position) {
