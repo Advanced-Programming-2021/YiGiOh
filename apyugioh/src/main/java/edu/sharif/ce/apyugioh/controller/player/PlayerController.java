@@ -9,6 +9,8 @@ import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 public abstract class PlayerController {
 
@@ -229,7 +231,7 @@ public abstract class PlayerController {
     public abstract GameCard summonFromGraveyard();
 
     //Beast King Barbaros & Tricky
-    public abstract int chooseHowToSummon();
+    public abstract int chooseHowToSummon(List<String> choices);
 
     //terratiger
     public abstract GameCard selectMonsterToSummon();

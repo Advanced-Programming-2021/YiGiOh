@@ -65,7 +65,7 @@ public class NormalPlayerController extends PlayerController {
     }
 
     //Beast King Barbaros & Tricky
-    public int chooseHowToSummon() {
+    public int chooseHowToSummon(List<String> choices) {
         return 0;
     }
 

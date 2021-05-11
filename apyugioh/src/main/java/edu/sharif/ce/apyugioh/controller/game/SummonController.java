@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.Trigger;
@@ -9,6 +10,7 @@ import edu.sharif.ce.apyugioh.view.GameView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -68,7 +70,36 @@ public class SummonController {
     }
 
     public boolean specialSummon(){
-        return true;
+        switch(card.getCard().getName()){
+            case "Beast King Barbaros":
+                ArrayList<String> choices = new ArrayList<String>();
+                choices.add("1. normal summon (by tributing 2 monsters)");
+                choices.add("2. normal summon (Attack points decreases to 1900");
+                choices.add("3. summon by tributing 3 monsters (all cards the your rival control will be kicked out");
+                int choice = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices);
+                if (choice == 1) {
+
+                } else if (choice == 2){
+
+                } else if (choice == 3){
+
+                }
+                return true;
+            case "Gate Guardian":
+                if (summoningPlayer.getField().getAvailableMonstersInZoneCount() < 3){
+                    GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
+                    return false;
+                }
+                if (!tribute(3))
+                return true;
+            case "The Tricky":
+                return true;
+            default:
+                normalSummon();
+                Utils.printError("Special summoned monster is not valid");
+                return false;
+        }
+
     }
 
     public boolean ritualSummon() {

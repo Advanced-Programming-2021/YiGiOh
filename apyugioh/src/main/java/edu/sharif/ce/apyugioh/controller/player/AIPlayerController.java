@@ -3,6 +3,8 @@ package edu.sharif.ce.apyugioh.controller.player;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 
+import java.util.List;
+
 public class AIPlayerController extends PlayerController{
 
     public AIPlayerController(Player player) {
@@ -57,7 +59,7 @@ public class AIPlayerController extends PlayerController{
     }
 
     //Beast King Barbaros & Tricky
-    public int chooseHowToSummon(){
+    public int chooseHowToSummon(List<String> choices){
         return 0;
     }
 
