@@ -137,6 +137,10 @@ public class NormalPlayerController extends PlayerController {
         return null;
     }
 
+    public GameCard getACard(){
+        return null;
+    }
+
     @Override
     public boolean confirm(String message) {
         return GameController.getView().confirm(message);

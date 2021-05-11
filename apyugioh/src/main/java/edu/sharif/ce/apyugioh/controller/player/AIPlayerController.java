@@ -124,6 +124,11 @@ public class AIPlayerController extends PlayerController{
     }
 
     @Override
+    public GameCard getACard() {
+        return null;
+    }
+
+    @Override
     public boolean confirm(String message) {
         return true;
     }

@@ -269,6 +269,8 @@ public abstract class PlayerController {
     //Select normal card(without effect) from hand with level less than mostLevel
     public abstract GameCard selectNormalCardFromHand(int mostLevel);
 
+    public abstract GameCard getACard();
+
     public abstract boolean confirm(String message);
 
 
