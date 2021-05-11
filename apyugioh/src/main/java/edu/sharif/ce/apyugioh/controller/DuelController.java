@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller;
 
 import edu.sharif.ce.apyugioh.controller.game.GameController;
+import edu.sharif.ce.apyugioh.controller.player.AIPlayerController;
 import edu.sharif.ce.apyugioh.controller.player.NormalPlayerController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.*;
@@ -25,6 +26,42 @@ public class DuelController {
         instance = new DuelController();
         view = new DuelView();
         logger = LogManager.getLogger(DuelController.class);
+    }
+
+    public void startSinglePlayerDuel(String username, AILevel level, int rounds) {
+        String AIUsername;
+        switch (level) {
+            case EASY:
+                AIUsername = "AIEasy";
+                break;
+            case MEDIOCRE:
+                AIUsername = "AIMediocre";
+                break;
+            case HARD:
+                AIUsername = "AIHard";
+                break;
+            default:
+                AIUsername = "AIEasy";
+        }
+        if (isRoundCountValid(rounds)) return;
+        if (isUsernameDifferent(username, AIUsername)) return;
+        User firstUser = User.getUserByUsername(username);
+        User secondUser = User.getUserByUsername(AIUsername);
+        if (isUserDecksActive(username, AIUsername, firstUser, secondUser)) return;
+        Deck firstDeck = Deck.getDeckByID(firstUser.getMainDeckID());
+        Deck secondDeck = Deck.getDeckByID(secondUser.getMainDeckID());
+        if (isUserDecksValid(username, AIUsername, firstDeck, secondDeck)) return;
+        Player firstPlayer = initializePlayer(firstUser, firstDeck);
+        Player secondPlayer = initializePlayer(secondUser, secondDeck);
+        Random random = new Random();
+        boolean isFirstPlayerTurn = random.nextBoolean();
+        NormalPlayerController firstPlayerController = new NormalPlayerController(firstPlayer);
+        AIPlayerController secondPlayerController = new AIPlayerController(secondPlayer);
+        GameController gameController = new GameController(isFirstPlayerTurn ? firstPlayerController : secondPlayerController, isFirstPlayerTurn ? secondPlayerController : firstPlayerController, rounds);
+        ProgramController.setGameControllerID(gameController.getId());
+        logger.info("duel with id {} started between {} and {} with {} rounds", gameController.getId(), firstUser.getNickname(),
+                secondUser.getNickname(), rounds);
+        gameController.play();
     }
 
     public void startMultiplayerDuel(String firstPlayerUsername, String secondPlayerUsername, int rounds) {
@@ -130,5 +167,4 @@ public class DuelController {
         }
         return cards;
     }
-
 }

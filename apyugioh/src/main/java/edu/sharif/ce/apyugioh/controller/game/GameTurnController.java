@@ -73,8 +73,16 @@ public class GameTurnController {
     }
 
     public void drawPhase() {
+        GameCard drawnCard = getCurrentPlayerField().drawCard();
+        if (drawnCard == null) getGameController().endRound(!getGameController().isFirstPlayerTurn());
         logger.info("in game with id {}: {} drew {} from deck", gameControllerID, getCurrentPlayer().getUser()
-                .getNickname(), getCurrentPlayerField().drawCard().getCard().getName());
+                .getNickname(), drawnCard.getCard().getName());
+        if (getCurrentPlayerField().getHand().size() > 6) {
+            GameCard toBeRemoved = getGameController().getCurrentPlayerController().selectCardFromHand();
+            getCurrentPlayerField().removeFromHand(toBeRemoved);
+            logger.info("in game with id {}: {} removed {} from hand", gameControllerID, getCurrentPlayer().getUser()
+                    .getNickname(), toBeRemoved.getCard().getName());
+        }
         phase = Phase.DRAW;
     }
 

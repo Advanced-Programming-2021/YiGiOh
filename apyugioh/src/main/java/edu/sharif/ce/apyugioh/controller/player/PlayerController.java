@@ -9,7 +9,10 @@ import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Getter
 public abstract class PlayerController {
@@ -17,6 +20,7 @@ public abstract class PlayerController {
     @Setter
     protected int gameControllerID;
     protected Player player;
+    protected List<GameCard> availableCards;
 
     public PlayerController(Player player) {
         this.player = player;
@@ -128,7 +132,7 @@ public abstract class PlayerController {
             return;
         }
         if (!getGameController().getGameTurnController().getPhase().equals(Phase.MAIN1) &&
-                !getGameController().getGameTurnController().getPhase().equals(Phase.MAIN2)){
+                !getGameController().getGameTurnController().getPhase().equals(Phase.MAIN2)) {
             GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
             return;
         }
@@ -171,15 +175,15 @@ public abstract class PlayerController {
     }
 
     private boolean checkBeforeAttack() {
-        if (getSelectionController() == null){
+        if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
             return true;
         }
-        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())){
+        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return true;
         }
-        if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)){
+        if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)) {
             GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
             return true;
         }
@@ -216,58 +220,145 @@ public abstract class PlayerController {
 
     //SpecialCases
     //TributeMonsterForSummon
-    public abstract GameCard[] tributeMonster(int amount);
+    public GameCard[] tributeMonster(int amount) {
+        availableCards = Arrays.stream(player.getField().getMonsterZone())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //Scanner
-    public abstract GameCard scanMonsterForScanner();
+    public GameCard scanMonsterForScanner() {
+        availableCards = getGameController().getRivalPlayer().getField().getGraveyard();
+        return null;
+    }
 
     //Man-Eater Bug
-    public abstract GameCard directRemove();
+    public GameCard directRemove() {
+        availableCards = Arrays.stream(getGameController().getRivalPlayer().getField().getMonsterZone())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //TexChanger
-    public abstract GameCard specialCyberseSummon();
+    public GameCard specialCyberseSummon() {
+        availableCards = player.getField().getGraveyard();
+        availableCards.addAll(player.getField().getHand());
+        availableCards.addAll(player.getField().getDeck());
+        availableCards = availableCards.stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .filter(e -> ((Monster) e.getCard()).getType().equals(MonsterType.CYBERSE))
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //HeraldOfCreation
-    public abstract GameCard summonFromGraveyard();
+    public GameCard summonFromGraveyard() {
+        availableCards = player.getField().getGraveyard().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .filter(e -> ((Monster) e.getCard()).getLevel() >= 7)
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //Beast King Barbaros & Tricky
     public abstract int chooseHowToSummon(List<String> choices);
 
     //terratiger
-    public abstract GameCard selectMonsterToSummon();
+    public GameCard selectMonsterToSummon() {
+        availableCards = player.getField().getHand().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .filter(e -> ((Monster) e.getCard()).getLevel() <= 4)
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //EquipMonster
-    public abstract GameCard equipMonster();
+    public GameCard equipMonster() {
+        availableCards = Arrays.stream(player.getField().getMonsterZone())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //Select card from graveyard
-    public abstract GameCard selectCardFromGraveyard();
+    public GameCard selectCardFromGraveyard() {
+        availableCards = player.getField().getGraveyard();
+        return null;
+    }
 
     //Select card from monster zone
-    public abstract GameCard selectCardFromMonsterZone();
+    public GameCard selectCardFromMonsterZone() {
+        availableCards = Arrays.stream(player.getField().getMonsterZone())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //Select card from both graveyards
-    public abstract GameCard selectCardFromAllGraveyards();
+    public GameCard selectCardFromAllGraveyards() {
+        availableCards = player.getField().getGraveyard();
+        availableCards.addAll(getGameController().getRivalPlayer().getField().getGraveyard());
+        return null;
+    }
 
     //Select card from hand
-    public abstract GameCard selectCardFromHand();
+    public GameCard selectCardFromHand() {
+        availableCards = player.getField().getHand();
+        return null;
+    }
 
     //Select card from deck
-    public abstract GameCard selectCardFromDeck();
+    public GameCard selectCardFromDeck() {
+        availableCards = player.getField().getDeck();
+        return null;
+    }
 
     //Select field spell from deck
-    public abstract GameCard selectFieldSpellFromDeck();
+    public GameCard selectFieldSpellFromDeck() {
+        availableCards = player.getField().getDeck().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.SPELL))
+                .filter(e -> ((Spell) e.getCard()).getProperty().equals(SpellProperty.FIELD))
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //Select one of rival monsters
-    public abstract GameCard selectRivalMonster();
+    public GameCard selectRivalMonster() {
+        availableCards = Arrays.stream(getGameController().getRivalPlayer().getField().getMonsterZone())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //Select at most two spell or trap form field
-    public abstract GameCard[] selectSpellTrapsFromField(int amount);
+    public GameCard[] selectSpellTrapsFromField(int amount) {
+        availableCards = Arrays.stream(player.getField().getSpellZone())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        availableCards.add(player.getField().getFieldZone());
+        return null;
+    }
 
     //Select card from graveyard with level less than mostLevel
-    public abstract GameCard selectCardFromGraveyard(int mostLevel);
+    public GameCard selectCardFromGraveyard(int mostLevel) {
+        availableCards = player.getField().getGraveyard().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .filter(e -> ((Monster) e.getCard()).getLevel() <= mostLevel)
+                .collect(Collectors.toList());
+        return null;
+    }
 
     //Select normal card(without effect) from hand with level less than mostLevel
-    public abstract GameCard selectNormalCardFromHand(int mostLevel);
+    public GameCard selectNormalCardFromHand(int mostLevel) {
+        availableCards = player.getField().getHand().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .filter(e -> ((Monster) e.getCard()).getLevel() <= mostLevel)
+                .filter(e -> ((Monster) e.getCard()).getEffect().equals(MonsterEffect.NORMAL))
+                .collect(Collectors.toList());
+        return null;
+    }
 
     public abstract GameCard getACard();
 

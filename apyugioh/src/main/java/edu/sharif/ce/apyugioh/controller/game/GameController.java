@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
+import edu.sharif.ce.apyugioh.controller.player.AIPlayerController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.*;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
@@ -72,11 +73,7 @@ public class GameController {
             logger.info("in game with id {}: {} drew {} from deck", id, secondPlayer.getPlayer().getUser()
                     .getNickname(), secondPlayer.getPlayer().getField().drawCard().getCard().getName());
         }
-        gameTurnController = new GameTurnController(id);
-        logger.info("in game with id {}: it's {}'s turn", id, isFirstPlayerTurn ? firstPlayer.getPlayer()
-                .getUser().getNickname() : secondPlayer.getPlayer().getUser().getNickname());
-        gameTurnController.drawPhase();
-        showCurrentPlayerBoard();
+        startRound();
     }
 
     public void select(CardLocation location) {
@@ -122,12 +119,24 @@ public class GameController {
 
     public void nextPhase() {
         gameTurnController.nextPhase();
+        if (getCurrentPlayerController() instanceof AIPlayerController) {
+            ((AIPlayerController) getCurrentPlayerController()).nextPhaseAction();
+        }
+    }
+
+    public void nextPhaseAI() {
+        gameTurnController.nextPhase();
     }
 
     public void startRound() {
         gameTurnController = new GameTurnController(id);
+        logger.info("in game with id {}: it's {}'s turn", id, isFirstPlayerTurn ? firstPlayer.getPlayer()
+                .getUser().getNickname() : secondPlayer.getPlayer().getUser().getNickname());
         gameTurnController.drawPhase();
         getView().showPhase(Phase.DRAW);
+        if (getCurrentPlayerController() instanceof AIPlayerController) {
+            ((AIPlayerController) getCurrentPlayerController()).startRoundAction();
+        }
     }
 
     public void exchangeSideDeckCards() {
@@ -209,8 +218,10 @@ public class GameController {
 
     public void removeCard(GameCard card) {
         Player cardPlayer = getPlayerByCard(card);
-        cardPlayer.getField().removeFromMonsterZone(card);
-        cardPlayer.getField().putInGraveyard(card);
+        if (cardPlayer != null) {
+            cardPlayer.getField().removeFromMonsterZone(card);
+            cardPlayer.getField().putInGraveyard(card);
+        }
     }
 
     public void removeEffects(GameCard card) {
@@ -390,7 +401,7 @@ public class GameController {
         ProgramController.setGameControllerID(-1);
     }
 
-    public PlayerController getPlayerControllerByPlayer(Player player){
+    public PlayerController getPlayerControllerByPlayer(Player player) {
         if (firstPlayer.getPlayer().equals(player))
             return firstPlayer;
         return secondPlayer;

@@ -41,7 +41,7 @@ public class ShopController {
             } else {
                 view.showError(ShopView.ERROR_MONEY_NOT_ENOUGH, cardName,
                         String.valueOf(userInventory.getMoney()),
-                        String.valueOf(userInventory.getMoney() - DatabaseManager.getCards().getCardPrice(cardName)));
+                        String.valueOf(DatabaseManager.getCards().getCardPrice(cardName) - userInventory.getMoney()));
             }
         } else {
             view.showError(ShopView.ERROR_CARD_NAME_INVALID, cardName);

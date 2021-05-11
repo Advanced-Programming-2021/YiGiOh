@@ -1,0 +1,23 @@
+[
+  {
+    "mainDeckID": 1,
+    "nickname": "AIEasy",
+    "password": "d2rKhzCd9TKVIztGAdRetZUbM/qX8KttIAFVTM5e78Y=",
+    "score": 0,
+    "username": "AIEasy"
+  },
+  {
+    "mainDeckID": 2,
+    "nickname": "AIMediocre",
+    "password": "d2rKhzCd9TKVIztGAdRetZUbM/qX8KttIAFVTM5e78Y=",
+    "score": 0,
+    "username": "AIMediocre"
+  },
+  {
+    "mainDeckID": 3,
+    "nickname": "AIHard",
+    "password": "d2rKhzCd9TKVIztGAdRetZUbM/qX8KttIAFVTM5e78Y=",
+    "score": 0,
+    "username": "AIHard"
+  }
+]

@@ -29,9 +29,6 @@ public class Field {
 
     public GameCard drawCard() {
         if (deck.size() > 0) {
-            if (isHandFull()) {
-                removeFromHand(hand.get(new Random().nextInt(hand.size())));
-            }
             putInHand(deck.get(deck.size() - 1));
             removeFromDeck(deck.get(deck.size() - 1));
             return hand.get(hand.size() - 1);
