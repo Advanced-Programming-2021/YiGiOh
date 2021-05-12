@@ -36,6 +36,7 @@ public class GameController {
     private int numberOfRounds;
     private int passedTurns;
     private boolean isFirstPlayerTurn;
+    private boolean isTurnTempChanged;
     private AttackController attackController;
     private SelectionController selectionController;
     private GameTurnController gameTurnController;
@@ -54,6 +55,8 @@ public class GameController {
         this.secondPlayer.setGameControllerID(id);
         this.numberOfRounds = numberOfRounds;
         isFirstPlayerTurn = true;
+
+        cheatController = new CheatController(id);
 
         roundResults = new ArrayList<>();
         firstPlayerEffectControllers = new ArrayList<>();
@@ -118,6 +121,11 @@ public class GameController {
     }
 
     public void nextPhase() {
+        if (isTurnTempChanged) {
+            isTurnTempChanged = false;
+            isFirstPlayerTurn = !isFirstPlayerTurn;
+            return;
+        }
         gameTurnController.nextPhase();
         if (getCurrentPlayerController() instanceof AIPlayerController) {
             ((AIPlayerController) getCurrentPlayerController()).nextPhaseAction();
@@ -138,6 +146,8 @@ public class GameController {
             ((AIPlayerController) getCurrentPlayerController()).startRoundAction();
         }
     }
+
+
 
     public void exchangeSideDeckCards() {
 

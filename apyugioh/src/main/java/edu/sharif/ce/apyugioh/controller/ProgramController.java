@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import edu.sharif.ce.apyugioh.controller.game.CheatController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
@@ -27,6 +28,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Ansi;
 import picocli.shell.jline3.PicocliCommands;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -172,7 +174,7 @@ public class ProgramController {
             subcommands = {MenuCommand.class, UserCommand.class, ProfileCommand.class, ScoreboardCommand.class,
                     ShopCommand.class, CardCommand.class, DeckCommand.class, DuelCommand.class, SelectCommand.class,
                     SummonCommand.class, SetCommand.class, NextCommand.class, ShowCommand.class, AttackCommand.class,
-                    SurrenderCommand.class,
+                    SurrenderCommand.class, ActivateCommand.class, CheatCommand.class,
                     PicocliCommands.ClearScreen.class, CommandLine.HelpCommand.class})
     static class CliCommands implements Runnable {
         PrintWriter out;
