@@ -200,8 +200,7 @@ public class GameTurnController {
         }
         EffectResponse response;
         if ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
-            //GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
-            Utils.printError("you can't attack motherfucker");
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return;
         }
         getGameController().setAttackController(new AttackController(gameControllerID, position));

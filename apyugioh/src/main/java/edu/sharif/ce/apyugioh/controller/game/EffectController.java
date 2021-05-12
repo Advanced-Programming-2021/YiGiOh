@@ -291,13 +291,6 @@ public class EffectController {
         }
     }
 
-    private void ritualSummon(){
-        GameCard monsterToBeRitualSummoned = getCurrentPlayerController().selectRitualMonsterFromHand();
-        if (monsterToBeRitualSummoned == null || ((Monster)monsterToBeRitualSummoned.getCard()).getSummon() != MonsterSummon.RITUAL)
-            return;
-        new SummonController(gameControllerID,monsterToBeRitualSummoned).ritualSummon();
-    }
-
     public void specialSummonByRemoveCardFromHand() {
         GameCard cardToRemoveFromHand = getCurrentPlayerController().selectCardFromHand();
         if (cardToRemoveFromHand == null) {
