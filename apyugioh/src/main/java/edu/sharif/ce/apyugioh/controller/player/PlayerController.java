@@ -360,7 +360,7 @@ public abstract class PlayerController {
         return null;
     }
 
-    public abstract GameCard getACard();
+    public abstract Card getACard();
 
     public abstract boolean confirm(String message);
 

@@ -1,10 +1,12 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
 import edu.sharif.ce.apyugioh.controller.game.GameController;
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.*;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.image.DataBuffer;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -138,8 +140,10 @@ public class NormalPlayerController extends PlayerController {
         return getGameCard(availableCards);
     }
 
-    public GameCard getACard(){
-        return null;
+    public Card getACard() {
+        String result = GameController.getView().promptChoice(DatabaseManager.getCards().getAllCardNames());
+        if (result == null) return null;
+        return DatabaseManager.getCards().getCardByName(result);
     }
 
     @Override
@@ -150,10 +154,11 @@ public class NormalPlayerController extends PlayerController {
     @Nullable
     private GameCard getGameCard(List<GameCard> availableMonsters) {
         String result = GameController.getView().promptChoice(availableMonsters.stream()
-                .map(e -> e.getCard().getName()).collect(Collectors.toList()).toArray(String[]::new));
+                .map(e -> e.getId() + " " + e.getCard().getName()).collect(Collectors.toList()).toArray(String[]::new));
         if (result == null) return null;
-        GameCard selectedMonster = availableMonsters.stream().filter(e -> e.getCard().getName().equals(result)).findFirst().orElse(null);
-        return selectedMonster;
+        return availableMonsters.stream()
+                .filter(e -> e.getId() == Integer.parseInt(result.split(" ")[0]))
+                .findFirst().orElse(null);
     }
 
 }
