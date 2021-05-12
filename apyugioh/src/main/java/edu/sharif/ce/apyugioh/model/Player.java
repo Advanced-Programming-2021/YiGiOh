@@ -23,7 +23,7 @@ public class Player {
         for (Card card : deck.getMainDeck()) {
             GameCard gameCard = new GameCard();
             gameCard.setCard(card);
-            gameCard.setId(Integer.parseInt(user.getMainDeckID() + ("" + idCounter)));
+            gameCard.setId(Integer.parseInt(user.getMainDeckID() + ("00" + idCounter)));
             gameDeck.add(gameCard);
             idCounter++;
         }

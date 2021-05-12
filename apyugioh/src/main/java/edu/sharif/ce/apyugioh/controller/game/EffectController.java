@@ -400,6 +400,7 @@ public class EffectController {
     public void selectFaceUpMonsters() {
         GameCard[] monsterZone = getCurrentPlayerField().getMonsterZone();
         for (GameCard monster : monsterZone) {
+            if (monster == null) continue;
             if (!monster.isFaceDown()) cardsAffected.add(monster);
         }
     }

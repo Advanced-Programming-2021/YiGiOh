@@ -180,7 +180,7 @@ public abstract class PlayerController {
     }
 
     public void activeEffect() {
-
+        getGameController().activeEffect();
     }
 
     public void surrender() {
