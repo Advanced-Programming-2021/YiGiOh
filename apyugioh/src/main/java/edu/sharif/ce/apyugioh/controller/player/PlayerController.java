@@ -90,34 +90,11 @@ public abstract class PlayerController {
     }
 
     public void set() {
-        if (getSelectionController() == null) {
-            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
-            return;
-        }
-        if (!getSelectionController().getLocation().isInHand()) {
-            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "set");
-            return;
-        }
         getGameController().set();
         getGameController().deselect();
     }
 
     public void summon() {
-        //checkForSpellOrTrapBanningToSummon
-        if (getSelectionController() == null) {
-            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
-            return;
-        }
-        if (!getSelectionController().getLocation().isInHand() ||
-                !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER) ||
-                ((Monster) getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.RITUAL)) {
-            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "summon");
-            return;
-        }
-        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
-            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return;
-        }
         getGameController().summon();
         getGameController().deselect();
     }

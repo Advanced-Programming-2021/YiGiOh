@@ -46,10 +46,6 @@ public class SetController {
             Utils.printError("you can't normally set this monster");
             return false;
         }
-        if (!getGameTurnController().getPhase().equals(Phase.MAIN1) && !getGameTurnController().getPhase().equals(Phase.MAIN2)){
-            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return false;
-        }
         if (getCurrentPlayerField().isMonsterZoneFull()) {
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
             return false;
@@ -106,14 +102,22 @@ public class SetController {
 
     private boolean spellTrapSet() {
         if (getCurrentPlayerField().isSpellZoneFull()) {
-            //spell card zone is full
+            Utils.printError("Spell/Trap card zone is full");
             return false;
         }
-        if (card.getCard().getCardType().equals(CardType.SPELL) && ((Spell)card.getCard()).getProperty().equals(SpellProperty.FIELD)
-        && getGameController().getPlayerByCard(card).getField().getFieldZone() != null){
-            Utils.printError("Field zone is full");
-            return false;
+        if (card.getCard().getCardType().equals(CardType.SPELL) && ((Spell)card.getCard()).getProperty().equals(SpellProperty.FIELD)){
+            if ( getGameController().getPlayerByCard(card).getField().getFieldZone() != null) {
+                Utils.printError("Field zone is full");
+                return false;
+            }
+            getCurrentPlayerField().removeFromHand(card);
+            getCurrentPlayerField().putInFieldZone(card);
+            getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
+            return true;
         }
+        getCurrentPlayerField().removeFromHand(card);
+        getCurrentPlayerField().putInSpellZone(card);
+        getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
         GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
         return true;
     }

@@ -5,6 +5,7 @@ import edu.sharif.ce.apyugioh.model.*;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.model.card.MonsterSummon;
 import edu.sharif.ce.apyugioh.view.GameView;
 import javafx.scene.effect.Effect;
 import lombok.Getter;
@@ -107,29 +108,69 @@ public class GameTurnController {
     }
 
     public void set() {
+        if (!checkBeforeSet())
+            return;
         if (new SetController(gameControllerID).set())
             setSetOrSummonedMonster(getSelectionController().getCard());
     }
 
+    private boolean checkBeforeSet(){
+        if (getSelectionController() == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return false;
+        }
+        if (!getSelectionController().getLocation().isInHand()) {
+            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "set");
+            return false;
+        }
+        if (!getPhase().equals(Phase.MAIN1) && !getPhase().equals(Phase.MAIN2)){
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return false;
+        }
+        return true;
+    }
+
     public void summon() {
+         if (checkBeforeSummon()){
+            if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()) {
+                setSetOrSummonedMonster(getSelectionController().getCard());
+                GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
+            }
+        }
+    }
+
+    private boolean checkBeforeSummon(){
+        if (getSelectionController() == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return false;
+        }
+        if (!getSelectionController().getLocation().isInHand() ||
+                !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER) ||
+                ((Monster) getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.RITUAL)) {
+            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "summon");
+            return false;
+        }
+        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return false;
+        }
         EffectResponse response;
         if (getCurrentPlayerField().isMonsterZoneFull() &&
                 ((Monster) getSelectionController().getCard().getCard()).getLevel() <= 4) {
             logger.info("in game with id {}: can't summon | monster zone full", gameControllerID);
             System.out.println(getCurrentPlayerField().isMonsterZoneFull());
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
+            return false;
         } else if (setOrSummonedMonster != null) {
             logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
             GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
+            return false;
         } else if ((response = getGameController().applyEffect(Trigger.BEFORE_SUMMON)) != null
                 && response.equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
             GameController.getView().showError(GameView.ERROR_CANT_BE_SUMMONED);
-        } else {
-            if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()) {
-                setSetOrSummonedMonster(getSelectionController().getCard());
-                GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
-            }
+            return false;
         }
+        return true;
     }
 
     public void changePosition(boolean isChangeToAttack) {
@@ -159,7 +200,8 @@ public class GameTurnController {
         }
         EffectResponse response;
         if ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
-            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
+            //GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
+            Utils.printError("you can't attack motherfucker");
             return;
         }
         getGameController().setAttackController(new AttackController(gameControllerID, position));
