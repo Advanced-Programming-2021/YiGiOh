@@ -360,6 +360,14 @@ public abstract class PlayerController {
         return null;
     }
 
+    public GameCard selectRitualMonsterFromHand(){
+        return null;
+    }
+
+    public List<GameCard> selectCardsForRitualTribute(int level){
+        return null;
+    }
+
     public abstract Card getACard();
 
     public abstract boolean confirm(String message);

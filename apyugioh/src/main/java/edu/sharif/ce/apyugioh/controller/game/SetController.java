@@ -3,12 +3,20 @@ package edu.sharif.ce.apyugioh.controller.game;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Phase;
-import edu.sharif.ce.apyugioh.model.card.CardType;
-import edu.sharif.ce.apyugioh.model.card.GameCard;
-import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.swing.*;
 
 public class SetController {
+
+    private static Logger logger;
+    static {
+        logger = LogManager.getLogger(SummonController.class);
+    }
+
     private GameCard card;
     private int gameControllerID;
 
@@ -49,6 +57,10 @@ public class SetController {
             GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
             return false;
         }
+        if (!checkForTribute()){
+            GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
+            return false;
+        }
         card.setFaceDown(true);
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
@@ -57,9 +69,49 @@ public class SetController {
         return true;
     }
 
+    private boolean checkForTribute(){
+        int availableMonsters = getCurrentPlayerField().getAvailableMonstersInZoneCount();
+        if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
+            if (availableMonsters < 1) {
+                logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
+                GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
+                return false;
+            }
+            if (!tribute(1))
+                return false;
+        } else if (((Monster) card.getCard()).getLevel() >= 7) {
+            if (availableMonsters < 2) {
+                logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
+                GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
+                return false;
+            }
+            if (!tribute(2))
+                return false;
+        }
+        return true;
+    }
+
+    private boolean tribute(int amount) {
+        GameCard[] tributeMonsters = getGameController().getCurrentPlayerController().tributeMonster(amount);
+        if (tributeMonsters == null) return false;
+        for (GameCard tributeMonster : tributeMonsters) {
+            if (tributeMonster == null)
+                return false;
+        }
+        for (GameCard tributeMonster : tributeMonsters) {
+            getGameController().removeCard(tributeMonster);
+        }
+        return true;
+    }
+
     private boolean spellTrapSet() {
         if (getCurrentPlayerField().isSpellZoneFull()) {
             //spell card zone is full
+            return false;
+        }
+        if (card.getCard().getCardType().equals(CardType.SPELL) && ((Spell)card.getCard()).getProperty().equals(SpellProperty.FIELD)
+        && getGameController().getPlayerByCard(card).getField().getFieldZone() != null){
+            Utils.printError("Field zone is full");
             return false;
         }
         GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);

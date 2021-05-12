@@ -57,7 +57,7 @@ public class SummonController {
         getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
     }
 
-    public boolean checkForTribute(){
+    private boolean checkForTribute(){
         int availableMonsters = summoningPlayer.getField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
@@ -98,8 +98,7 @@ public class SummonController {
                     return true;
                 } else if (choice == 3){
                     if (!tribute(3))
-                        return
-                    getEffectControllersByPlayer().add(new EffectController(gameControllerID,card));
+                        return false;
                     summon();
                     getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON);
                 } else
@@ -139,6 +138,16 @@ public class SummonController {
     }
 
     public boolean ritualSummon() {
+        List<GameCard> cards = getGameController().getCurrentPlayerController().selectCardsForRitualTribute(((Monster)card.getCard()).getLevel());
+        if (cards == null)
+            return false;
+        if (getGameController().getPlayerByCard(card).getField().getAvailableMonstersInZoneCount() == 5){
+            GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
+            return false;
+        }
+        for(GameCard gameCard:cards)
+            getGameController().removeCard(gameCard);
+        summon();
         return true;
     }
 
@@ -152,7 +161,7 @@ public class SummonController {
         return true;
     }
 
-    public boolean tribute(int amount) {
+    private boolean tribute(int amount) {
         GameCard[] tributeMonsters = getGameController().getPlayerControllerByPlayer(summoningPlayer).tributeMonster(amount);
         if (tributeMonsters == null) return false;
         for (GameCard tributeMonster : tributeMonsters) {
