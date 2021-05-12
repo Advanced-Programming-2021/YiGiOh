@@ -349,7 +349,6 @@ public abstract class PlayerController {
 
     public abstract boolean confirm(String message);
 
-
     protected SelectionController getSelectionController() {
         return getGameController().getSelectionController();
     }

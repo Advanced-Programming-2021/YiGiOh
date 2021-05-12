@@ -4,10 +4,7 @@ import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.card.CardType;
-import edu.sharif.ce.apyugioh.model.card.GameCard;
-import edu.sharif.ce.apyugioh.model.card.Monster;
-import edu.sharif.ce.apyugioh.model.card.MonsterType;
+import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import edu.sharif.ce.apyugioh.view.View;
 import lombok.Getter;
@@ -292,6 +289,13 @@ public class EffectController {
             getCurrentPlayerField().removeFromMonsterZone(cardToDestroy);
             getCurrentPlayerField().putInGraveyard(cardToDestroy);
         }
+    }
+
+    private void ritualSummon(){
+        GameCard monsterToBeRitualSummoned = getCurrentPlayerController().selectRitualMonsterFromHand();
+        if (monsterToBeRitualSummoned == null || ((Monster)monsterToBeRitualSummoned.getCard()).getSummon() != MonsterSummon.RITUAL)
+            return;
+        new SummonController(gameControllerID,monsterToBeRitualSummoned).ritualSummon();
     }
 
     public void specialSummonByRemoveCardFromHand() {
