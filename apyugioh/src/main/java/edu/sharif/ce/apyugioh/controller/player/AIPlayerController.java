@@ -251,7 +251,11 @@ public class AIPlayerController extends PlayerController {
         super.tributeMonster(amount);
         GameCard[] cards = new GameCard[amount];
         for (int i = 0; i < amount; i++) {
-            cards[i] = availableCards.get(selectLowestAttackMonster(availableCards.toArray(new GameCard[0])));
+            int selection = selectLowestAttackMonster(availableCards.toArray(new GameCard[0]));
+            if (selection == -1) {
+                return null;
+            }
+            cards[i] = availableCards.get(selection);
             availableCards.remove(cards[i]);
         }
         return cards;

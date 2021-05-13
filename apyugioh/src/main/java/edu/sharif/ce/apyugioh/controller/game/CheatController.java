@@ -20,27 +20,42 @@ public class CheatController {
     public void cheat(Cheats set, String[] options) {
         switch (set) {
             case MONEY_AMOUNT:
+                if (isParamsCountInvalid(options, 1)) break;
                 setMoney(options[0]);
                 break;
             case DRAW_CARD:
+                if (isParamsCountInvalid(options, 1)) break;
                 drawCard(options[0]);
                 break;
             case INSTANT_WIN:
+                if (isParamsCountInvalid(options, 0)) break;
                 instantWin();
                 break;
             case LIFE_POINTS_AMOUNT:
+                if (isParamsCountInvalid(options, 1)) break;
                 setLifePoints(options[0]);
                 break;
             case SUMMON_MONSTER:
+                if (isParamsCountInvalid(options, 1)) break;
                 forceSummon(options[0], false);
                 break;
             case SET_MONSTER:
+                if (isParamsCountInvalid(options, 1)) break;
                 forceSummon(options[0], true);
                 break;
             case SET_SPELL:
+                if (isParamsCountInvalid(options, 1)) break;
                 forceSpell(options[0]);
                 break;
         }
+    }
+
+    private boolean isParamsCountInvalid(String[] options, int i) {
+        if (options.length != i) {
+            Utils.printError("Invalid Command!");
+            return true;
+        }
+        return false;
     }
 
     private void forceSpell(String option) {
@@ -50,6 +65,10 @@ public class CheatController {
         }
         GameCard card = new GameCard();
         card.setCard(DatabaseManager.getCards().getCardByName(Utils.firstUpperOnly(option)));
+        if (card.getCard() == null) {
+            Utils.printError("Invalid card name!");
+            return;
+        }
         if (card.getCard().getCardType().equals(CardType.MONSTER)) {
             Utils.printError("Can't put monsters in spell zone!");
             return;
@@ -65,6 +84,10 @@ public class CheatController {
         }
         GameCard card = new GameCard();
         card.setCard(DatabaseManager.getCards().getCardByName(Utils.firstUpperOnly(option)));
+        if (card.getCard() == null) {
+            Utils.printError("Invalid card name!");
+            return;
+        }
         if (!card.getCard().getCardType().equals(CardType.MONSTER)) {
             Utils.printError("Can't put spells in monster zone!");
             return;

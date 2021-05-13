@@ -161,7 +161,10 @@ public class Field {
     }
 
     public boolean isSpellZoneFull() {
-        return Arrays.stream(spellZone).noneMatch(Objects::nonNull);
+        for (GameCard spell : spellZone) {
+            if (spell == null) return false;
+        }
+        return true;
     }
 
     public boolean isInField(GameCard card) {
