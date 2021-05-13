@@ -347,6 +347,8 @@ public abstract class PlayerController {
 
     public abstract Card getACard();
 
+    public abstract GameCard selectRandomCardFromHand();
+
     public abstract boolean confirm(String message);
 
     protected SelectionController getSelectionController() {

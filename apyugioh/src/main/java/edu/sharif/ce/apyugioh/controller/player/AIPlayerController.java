@@ -373,6 +373,10 @@ public class AIPlayerController extends PlayerController {
                 .get(new Random().nextInt(DatabaseManager.getCards().getAllCards().size()));
     }
 
+    public GameCard selectRandomCardFromHand() {
+        return null;
+    }
+
     @Override
     public boolean confirm(String message) {
         return true;

@@ -146,6 +146,10 @@ public class NormalPlayerController extends PlayerController {
         return DatabaseManager.getCards().getCardByName(result);
     }
 
+    public GameCard selectRandomCardFromHand(){
+        return null;
+    }
+
     @Override
     public boolean confirm(String message) {
         return GameController.getView().confirm(message);
