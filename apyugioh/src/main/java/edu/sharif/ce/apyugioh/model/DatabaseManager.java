@@ -227,7 +227,7 @@ public class DatabaseManager {
         }
     }
 
-    private static List<Effects> getCardEffects(String cardName, CardType type) {
+    public static List<Effects> getCardEffects(String cardName, CardType type) {
         Path effectsPath = Path.of("assets", "shop", type.name().toLowerCase(),
                 Utils.firstUpperOnly(cardName).replaceAll(" ", "") + ".json");
         try {
