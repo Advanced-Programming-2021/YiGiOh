@@ -86,7 +86,7 @@ public class GameView extends View {
         successMessages.put(SUCCESS_FLIP_SUMMON_SUCCESSFUL, "flip summoned successfully");
         successMessages.put(SUCCESS_DIRECT_ATTACK_SUCCESSFUL, "you opponent receives %s battle damage");
         successMessages.put(SUCCESS_EFFECT, "%s effect successfully done");
-        successMessages.put(SUCCESS_SPELL_ACTIVATED, "spell activated");
+        successMessages.put(SUCCESS_SPELL_ACTIVATED, "%s spell activated");
     }
 
     public void showGraveyard(Player player) {

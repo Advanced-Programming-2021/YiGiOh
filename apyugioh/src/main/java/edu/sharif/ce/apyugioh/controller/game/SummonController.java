@@ -175,7 +175,7 @@ public class SummonController {
     }
 
     private List<EffectController> getEffectControllersByPlayer(){
-        if (summoningPlayer.equals(getGameController().getFirstPlayer()))
+        if (summoningPlayer.equals(getGameController().getFirstPlayer().getPlayer()))
             return getGameController().getFirstPlayerEffectControllers();
         return getGameController().getSecondPlayerEffectControllers();
     }

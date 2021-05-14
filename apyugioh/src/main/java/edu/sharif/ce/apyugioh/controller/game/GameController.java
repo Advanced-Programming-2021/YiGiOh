@@ -172,6 +172,7 @@ public class GameController {
 
     public void activeEffect() {
         GameCard selectedCard = selectionController.getCard();
+        EffectResponse response;
         if (!isCardSelected()) {
             view.showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
         } else if (!selectedCard.getCard().getCardType().equals(CardType.SPELL)) {
@@ -179,12 +180,13 @@ public class GameController {
         } else if (!(gameTurnController.getPhase().equals(Phase.MAIN1)
                 || gameTurnController.getPhase().equals(Phase.MAIN2))) {
             view.showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-        } else if (!selectedCard.isFaceDown()) {
+        } else if (selectedCard.isRevealed()) {
             view.showError(GameView.ERROR_SPELL_ALREADY_ACTIVATED);
-        } else if (applyEffect(Trigger.BEFORE_ACTIVE_SPELL).equals(EffectResponse.ACTIVE_SPELL_CANT_BE_DONE)) {
+        } else if ((response = applyEffect(Trigger.BEFORE_ACTIVE_SPELL)) != null && response.equals(EffectResponse.ACTIVE_SPELL_CANT_BE_DONE)) {
             view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED, "spell");
         } else {
             EffectController effectController = new EffectController(id, selectedCard);
+            selectedCard.setRevealed(true);
             for (Effects cardEffect : selectedCard.getCard().getCardEffects()) {
                 if (cardEffect.equals(Effects.SPECIAL_SUMMON_FROM_GRAVEYARD)) {
                     effectController.specialSummonFromGraveyard();
@@ -234,6 +236,7 @@ public class GameController {
                     getCurrentPlayerEffectControllers().add(effectController);
                 }
             }
+            view.showSuccess(GameView.SUCCESS_SPELL_ACTIVATED, selectedCard.getCard().getName());
         }
     }
 
@@ -254,10 +257,7 @@ public class GameController {
             //ignore disposable effects
             if (gameTurnController.getDisposableUsedEffects().contains(effectController)) continue;
             //effects without trigger
-            if (effectController.containEffect(Effects.SELECT_ALL_MONSTERS)) {
-                effectController.selectAllMonsters();
-            }
-            if (effectController.containEffect(Effects.SELECT_FACE_MONSTERS)) {
+            if (effectController.containEffect(Effects.SELECT_FACE_UP_MONSTERS)) {
                 effectController.selectFaceUpMonsters();
             }
             //Mind Crush
@@ -303,6 +303,7 @@ public class GameController {
             else if (trigger.equals(Trigger.AFTER_SUMMON)) {
                 //Command Knight
                 if (effectController.containEffect(Effects.ADD_ATTACK_TO_ALL_MONSTERS)) {
+                    effectController.selectAllMonsters();
                     //we can change this value (400) if we want
                     effectController.changeAttack(400);
                 }
@@ -355,7 +356,7 @@ public class GameController {
             if (effectController.containEffect(Effects.SELECT_ALL_MONSTERS)) {
                 effectController.selectAllMonsters();
             }
-            if (effectController.containEffect(Effects.SELECT_FACE_MONSTERS)) {
+            if (effectController.containEffect(Effects.SELECT_FACE_UP_MONSTERS)) {
                 effectController.selectFaceUpMonsters();
             }
             //Calculator

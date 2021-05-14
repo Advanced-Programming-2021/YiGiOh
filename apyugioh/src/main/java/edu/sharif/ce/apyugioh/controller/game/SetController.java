@@ -2,7 +2,6 @@ package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.Field;
-import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import org.apache.logging.log4j.LogManager;
@@ -107,12 +106,13 @@ public class SetController {
         }
         if (card.getCard().getCardType().equals(CardType.SPELL) && ((Spell)card.getCard()).getProperty().equals(SpellProperty.FIELD)){
             if ( getGameController().getPlayerByCard(card).getField().getFieldZone() != null) {
-                Utils.printError("Field zone is full");
-                return false;
+                getCurrentPlayerField().removeFromFieldZone(getCurrentPlayerField().getFieldZone());
+                getCurrentPlayerField().putInGraveyard(getCurrentPlayerField().getFieldZone());
             }
             getCurrentPlayerField().removeFromHand(card);
             getCurrentPlayerField().putInFieldZone(card);
             getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
+            GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
             return true;
         }
         getCurrentPlayerField().removeFromHand(card);

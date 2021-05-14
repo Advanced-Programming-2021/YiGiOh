@@ -176,6 +176,7 @@ public class EffectController {
 
     public void yami() {
         for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.FIEND)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.SPELLCASTER)) {
                 monster.addAttackModifier(200);
@@ -186,6 +187,7 @@ public class EffectController {
             }
         }
         for (GameCard monster : getRivalPlayerField().getMonsterZone()) {
+            if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.FIEND)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.SPELLCASTER)) {
                 monster.addAttackModifier(200);
@@ -199,6 +201,7 @@ public class EffectController {
 
     public void forest() {
         for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.INSECT)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST_WARRIOR)) {
@@ -207,6 +210,7 @@ public class EffectController {
             }
         }
         for (GameCard monster : getRivalPlayerField().getMonsterZone()) {
+            if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.INSECT)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST_WARRIOR)) {
@@ -218,6 +222,7 @@ public class EffectController {
 
     public void closedForest() {
         for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)) {
                 int amount = getCurrentPlayerField().getGraveyard().size();
                 monster.addAttackModifier(amount);
@@ -228,6 +233,7 @@ public class EffectController {
 
     public void umiiruka() {
         for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.AQUA)) {
                 monster.addAttackModifier(500);
                 monster.addDefenceModifier(-400);
@@ -281,6 +287,7 @@ public class EffectController {
         equipMonster();
         int numberOfFaceUpMonsters = 0;
         for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
+            if (monster == null) continue;
             if (!monster.isFaceDown()) numberOfFaceUpMonsters++;
         }
         for (GameCard equippedCard : cardsAffected) {
@@ -439,11 +446,11 @@ public class EffectController {
     public void selectAllMonsters() {
         GameCard[] monsterZone = getCurrentPlayerField().getMonsterZone();
         for (GameCard monster : monsterZone) {
-            if (monster != null) cardsAffected.add(monster);
+            if (monster != null && !cardsAffected.contains(monster)) cardsAffected.add(monster);
         }
         monsterZone = getRivalPlayerField().getMonsterZone();
         for (GameCard monster : monsterZone) {
-            if (monster != null) cardsAffected.add(monster);
+            if (monster != null && !cardsAffected.contains(monster)) cardsAffected.add(monster);
         }
     }
 
@@ -451,6 +458,7 @@ public class EffectController {
         for (GameCard gameCard : cardsAffected) {
             gameCard.addAttackModifier(amount);
         }
+        cardsAffected = new ArrayList<>();
     }
 
     public void changeDefence(int amount) {
@@ -492,6 +500,7 @@ public class EffectController {
     public void destroyAllRivalFaceUpMonsters() {
         List<GameCard> rivalFaceUpMonsters = Arrays.stream(getRivalPlayerField().getMonsterZone()).filter(Objects::nonNull).collect(Collectors.toList());
         for (GameCard rivalFaceUpMonster : rivalFaceUpMonsters) {
+            if (rivalFaceUpMonster == null) continue;
             getGameController().removeCard(rivalFaceUpMonster);
         }
     }

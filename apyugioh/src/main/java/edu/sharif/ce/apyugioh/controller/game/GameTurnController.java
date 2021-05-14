@@ -110,7 +110,8 @@ public class GameTurnController {
     public void set() {
         if (!checkBeforeSet())
             return;
-        if (new SetController(gameControllerID).set())
+        if (new SetController(gameControllerID).set()
+                && getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER))
             setSetOrSummonedMonster(getSelectionController().getCard());
     }
 
@@ -163,6 +164,7 @@ public class GameTurnController {
             return false;
         } else if (setOrSummonedMonster != null) {
             logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
+            System.out.println(setOrSummonedMonster.getCard().getName());
             GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
             return false;
         } else if ((response = getGameController().applyEffect(Trigger.BEFORE_SUMMON)) != null
@@ -198,12 +200,12 @@ public class GameTurnController {
             GameController.getView().showError(GameView.ERROR_NO_CARD_TO_ATTACK_TO);
             return;
         }
+        getGameController().setAttackController(new AttackController(gameControllerID, position));
         EffectResponse response;
         if ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return;
         }
-        getGameController().setAttackController(new AttackController(gameControllerID, position));
         getGameController().getAttackController().attack();
         attackedMonsters.add(getSelectionController().getCard());
         getGameController().applyEffect(Trigger.AFTER_ATTACK);
