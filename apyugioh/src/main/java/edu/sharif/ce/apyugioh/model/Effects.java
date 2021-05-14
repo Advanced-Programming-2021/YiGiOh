@@ -1,6 +1,8 @@
 package edu.sharif.ce.apyugioh.model;
 
 public enum Effects {
+    ACTIVE_AFTER_SET,
+
     //monsters
     SET_ATTACK,
     COMBINE_LEVELS_OF,

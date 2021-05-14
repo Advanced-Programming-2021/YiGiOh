@@ -4,9 +4,7 @@ import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.player.AIPlayerController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.*;
-import edu.sharif.ce.apyugioh.model.card.CardLocation;
-import edu.sharif.ce.apyugioh.model.card.CardType;
-import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
@@ -159,11 +157,27 @@ public class GameController {
 
     }
 
-    public void removeCard(GameCard card) {
+    public void removeMonsterCard(GameCard card) {
         Player cardPlayer = getPlayerByCard(card);
-        if (cardPlayer != null) {
+        if (cardPlayer != null && card.getCard().getCardType().equals(CardType.MONSTER)) {
             cardPlayer.getField().removeFromMonsterZone(card);
             cardPlayer.getField().putInGraveyard(card);
+        }
+    }
+
+    public void removeSpellTrapCard(GameCard card) {
+        Player cardPlayer = getPlayerByCard(card);
+        if (cardPlayer != null && !card.getCard().getCardType().equals(CardType.MONSTER)) {
+            if (card.getCard().getCardType().equals(CardType.TRAP)) {
+                cardPlayer.getField().removeFromSpellZone(card);
+                cardPlayer.getField().putInGraveyard(card);
+            } else if (((Spell) card.getCard()).getProperty().equals(SpellProperty.FIELD)) {
+                cardPlayer.getField().removeFromFieldZone(card);
+                cardPlayer.getField().putInGraveyard(card);
+            } else {
+                cardPlayer.getField().removeFromSpellZone(card);
+                cardPlayer.getField().putInGraveyard(card);
+            }
         }
     }
 
@@ -172,7 +186,7 @@ public class GameController {
     }
 
     public void knockOutMonster(GameCard monster) {
-        removeCard(monster);
+        removeMonsterCard(monster);
         applyEffect(Trigger.AFTER_MONSTER_KNOCK_OUT);
     }
 
@@ -295,11 +309,6 @@ public class GameController {
                     effectController.containEffect(Effects.SET_ATTACK)) {
                 effectController.combineLevelsOfFaceUpCards();
             }
-            //Scanner
-            if (effectController.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
-                effectController.scanDestroyedRivalMonster();
-                effectController.disposableEffect();
-            }
             //effects with trigger
             if (trigger.equals(Trigger.STANDBY)) {
                 //Messenger of peace
@@ -310,6 +319,11 @@ public class GameController {
                 //Herald of Creation
                 if (effectController.containEffect(Effects.HERALD_OF_CREATION)) {
                     effectController.drawCardFromGraveyard(7);
+                    effectController.disposableEffect();
+                }
+                //Scanner
+                if (effectController.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
+                    effectController.scanDestroyedRivalMonster();
                     effectController.disposableEffect();
                 }
             } else if (trigger.equals(Trigger.SET)) {
@@ -324,9 +338,8 @@ public class GameController {
             } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
                 //Command Knight
                 if (effectController.containEffect(Effects.ADD_ATTACK_TO_ALL_MONSTERS)) {
-                    effectController.selectAllMonsters();
                     //we can change this value (400) if we want
-                    effectController.changeAttack(400);
+                    effectController.addAttackToAllMonsters(400);
                 }
             } else if (trigger.equals(Trigger.AFTER_NORMAL_SUMMON)) {
                 //Terratiger
@@ -369,9 +382,6 @@ public class GameController {
             //ignore disposable effects
             if (gameTurnController.getDisposableUsedEffects().contains(effectController)) continue;
             //effects without trigger
-            if (effectController.containEffect(Effects.SELECT_ALL_MONSTERS)) {
-                effectController.selectAllMonsters();
-            }
             if (effectController.containEffect(Effects.SELECT_FACE_UP_MONSTERS)) {
                 effectController.selectFaceUpMonsters();
             }
@@ -390,7 +400,7 @@ public class GameController {
                     effectController.decreaseRemainTurns();
                     if (effectController.getRemainsTurn() == 1) {
                         getRivalPlayerEffectControllers().remove(effectController);
-                        removeCard(effectController.getEffectCard());
+                        removeMonsterCard(effectController.getEffectCard());
                     }
                 }
             } else if (trigger.equals(Trigger.SET)) {
@@ -426,13 +436,9 @@ public class GameController {
                     effectController.setZeroAttackForAttackerCard();
                 }
                 //Marshmallon
-                if (effectController.containEffect(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK)
-                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
-                    return EffectResponse.ATTACKED_CARD_CANT_BE_DESTROYED;
-                }
                 if (effectController.containEffect(Effects.DECREASE_ATTACKER_LP_IF_FACE_DOWN)
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
-                    effectController.decreaseAttackerLP(1000);
+                    effectController.decreaseAttackerLPIfAttackedCardFaceDown(1000);
                 }
                 //Texchanger
                 if (effectController.containEffect(Effects.NEUTRAL_ONE_ATTACK_IN_EACH_TURN)

@@ -1,7 +1,6 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
-import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
@@ -124,7 +123,7 @@ public class SummonController {
                 }else if (result == 2){
                     GameCard selectedCardFromHand;
                     if ((selectedCardFromHand = getGameController().getPlayerControllerByPlayer(summoningPlayer).selectCardFromHand()) != null){
-                        getGameController().removeCard(selectedCardFromHand);
+                        getGameController().removeMonsterCard(selectedCardFromHand);
                         summon();
                     }
                 }
@@ -146,7 +145,7 @@ public class SummonController {
             return false;
         }
         for(GameCard gameCard:cards)
-            getGameController().removeCard(gameCard);
+            getGameController().removeMonsterCard(gameCard);
         summon();
         return true;
     }
@@ -169,7 +168,7 @@ public class SummonController {
                 return false;
         }
         for (GameCard tributeMonster : tributeMonsters) {
-            getGameController().removeCard(tributeMonster);
+            getGameController().removeMonsterCard(tributeMonster);
         }
         return true;
     }

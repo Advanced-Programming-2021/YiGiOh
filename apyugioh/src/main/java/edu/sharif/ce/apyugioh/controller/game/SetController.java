@@ -1,13 +1,12 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import javax.swing.*;
 
 public class SetController {
 
@@ -59,6 +58,9 @@ public class SetController {
         card.setFaceDown(true);
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInMonsterZone(card);
+        if (card.getCard().getCardEffects().contains(Effects.ACTIVE_AFTER_SET)) {
+            getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, card));
+        }
         getGameTurnController().setSetOrSummonedMonster(card);
         GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
         return true;
@@ -94,7 +96,7 @@ public class SetController {
                 return false;
         }
         for (GameCard tributeMonster : tributeMonsters) {
-            getGameController().removeCard(tributeMonster);
+            getGameController().removeMonsterCard(tributeMonster);
         }
         return true;
     }

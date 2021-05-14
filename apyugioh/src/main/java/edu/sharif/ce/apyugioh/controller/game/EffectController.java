@@ -21,12 +21,14 @@ public class EffectController {
     private GameCard effectCard;
     private int remainsTurn;
     private boolean isUsedThisTurn;
+    private boolean isUsedBefore;
     private int gameControllerID;
 
     public EffectController(int gameControllerID, GameCard effectCard) {
         this.gameControllerID = gameControllerID;
         cardsAffected = new ArrayList<>();
         isUsedThisTurn = false;
+        isUsedBefore = false;
         this.effectCard = effectCard;
     }
 
@@ -34,6 +36,7 @@ public class EffectController {
         this.gameControllerID = gameControllerID;
         cardsAffected = new ArrayList<>();
         isUsedThisTurn = false;
+        isUsedBefore = false;
         this.effectCard = effectCard;
         this.remainsTurn = remainsTurn;
     }
@@ -166,7 +169,7 @@ public class EffectController {
         if (confirm) {
             decreaseLP(100);
         } else {
-            getGameController().removeCard(effectCard);
+            getGameController().removeMonsterCard(effectCard);
         }
     }
 
@@ -246,10 +249,12 @@ public class EffectController {
     }
 
     public void setZeroAttackForAttackerCard() {
-        boolean userResponse = getRivalPlayerController().confirm("do you want to active set zero attack for attacker card?!");
-        if (userResponse) {
-            getGameController().getAttackController().getAttackingMonster().addAttackModifier(-1000000);
-            getGameController().getRivalPlayerEffectControllers().remove(this);
+        if (!isUsedBefore) {
+            boolean userResponse = getRivalPlayerController().confirm("do you want to active set zero attack for attacker card?!");
+            if (userResponse) {
+                getGameController().getAttackController().getAttackingMonster().addAttackModifier(-1000000);
+                setUsed();
+            }
         }
     }
 
@@ -324,23 +329,23 @@ public class EffectController {
     public void destroyAttackerCardIfDestroyed() {
         if (getRivalPlayerField().isInGraveyard(effectCard)) {
             GameCard cardToDestroy = getGameController().getAttackController().getAttackingMonster();
-            getCurrentPlayerField().removeFromMonsterZone(cardToDestroy);
-            getCurrentPlayerField().putInGraveyard(cardToDestroy);
+            getGameController().removeMonsterCard(cardToDestroy);
+            getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, effectCard.getCard().getName());
         }
     }
 
     public void destroyAnotherCardInBattleIfDestroyed() {
         if (getGameController().getAttackController().getAttackedMonster().equals(effectCard)) {
             if (getRivalPlayerField().isInGraveyard(effectCard)) {
-                getGameController().removeCard(getGameController().getAttackController().getAttackingMonster());
+                getGameController().removeMonsterCard(getGameController().getAttackController().getAttackingMonster());
             } else if (getCurrentPlayerField().isInGraveyard(effectCard)) {
-                getGameController().removeCard(getGameController().getAttackController().getAttackingMonster());
+                getGameController().removeMonsterCard(getGameController().getAttackController().getAttackingMonster());
             }
         } else if (getGameController().getAttackController().getAttackingMonster().equals(effectCard)) {
             if (getRivalPlayerField().isInGraveyard(effectCard)) {
-                getGameController().removeCard(getGameController().getAttackController().getAttackedMonster());
+                getGameController().removeMonsterCard(getGameController().getAttackController().getAttackedMonster());
             } else if (getCurrentPlayerField().isInGraveyard(effectCard)) {
-                getGameController().removeCard(getGameController().getAttackController().getAttackedMonster());
+                getGameController().removeMonsterCard(getGameController().getAttackController().getAttackedMonster());
             }
         }
     }
@@ -390,6 +395,13 @@ public class EffectController {
             if (spellTrap == null) continue;
             getRivalPlayerField().removeFromSpellZone(spellTrap);
             getRivalPlayerField().putInGraveyard(spellTrap);
+        }
+    }
+
+    public void decreaseAttackerLPIfAttackedCardFaceDown(int amount) {
+        if (getGameController().getAttackController().getAttackedMonster().isFaceDown()) {
+            decreaseAttackerLP(amount);
+            getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, effectCard.getCard().getName());
         }
     }
 
@@ -443,7 +455,8 @@ public class EffectController {
         }
     }
 
-    public void selectAllMonsters() {
+    public void addAttackToAllMonsters(int amount) {
+        if (isUsedBefore) return;
         GameCard[] monsterZone = getCurrentPlayerField().getMonsterZone();
         for (GameCard monster : monsterZone) {
             if (monster != null && !cardsAffected.contains(monster)) cardsAffected.add(monster);
@@ -452,13 +465,14 @@ public class EffectController {
         for (GameCard monster : monsterZone) {
             if (monster != null && !cardsAffected.contains(monster)) cardsAffected.add(monster);
         }
+        changeAttack(400);
+        setUsed();
     }
 
     public void changeAttack(int amount) {
         for (GameCard gameCard : cardsAffected) {
             gameCard.addAttackModifier(amount);
         }
-        cardsAffected = new ArrayList<>();
     }
 
     public void changeDefence(int amount) {
@@ -501,7 +515,7 @@ public class EffectController {
         List<GameCard> rivalFaceUpMonsters = Arrays.stream(getRivalPlayerField().getMonsterZone()).filter(Objects::nonNull).collect(Collectors.toList());
         for (GameCard rivalFaceUpMonster : rivalFaceUpMonsters) {
             if (rivalFaceUpMonster == null) continue;
-            getGameController().removeCard(rivalFaceUpMonster);
+            getGameController().removeMonsterCard(rivalFaceUpMonster);
         }
     }
 
@@ -514,11 +528,11 @@ public class EffectController {
             if (randomCard == null) {
                 getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
             } else {
-                getGameController().removeCard(randomCard);
+                getGameController().removeMonsterCard(randomCard);
             }
         } else {
             for (GameCard gameCard : userCardsInHand) {
-                getGameController().removeCard(gameCard);
+                getGameController().removeMonsterCard(gameCard);
             }
         }
     }
@@ -541,6 +555,10 @@ public class EffectController {
 
     public void callOfTheHaunted() {
 
+    }
+
+    private void setUsed() {
+        isUsedBefore = true;
     }
 
     public boolean containEffect(Effects effect) {
