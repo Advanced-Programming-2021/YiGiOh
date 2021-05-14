@@ -74,6 +74,8 @@ public class CheatController {
             return;
         }
         card.setId(++fakeID);
+        card.setFaceDown(true);
+        getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, card));
         getCurrentPlayer().getField().getSpellZone()[getCurrentPlayer().getField().getFirstFreeSpellZoneIndex()] = card;
     }
 
@@ -95,7 +97,6 @@ public class CheatController {
         card.setId(++fakeID);
         card.setFaceDown(isSet);
         card.setRevealed(!isSet);
-        card.getCard().setCardEffects(DatabaseManager.getCardEffects(card.getCard().getName(), CardType.MONSTER));
         getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, card));
         getCurrentPlayer().getField().getMonsterZone()[getCurrentPlayer().getField().getFirstFreeMonsterZoneIndex()] = card;
     }

@@ -13,7 +13,10 @@ import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.RoundResult;
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Monster;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -187,7 +190,12 @@ public class GameView extends View {
         String[] firstHand = new String[7];
         for (int i = 0; i < 7; i++) {
             if (firstPlayer.getField().getHand().size() > i) {
-                firstHand[i] = firstPlayer.getField().getHand().get(i).getCard().getName();
+                Card monster = firstPlayer.getField().getHand().get(i).getCard();
+                firstHand[i] = monster.getName();
+                if (monster.getCardType().equals(CardType.MONSTER)) {
+                    firstHand[i] += "<br>" + ((Monster) monster).getAttackPoints() + "<br>" +
+                            ((Monster) monster).getDefensePoints();
+                }
             } else {
                 firstHand[i] = "";
             }

@@ -120,6 +120,13 @@ public class GameController {
         isRoundEnded();
     }
 
+    public void endPhase() {
+        while (!gameTurnController.getPhase().equals(Phase.END)) {
+            nextPhase();
+        }
+        nextPhase();
+    }
+
     public void nextPhase() {
         if (isTurnTempChanged) {
             isTurnTempChanged = false;
@@ -146,7 +153,6 @@ public class GameController {
             ((AIPlayerController) getCurrentPlayerController()).startRoundAction();
         }
     }
-
 
 
     public void exchangeSideDeckCards() {
@@ -190,49 +196,70 @@ public class GameController {
             for (Effects cardEffect : selectedCard.getCard().getCardEffects()) {
                 if (cardEffect.equals(Effects.SPECIAL_SUMMON_FROM_GRAVEYARD)) {
                     effectController.specialSummonFromGraveyard();
-                } if (cardEffect.equals(Effects.ADD_FIELD_SPELL_TO_HAND)) {
+                }
+                if (cardEffect.equals(Effects.ADD_FIELD_SPELL_TO_HAND)) {
                     effectController.addFieldSpellToHand();
-                } if (cardEffect.equals(Effects.DRAW_TWO_CARD)) {
+                }
+                if (cardEffect.equals(Effects.DRAW_TWO_CARD)) {
                     effectController.drawCard(2);
-                } if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_MONSTERS)) {
+                }
+                if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_MONSTERS)) {
                     effectController.destroyAllRivalCards();
-                } if (cardEffect.equals(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
+                }
+                if (cardEffect.equals(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
                     effectController.controlRivalMonster();
-                } if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_SPELL_TRAPS)) {
+                }
+                if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_SPELL_TRAPS)) {
                     effectController.destroyRivalSpellTraps();
-                } if (cardEffect.equals(Effects.SWORD_OF_REVEALING_LIGHT)) {
+                }
+                if (cardEffect.equals(Effects.SWORD_OF_REVEALING_LIGHT)) {
                     effectController.flipAllRivalFaceDownMonsters();
                     getCurrentPlayerEffectControllers().add(new EffectController(id, selectedCard, 3));
-                } if (cardEffect.equals(Effects.DESTROY_ALL_MONSTERS)) {
+                }
+                if (cardEffect.equals(Effects.DESTROY_ALL_MONSTERS)) {
                     effectController.destroyCurrentPlayerMonsters();
                     effectController.destroyRivalMonsters();
-                } if (cardEffect.equals(Effects.TWIN_TWISTERS)) {
+                }
+                if (cardEffect.equals(Effects.TWIN_TWISTERS)) {
                     effectController.twinTwisters();
-                } if (cardEffect.equals(Effects.DESTROY_SPELL_OR_TRAP)) {
+                }
+                if (cardEffect.equals(Effects.DESTROY_SPELL_OR_TRAP)) {
                     effectController.destroySpellTrap();
-                } if (cardEffect.equals(Effects.YAMI)) {
+                }
+                if (cardEffect.equals(Effects.YAMI)) {
                     effectController.yami();
-                } if (cardEffect.equals(Effects.FOREST)) {
+                }
+                if (cardEffect.equals(Effects.FOREST)) {
                     effectController.forest();
-                } if (cardEffect.equals(Effects.CLOSED_FOREST)) {
+                }
+                if (cardEffect.equals(Effects.CLOSED_FOREST)) {
                     effectController.closedForest();
-                } if (cardEffect.equals(Effects.UMIIRUKA)) {
+                }
+                if (cardEffect.equals(Effects.UMIIRUKA)) {
                     effectController.umiiruka();
-                } if (cardEffect.equals(Effects.SWORD_OF_DARK_DESTRUCTION)) {
+                }
+                if (cardEffect.equals(Effects.SWORD_OF_DARK_DESTRUCTION)) {
                     effectController.swordOfDarkDestruction();
-                } if (cardEffect.equals(Effects.BLACK_PENDANT)) {
+                }
+                if (cardEffect.equals(Effects.BLACK_PENDANT)) {
                     effectController.blackPendant();
-                } if (cardEffect.equals(Effects.UNITED_WE_STAND)) {
+                }
+                if (cardEffect.equals(Effects.UNITED_WE_STAND)) {
                     effectController.unitedWeStand();
-                } if (cardEffect.equals(Effects.MAGNUM_SHIELD)) {
+                }
+                if (cardEffect.equals(Effects.MAGNUM_SHIELD)) {
                     effectController.magnumShield();
-                } if (cardEffect.equals(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
+                }
+                if (cardEffect.equals(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
                     getCurrentPlayerEffectControllers().add(effectController);
-                } if (cardEffect.equals(Effects.INCREASE_LP_IF_SPELL_ACTIVATED)) {
+                }
+                if (cardEffect.equals(Effects.INCREASE_LP_IF_SPELL_ACTIVATED)) {
                     getCurrentPlayerEffectControllers().add(effectController);
-                } if (cardEffect.equals(Effects.MESSENGER_OF_PEACE)) {
+                }
+                if (cardEffect.equals(Effects.MESSENGER_OF_PEACE)) {
                     getCurrentPlayerEffectControllers().add(effectController);
-                } if (cardEffect.equals(Effects.RING_OF_DEFENSE)) {
+                }
+                if (cardEffect.equals(Effects.RING_OF_DEFENSE)) {
                     getCurrentPlayerEffectControllers().add(effectController);
                 }
             }
@@ -249,7 +276,6 @@ public class GameController {
                     && getCurrentPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap");
         return true;
     }
-
 
 
     public EffectResponse applyEffect(Trigger trigger) {
@@ -280,69 +306,59 @@ public class GameController {
                 if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
                     effectController.messengerOfPeace();
                 }
-            }
-            else if (trigger.equals(Trigger.DRAW)) {
+            } else if (trigger.equals(Trigger.DRAW)) {
                 //Herald of Creation
                 if (effectController.containEffect(Effects.HERALD_OF_CREATION)) {
                     effectController.drawCardFromGraveyard(7);
                     effectController.disposableEffect();
                 }
-            }
-            else if (trigger.equals(Trigger.SET)) {
+            } else if (trigger.equals(Trigger.SET)) {
 
-            }
-            else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
+            } else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
 
-            }
-            else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
+            } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
                 //Man-Eater Bug
                 if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
                     effectController.destroyOneOfRivalMonsters();
                 }
-            }
-            else if (trigger.equals(Trigger.AFTER_SUMMON)) {
+            } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
                 //Command Knight
                 if (effectController.containEffect(Effects.ADD_ATTACK_TO_ALL_MONSTERS)) {
                     effectController.selectAllMonsters();
                     //we can change this value (400) if we want
                     effectController.changeAttack(400);
                 }
-            }
-            else if (trigger.equals(Trigger.AFTER_NORMAL_SUMMON)) {
+            } else if (trigger.equals(Trigger.AFTER_NORMAL_SUMMON)) {
                 //Terratiger
                 if (effectController.containEffect(Effects.TERRATIGER)) {
                     effectController.specialSetFromHand();
                     getCurrentPlayerEffectControllers().remove(effectController);
                 }
-            }
-            else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
+            } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
                 //Messenger of peace
                 if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
                     if (effectController.isAttackerMonsterPowerful(1500))
                         return EffectResponse.ATTACK_CANT_BE_DONE;
                 }
-            }
-            else if (trigger.equals(Trigger.AFTER_ATTACK)) {
+            } else if (trigger.equals(Trigger.AFTER_ATTACK)) {
                 //Exploder Dragon
                 if (effectController.containEffect(Effects.DESTROY_ANOTHER_CARD_IN_BATTLE_IF_DESTROYED)
                         && (attackController.getAttackedMonster().equals(effectController.getEffectCard())
                         || attackController.getAttackingMonster().equals(effectController.getEffectCard()))) {
                     effectController.destroyAnotherCardInBattleIfDestroyed();
-                } if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
+                }
+                if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     return EffectResponse.LPS_DOESNT_CHANGE;
                 }
-            }
-            else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
+            } else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
 
-            }
-            else if (trigger.equals(Trigger.AFTER_ACTIVE_SPELL)) {
+            } else if (trigger.equals(Trigger.AFTER_ACTIVE_SPELL)) {
                 //Spell Absorption
                 if (effectController.containEffect(Effects.INCREASE_LP_IF_SPELL_ACTIVATED)) {
                     effectController.increaseLP(500);
                 }
-            }
-            else if (trigger.equals(Trigger.AFTER_MONSTER_KNOCK_OUT)) {
+            } else if (trigger.equals(Trigger.AFTER_MONSTER_KNOCK_OUT)) {
                 //Supply Squad
                 if (effectController.containEffect(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
                     effectController.drawCard(1);
@@ -377,23 +393,17 @@ public class GameController {
                         removeCard(effectController.getEffectCard());
                     }
                 }
-            }
-            else if (trigger.equals(Trigger.SET)) {
+            } else if (trigger.equals(Trigger.SET)) {
 
-            }
-            else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
+            } else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
 
-            }
-            else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
+            } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
 
-            }
-            else if (trigger.equals(Trigger.AFTER_SUMMON)) {
+            } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
 
-            }
-            else if (trigger.equals(Trigger.AFTER_NORMAL_SUMMON)) {
+            } else if (trigger.equals(Trigger.AFTER_NORMAL_SUMMON)) {
 
-            }
-            else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
+            } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
                 //Magic Cylinder
                 if (effectController.containEffect(Effects.MAGIC_CYLINDER) && canActiveTrap(effectController)) {
                     effectController.magicCylinder();
@@ -419,7 +429,8 @@ public class GameController {
                 if (effectController.containEffect(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK)
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     return EffectResponse.ATTACKED_CARD_CANT_BE_DESTROYED;
-                } if (effectController.containEffect(Effects.DECREASE_ATTACKER_LP_IF_FACE_DOWN)
+                }
+                if (effectController.containEffect(Effects.DECREASE_ATTACKER_LP_IF_FACE_DOWN)
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     effectController.decreaseAttackerLP(1000);
                 }
@@ -428,7 +439,8 @@ public class GameController {
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     effectController.disposableEffect();
                     return EffectResponse.ATTACK_CANT_BE_DONE;
-                } if (effectController.containEffect(Effects.SPECIAL_SUMMON_A_NORMAL_CYBERSE_MONSTER)
+                }
+                if (effectController.containEffect(Effects.SPECIAL_SUMMON_A_NORMAL_CYBERSE_MONSTER)
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     effectController.summonNormalCyberseMonster();
                 }
@@ -442,8 +454,7 @@ public class GameController {
                     if (effectController.isAttackerMonsterPowerful(1500))
                         return EffectResponse.ATTACK_CANT_BE_DONE;
                 }
-            }
-            else if (trigger.equals(Trigger.AFTER_ATTACK)) {
+            } else if (trigger.equals(Trigger.AFTER_ATTACK)) {
                 //Yomi ship
                 if (effectController.containEffect(Effects.DESTROY_ATTACKER_CARD_IF_DESTROYED)
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
@@ -454,18 +465,17 @@ public class GameController {
                         && (attackController.getAttackedMonster().equals(effectController.getEffectCard())
                         || attackController.getAttackingMonster().equals(effectController.getEffectCard()))) {
                     effectController.destroyAnotherCardInBattleIfDestroyed();
-                } if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
+                }
+                if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     return EffectResponse.LPS_DOESNT_CHANGE;
                 }
-            }
-            else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
+            } else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
                 //Mirage Dragon
                 if (effectController.containEffect(Effects.RIVAL_CANT_ACTIVE_TRAP)) {
                     return EffectResponse.ACTIVE_TRAP_CANT_BE_DONE;
                 }
-            }
-            else if (trigger.equals(Trigger.AFTER_ACTIVE_SPELL)) {
+            } else if (trigger.equals(Trigger.AFTER_ACTIVE_SPELL)) {
 
             }
         }
