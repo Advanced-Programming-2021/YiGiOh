@@ -142,7 +142,17 @@ public class GameController {
         }
     }
 
+    public void changeTurnTemp() {
+        isTurnTempChanged = true;
+        isFirstPlayerTurn = !isFirstPlayerTurn;
+    }
+
     public void nextPhaseAI() {
+        if (isTurnTempChanged) {
+            isTurnTempChanged = false;
+            isFirstPlayerTurn = !isFirstPlayerTurn;
+            return;
+        }
         gameTurnController.nextPhase();
     }
 

@@ -108,8 +108,8 @@ public class GameView extends View {
     }
 
     public boolean confirm(String message) {
-        String[] options = {"yes"};
-        return promptChoice(options, message).equalsIgnoreCase("yes");
+        String[] options = {"confirm"};
+        return promptChoice(options, message) != null;
     }
 
     public String promptChoice(String[] options) {

@@ -1,6 +1,6 @@
 [
   {
-	"id": 1,
+    "id": 1,
     "mainDeckID": 1,
     "nickname": "AIEasy",
     "password": "d2rKhzCd9TKVIztGAdRetZUbM/qX8KttIAFVTM5e78Y=",
@@ -8,7 +8,7 @@
     "username": "AIEasy"
   },
   {
-	"id": 2,
+    "id": 2,
     "mainDeckID": 2,
     "nickname": "AIMediocre",
     "password": "d2rKhzCd9TKVIztGAdRetZUbM/qX8KttIAFVTM5e78Y=",
@@ -16,27 +16,11 @@
     "username": "AIMediocre"
   },
   {
-	"id": 3,  
+    "id": 3,
     "mainDeckID": 3,
     "nickname": "AIHard",
     "password": "d2rKhzCd9TKVIztGAdRetZUbM/qX8KttIAFVTM5e78Y=",
     "score": 0,
     "username": "AIHard"
-  },
-  {
-	"id": 4,  
-	"mainDeckID":4,
-	"nickname":"ali",
-	"password":"lEGbmbEsERM6Tf7Mw+F4hZdL60j3gnxII5qr+8rSONg=",
-	"score":0,
-	"username":"ali"
-  },
-  {
-	"id": 5,  
-  	"mainDeckID":5,
-	"nickname":"mmd",
-	"password":"tTMe5jAQTcaKOZ8QMCuxnbY+j80rwJSqUxxIhfGZk50=",
-	"score":0,
-	"username":"mmd"
   }
 ]

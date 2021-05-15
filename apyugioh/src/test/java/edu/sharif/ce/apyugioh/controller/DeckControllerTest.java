@@ -69,6 +69,12 @@ class DeckControllerTest {
 
     @Test
     void removeCard() {
+        controller.create("Test Deck");
+        controller.addCard("Test Deck", "Blue Eyes White Dragon", false);
+        controller.removeCard("Test Deck", "Blue Eyes White Dragon", false);
+        assertNull(Deck.getDeckByName(1, "Test Deck").getMainDeck().get("Blue Eyes White Dragon"));
+        controller.removeCard("Test Deck", "Blue Eyes White Dragon", false);
+        assertNull(Deck.getDeckByName(1, "Test Deck").getMainDeck().get("Blue Eyes White Dragon"));
     }
 
     @AfterEach
