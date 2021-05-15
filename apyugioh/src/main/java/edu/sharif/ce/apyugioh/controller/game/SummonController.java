@@ -79,7 +79,7 @@ public class SummonController {
     }
 
     public boolean specialSummon(){
-        ArrayList<String> choices = new ArrayList<String>();
+        ArrayList<String> choices = new ArrayList<>();
         switch(card.getCard().getName()){
             case "Beast King Barbaros":
                 choices.add("1. normal summon (by tributing 2 monsters)");

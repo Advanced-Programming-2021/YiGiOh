@@ -117,6 +117,7 @@ public class GameView extends View {
     }
 
     public String promptChoice(String[] options, String message) {
+        if (options == null) return null;
         ConsolePrompt prompt = new ConsolePrompt();
         PromptBuilder builder = prompt.getPromptBuilder();
         ListPromptBuilder choicePrompt = builder.createListPrompt().name("tribute").message(message);

@@ -2,9 +2,8 @@ package edu.sharif.ce.apyugioh.view.command;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
-import edu.sharif.ce.apyugioh.model.MenuState;
-import edu.sharif.ce.apyugioh.view.ErrorView;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "show", mixinStandardHelpOptions = true, description = "in game show commands")
 public class ShowCommand {
@@ -16,9 +15,13 @@ public class ShowCommand {
     }
 
     @Command(name = "graveyard", mixinStandardHelpOptions = true, description = "show graveyard")
-    public void showGraveyard() {
+    public void showGraveyard(@Option(names = {"-o", "--opponent"}) boolean isOpponent) {
         if (!isAvailable()) return;
-        GameController.getGameControllerById(ProgramController.getGameControllerID()).showCurrentPlayerGraveyard();
+        if (isOpponent) {
+            GameController.getGameControllerById(ProgramController.getGameControllerID()).showRivalPlayerGraveyard();
+        } else {
+            GameController.getGameControllerById(ProgramController.getGameControllerID()).showCurrentPlayerGraveyard();
+        }
     }
 
     private boolean isAvailable() {

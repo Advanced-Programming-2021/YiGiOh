@@ -34,9 +34,9 @@ public class DeckController {
     private User user;
 
     public void create(String name) {
-        Deck deck = Deck.getDeckByName(user.getUsername(), name);
+        Deck deck = Deck.getDeckByName(user.getId(), name);
         if (deck == null) {
-            new Deck(user.getUsername(), name);
+            new Deck(user.getId(), name);
             logger.info("{} created deck {}", user.getNickname(), name);
             view.showSuccess(DeckView.SUCCESS_DECK_CREATE);
         } else {
@@ -45,7 +45,7 @@ public class DeckController {
     }
 
     public void remove(String name) {
-        Deck deck = Deck.getDeckByName(user.getUsername(), name);
+        Deck deck = Deck.getDeckByName(user.getId(), name);
         if (deck == null) {
             view.showError(DeckView.ERROR_DECK_NAME_NOT_FOUND, name);
         } else {
@@ -60,7 +60,7 @@ public class DeckController {
     }
 
     public void activate(String name) {
-        Deck deck = Deck.getDeckByName(user.getUsername(), name);
+        Deck deck = Deck.getDeckByName(user.getId(), name);
         if (deck == null) {
             view.showError(DeckView.ERROR_DECK_NAME_NOT_FOUND, name);
         } else {
@@ -73,7 +73,7 @@ public class DeckController {
 
     public void addCard(String deckName, String cardName, boolean isSide) {
         Card card = DatabaseManager.getCards().getCardByName(cardName);
-        Deck deck = Deck.getDeckByName(user.getUsername(), deckName);
+        Deck deck = Deck.getDeckByName(user.getId(), deckName);
         if (isCardOrDeckInvalid(cardName, deckName, card, deck)) return;
         if (!isSide) {
             if (deck.isMainDeckFull()) {
@@ -87,8 +87,8 @@ public class DeckController {
             }
         }
         if (isCardAddLimited(card, deck)) return;
-        Inventory inventory = DatabaseManager.getInventoryList().stream().filter(e -> e.getUsername()
-                .equals(user.getUsername())).findAny().orElse(null);
+        Inventory inventory = DatabaseManager.getInventoryList().stream().filter(e -> e.getUserID() == user.getId()).
+                findAny().orElse(null);
         if (inventory != null && deck.getCardTotalCount(card.getName()) >= inventory.getCardStock()
                 .getOrDefault(card.getName(), 0)) {
             view.showError(DeckView.ERROR_INVENTORY_CARDS_NOT_ENOUGH, card.getName());
@@ -101,7 +101,7 @@ public class DeckController {
 
     public void removeCard(String deckName, String cardName, boolean isSide) {
         Card card = DatabaseManager.getCards().getCardByName(cardName);
-        Deck deck = Deck.getDeckByName(user.getUsername(), deckName);
+        Deck deck = Deck.getDeckByName(user.getId(), deckName);
         if (isCardOrDeckInvalid(cardName, deckName, card, deck)) return;
         if (!isSide) {
             if (deck.getMainDeckCardCount(card.getName()) <= 0) {
@@ -163,16 +163,16 @@ public class DeckController {
     public void showAllDecks() {
         if (user.getMainDeckID() != -1) {
             Deck activeDeck = Deck.getDeckByID(user.getMainDeckID());
-            List<Deck> deactivatedDecks = Deck.getUserDecks(user.getUsername()).stream()
+            List<Deck> deactivatedDecks = Deck.getUserDecks(user.getId()).stream()
                     .filter(e -> e.getId() != user.getMainDeckID()).collect(Collectors.toList());
             view.showAll(activeDeck, deactivatedDecks);
         } else {
-            view.showAll(null, Deck.getUserDecks(user.getUsername()));
+            view.showAll(null, Deck.getUserDecks(user.getId()));
         }
     }
 
     public void showDeck(String deckName, boolean isSideDeck) {
-        Deck deck = Deck.getDeckByName(user.getUsername(), deckName);
+        Deck deck = Deck.getDeckByName(user.getId(), deckName);
         if (deck == null) {
             view.showError(DeckView.ERROR_DECK_NAME_NOT_FOUND, deckName);
         } else {
@@ -181,6 +181,6 @@ public class DeckController {
     }
 
     public void showAllInventoryCards() {
-        view.showInventory(Inventory.getInventoryByUsername(user.getUsername()));
+        view.showInventory(Inventory.getInventoryByUserID(user.getId()));
     }
 }

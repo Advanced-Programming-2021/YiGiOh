@@ -93,10 +93,13 @@ public class GameController {
 
     public void set() {
         gameTurnController.set();
+        showCurrentPlayerBoard();
+        isRoundEnded();
     }
 
     public void summon() {
         gameTurnController.summon();
+        showCurrentPlayerBoard();
         isRoundEnded();
     }
 
@@ -110,11 +113,13 @@ public class GameController {
 
     public void attack(int position) {
         gameTurnController.attack(position);
+        showCurrentPlayerBoard();
         isRoundEnded();
     }
 
     public void directAttack() {
         gameTurnController.directAttack();
+        showCurrentPlayerBoard();
         isRoundEnded();
     }
 
@@ -539,8 +544,8 @@ public class GameController {
                     roundResults.get(0).getSecondPlayerLifePoints();
             winnerLP = Math.max(winnerLP, 0);
             winner.getUser().setScore(winner.getUser().getScore() + 1000);
-            Inventory.getInventoryByUsername(winner.getUser().getUsername()).setMoney(Inventory.getInventoryByUsername(winner.getUser().getUsername()).getMoney() + 1000 + winnerLP);
-            Inventory.getInventoryByUsername(loser.getUser().getUsername()).setMoney(Inventory.getInventoryByUsername(loser.getUser().getUsername()).getMoney() + 100);
+            Inventory.getInventoryByUserID(winner.getUser().getId()).setMoney(Inventory.getInventoryByUserID(winner.getUser().getId()).getMoney() + 1000 + winnerLP);
+            Inventory.getInventoryByUserID(loser.getUser().getId()).setMoney(Inventory.getInventoryByUserID(loser.getUser().getId()).getMoney() + 100);
             getView().showGameResult(winner, numberOfRounds, winnerLP);
         } else {
             int maxFirstPlayerLP = roundResults.stream().mapToInt(RoundResult::getFirstPlayerLifePoints).max().getAsInt();
@@ -550,8 +555,8 @@ public class GameController {
             int winnerLP = winner.getUser().getUsername().equals(firstPlayer.getPlayer().getUser().getUsername()) ? maxFirstPlayerLP : maxSecondPlayerLP;
             winnerLP = Math.max(winnerLP, 0);
             winner.getUser().setScore(winner.getUser().getScore() + 1000);
-            Inventory.getInventoryByUsername(winner.getUser().getUsername()).setMoney(Inventory.getInventoryByUsername(winner.getUser().getUsername()).getMoney() + 3000 + 3 * winnerLP);
-            Inventory.getInventoryByUsername(loser.getUser().getUsername()).setMoney(Inventory.getInventoryByUsername(loser.getUser().getUsername()).getMoney() + 300);
+            Inventory.getInventoryByUserID(winner.getUser().getId()).setMoney(Inventory.getInventoryByUserID(winner.getUser().getId()).getMoney() + 3000 + 3 * winnerLP);
+            Inventory.getInventoryByUserID(loser.getUser().getId()).setMoney(Inventory.getInventoryByUserID(loser.getUser().getId()).getMoney() + 300);
             getView().showGameResult(winner, numberOfRounds, winnerLP);
         }
         DatabaseManager.updateInventoriesToDB();
@@ -586,6 +591,10 @@ public class GameController {
 
     public void showCurrentPlayerGraveyard() {
         getView().showGraveyard(getCurrentPlayer());
+    }
+
+    public void showRivalPlayerGraveyard() {
+        getView().showGraveyard(getRivalPlayer());
     }
 
     public boolean isCardSelected() {

@@ -11,7 +11,10 @@ public class User implements Comparable<User> {
 
     @Getter
     @EqualsAndHashCode.Include
-    private final String username;
+    private final int id;
+    @Getter
+    @EqualsAndHashCode.Include
+    private String username;
     private String password;
     @Getter
     @EqualsAndHashCode.Include
@@ -24,12 +27,17 @@ public class User implements Comparable<User> {
     private int mainDeckID;
 
     public User(String username, String password, String nickname) {
+        id = DatabaseManager.getUserList().stream().mapToInt(e -> e.id).max().getAsInt() + 1;
         this.username = username;
         this.password = Utils.hash(password);
         this.nickname = nickname;
         mainDeckID = -1;
         DatabaseManager.addUser(this);
-        new Inventory(username);
+        new Inventory(id);
+    }
+
+    public static User getUserByID(int id) {
+        return DatabaseManager.getUserList().stream().filter(e -> e.id == id).findFirst().orElse(null);
     }
 
     public static User getUserByUsername(String username) {
@@ -48,6 +56,11 @@ public class User implements Comparable<User> {
 
     public void setPassword(String password) {
         this.password = Utils.hash(password);
+        DatabaseManager.updateUsersToDB();
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
         DatabaseManager.updateUsersToDB();
     }
 

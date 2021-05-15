@@ -1,6 +1,5 @@
 package edu.sharif.ce.apyugioh.controller;
 
-import edu.sharif.ce.apyugioh.controller.game.CheatController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
@@ -28,7 +27,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Ansi;
 import picocli.shell.jline3.PicocliCommands;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;

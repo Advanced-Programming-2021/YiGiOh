@@ -50,4 +50,13 @@ public class ProfileController {
         logger.info("{} changed password from {} to {}", user.getNickname(), currentPassword, newPassword);
     }
 
+    public void changeUsername(String username) {
+        if (User.getUserByUsername(username) != null) {
+            view.showError(ProfileView.ERROR_USER_NICKNAME_ALREADY_TAKEN, username);
+            return;
+        }
+        logger.info("{} changed username to {}", user.getUsername(), username);
+        user.setUsername(username);
+        view.showSuccess(ProfileView.SUCCESS_CHANGE_NICKNAME);
+    }
 }

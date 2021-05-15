@@ -1,7 +1,6 @@
 package edu.sharif.ce.apyugioh.view.command;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
-import edu.sharif.ce.apyugioh.controller.game.GameController;
 import picocli.CommandLine.Command;
 
 @Command(name = "activate", mixinStandardHelpOptions = true, description = "activate commands")

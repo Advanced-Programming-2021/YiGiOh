@@ -6,7 +6,6 @@ import edu.sharif.ce.apyugioh.controller.player.NormalPlayerController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.*;
 import edu.sharif.ce.apyugioh.model.card.Card;
-import edu.sharif.ce.apyugioh.model.GameDeck;
 import edu.sharif.ce.apyugioh.view.DuelView;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;

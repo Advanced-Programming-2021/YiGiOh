@@ -12,24 +12,29 @@ public class ProfileCommand {
 
     @Command(name = "change", description = "change your game account nickname or password")
     public void change(@Option(names = {"-p", "--password"}, paramLabel = "password") boolean isPassword,
+                       @Option(names = {"-u", "--username"}, paramLabel = "nickname") String username,
                        @Option(names = {"-n", "--nickname"}, paramLabel = "nickname") String nickname,
                        @Option(names = {"-np", "--new"}, paramLabel = "new password") String newPassword,
                        @Option(names = {"-c", "--current"}, paramLabel = "current password") String currentPassword) {
         if (!isAvailable()) return;
         if (isPassword) {
-            if (nickname != null || currentPassword == null || newPassword == null) {
+            if (nickname != null || username != null || currentPassword == null || newPassword == null) {
                 ErrorView.showError(ErrorView.COMMAND_INVALID);
                 return;
             }
             if (!isOptionsValid(currentPassword, newPassword)) return;
             ProfileController.getInstance().changePassword(currentPassword, newPassword);
         } else {
-            if (newPassword != null || currentPassword != null || nickname == null) {
+            if (nickname != null && username == null && newPassword == null && currentPassword == null) {
+                if (!isOptionsValid(nickname)) return;
+                ProfileController.getInstance().changeNickname(nickname);
+            } else if (username != null && nickname == null && newPassword == null && currentPassword == null) {
+                if (!isOptionsValid(username)) return;
+                ProfileController.getInstance().changeUsername(username);
+            } else {
                 ErrorView.showError(ErrorView.COMMAND_INVALID);
                 return;
             }
-            if (!isOptionsValid(nickname)) return;
-            ProfileController.getInstance().changeNickname(nickname);
         }
     }
 

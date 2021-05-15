@@ -1,8 +1,6 @@
 package edu.sharif.ce.apyugioh.view.command;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
-import edu.sharif.ce.apyugioh.model.MenuState;
-import edu.sharif.ce.apyugioh.view.ErrorView;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 

@@ -17,7 +17,7 @@ public class Inventory {
 
     private int money;
     @EqualsAndHashCode.Include
-    private String username;
+    private int userID;
     private Map<String, Integer> cardStock;
 
     public Inventory() {
@@ -25,16 +25,15 @@ public class Inventory {
         money = 100000;
     }
 
-    public Inventory(String username) {
+    public Inventory(int userID) {
         this();
-        this.username = username;
+        this.userID = userID;
         DatabaseManager.getInventoryList().add(this);
         DatabaseManager.updateInventoriesToDB();
     }
 
-    public static Inventory getInventoryByUsername(String username) {
-        return DatabaseManager.getInventoryList().stream().filter(e -> e.username.equals(username))
-                .findAny().orElse(null);
+    public static Inventory getInventoryByUserID(int userID) {
+        return DatabaseManager.getInventoryList().stream().filter(e -> e.userID == userID).findAny().orElse(null);
     }
 
     public void buyCard(String cardName) {

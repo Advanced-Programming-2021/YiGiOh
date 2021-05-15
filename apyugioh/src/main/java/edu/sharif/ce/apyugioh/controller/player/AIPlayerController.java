@@ -161,7 +161,7 @@ public class AIPlayerController extends PlayerController {
                 .collect(Collectors.toList()));
         GameCard defenseMonster = getLowestDefenseMonster(Arrays.stream(cards)
                 .filter(Objects::nonNull)
-                .filter(e -> e.isFaceDown())
+                .filter(GameCard::isFaceDown)
                 .collect(Collectors.toList()));
         GameCard selected;
         if (attackMonster == null && defenseMonster == null) {

@@ -30,7 +30,7 @@ public class ShopController {
     private User user;
 
     public void buyCard(String cardName) {
-        Inventory userInventory = Inventory.getInventoryByUsername(user.getUsername());
+        Inventory userInventory = Inventory.getInventoryByUserID(user.getId());
         Card card = DatabaseManager.getCards().getAllCards().stream().filter(e -> e.getName().equalsIgnoreCase(cardName))
                 .findAny().orElse(null);
         if (card != null) {

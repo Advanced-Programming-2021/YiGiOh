@@ -1,7 +1,6 @@
 package edu.sharif.ce.apyugioh.model;
 
 import edu.sharif.ce.apyugioh.model.card.GameCard;
-import edu.sharif.ce.apyugioh.model.card.Monster;
 import lombok.Getter;
 import lombok.Setter;
 

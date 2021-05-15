@@ -130,7 +130,7 @@ public class CheatController {
     }
 
     private void setMoney(String option) {
-        Inventory playerInventory = Inventory.getInventoryByUsername(getCurrentPlayer().getUser().getUsername());
+        Inventory playerInventory = Inventory.getInventoryByUserID(getCurrentPlayer().getUser().getId());
         try {
             int amount = Integer.parseInt(option);
             playerInventory.setMoney(amount);

@@ -7,14 +7,12 @@ import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 import edu.sharif.ce.apyugioh.model.card.MonsterSummon;
 import edu.sharif.ce.apyugioh.view.GameView;
-import javafx.scene.effect.Effect;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Getter

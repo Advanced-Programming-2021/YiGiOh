@@ -18,16 +18,16 @@ public class Deck {
 
     @EqualsAndHashCode.Include
     private int id;
-    private String username;
+    private int userID;
     @EqualsAndHashCode.Include
     private String name;
     private Map<String, Integer> mainDeck;
     private Map<String, Integer> sideDeck;
 
-    public Deck(String username, String name) {
+    public Deck(int userID, String name) {
         mainDeck = new HashMap<>();
         sideDeck = new HashMap<>();
-        this.username = username;
+        this.userID = userID;
         this.name = name;
         this.id = DatabaseManager.getDeckList().stream().mapToInt(e -> e.id).max().orElse(0) + 1;
         DatabaseManager.getDeckList().add(this);
@@ -38,13 +38,13 @@ public class Deck {
         return DatabaseManager.getDeckList().stream().filter(e -> e.id == id).findAny().orElse(null);
     }
 
-    public static Deck getDeckByName(String username, String deckName) {
+    public static Deck getDeckByName(int userID, String deckName) {
         return DatabaseManager.getDeckList().stream().
-                filter(e -> e.username.equals(username) && e.name.equals(deckName)).findAny().orElse(null);
+                filter(e -> e.userID == userID && e.name.equals(deckName)).findAny().orElse(null);
     }
 
-    public static List<Deck> getUserDecks(String username) {
-        return DatabaseManager.getDeckList().stream().filter(e -> e.username.equals(username)).collect(Collectors.toList());
+    public static List<Deck> getUserDecks(int userID) {
+        return DatabaseManager.getDeckList().stream().filter(e -> e.userID == userID).collect(Collectors.toList());
     }
 
     public static void remove(int id) {
