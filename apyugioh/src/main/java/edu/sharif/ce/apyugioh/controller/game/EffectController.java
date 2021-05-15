@@ -1,14 +1,14 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
-import edu.sharif.ce.apyugioh.model.Effects;
-import edu.sharif.ce.apyugioh.model.Field;
-import edu.sharif.ce.apyugioh.model.Player;
+import edu.sharif.ce.apyugioh.model.*;
 import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import edu.sharif.ce.apyugioh.view.View;
 import lombok.Getter;
 
+import javax.print.attribute.ResolutionSyntax;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -538,23 +538,83 @@ public class EffectController {
     }
 
     public void trapHole() {
-        
+        if (getGameController().getSelectionController() == null)
+            return;
+        GameCard summonedCard = getGameController().getSelectionController().getCard();
+        if (((Monster)summonedCard.getCard()).getAttackPoints() <= 1000)
+            return;
+        //check for activating trap
+        if (!getGameController().getCurrentPlayerController().confirm("Do you want to activate your \"Trap Hole\" trap?"))
+            return;
+        if (!activateTrapAndCheck())
+            return;
+        getGameController().removeMonsterCard(summonedCard);
     }
 
     public void negateAttackPhase() {
-
+        if (!getCurrentPlayerController().confirm("do you want to activate your \"Negate Attack\" trap?"))
+            return;
+        if (!activateTrapAndCheck())
+            return;
+        getGameController().nextPhase();
     }
 
     public void solemnWarning() {
-
+        if (!getCurrentPlayerController().confirm("do you want to activate \"Solemn Warning\" trap by spending 2000LPs?"))
+            return;
+        if (getCurrentPlayer().getLifePoints() <= 2000){
+            Utils.printError("not enough LPs to activate this trap");
+            return;
+        }
+        if (!activateTrapAndCheck())
+            return;
+        getCurrentPlayer().decreaseLifePoints(2000);
+        GameCard summonedMonster = getCurrentPlayer().getField().getRecentlySummonedMonster();
+        if (summonedMonster == null)
+            return;
+        getGameController().removeMonsterCard(summonedMonster);
     }
 
     public void magicJammer() {
-
+        if (getGameController().getSelectionController() == null)
+            return;
+        if (!getGameController().getCurrentPlayerController().confirm("do you want to activate your \"Magic Jammer\" trap?"))
+            return;
+        GameCard handCard = getGameController().getCurrentPlayerController().selectCardFromHand();
+        if (handCard == null) {
+            Utils.printError("trap activation failed");
+            return;
+        }
+        if (!activateTrapAndCheck())
+            return;
+        getGameController().getCurrentPlayer().getField().removeFromHand(handCard);
+        getGameController().getCurrentPlayer().getField().putInGraveyard(handCard);
+        GameCard activatedSpell = getGameController().getSelectionController().getCard();
+        getGameController().removeSpellTrapCard(activatedSpell);
     }
 
     public void callOfTheHaunted() {
+        if (!getCurrentPlayerController().confirm("do you want to activate your \"Call of the Haunted\" trap?"))
+            return;
+        GameCard monsterToSummon = getCurrentPlayerController().selectCardFromGraveyard();
+        if (monsterToSummon == null || !monsterToSummon.getCard().getCardType().equals(CardType.MONSTER)){
+            Utils.printError("trap activation failed");
+            return;
+        }
+        if (!activateTrapAndCheck())
+            return;
+        new SummonController(gameControllerID,monsterToSummon).specialSummon();
+    }
 
+    private boolean activateTrapAndCheck(){
+        Utils.printSuccess("trap activated successfully");
+        getGameController().removeSpellTrapCard(effectCard);
+        EffectResponse effectResponse = getGameController().applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
+        if (effectResponse != null && effectResponse.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)){
+            Utils.printError("your trap function failed");
+            return false;
+        }
+        return true;
     }
 
     private void setUsed() {

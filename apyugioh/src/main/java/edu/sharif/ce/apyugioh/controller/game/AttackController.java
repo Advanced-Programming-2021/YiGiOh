@@ -8,22 +8,29 @@ import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class AttackController {
     private GameCard attackingMonster;
     private GameCard attackedMonster;
     private int gameControllerID;
+    private boolean lpsCanBeChanged;
 
     public AttackController(int gameControllerID) {
         attackingMonster = GameController.getGameControllerById(gameControllerID).getSelectionController().getCard();
+
         this.gameControllerID = gameControllerID;
+        lpsCanBeChanged = true;
     }
 
     public AttackController(int gameControllerID, int position) {
         attackingMonster = GameController.getGameControllerById(gameControllerID).getSelectionController().getCard();
         attackedMonster = GameController.getGameControllerById(gameControllerID).getRivalPlayer().getField().getMonsterZone()[position - 1];
+
         this.gameControllerID = gameControllerID;
+        lpsCanBeChanged = true;
     }
 
     public boolean attack() {
@@ -64,18 +71,18 @@ public class AttackController {
     private void attackToOffensiveMonster(int playerPoints,int rivalPoints){
         if (playerPoints > rivalPoints){
             int damagePoints = playerPoints - rivalPoints;
-            damagePlayer(getGameController().getRivalPlayer(),damagePoints);
             if (canBeDestroyed(attackedMonster)) {
                 getGameController().knockOutMonster(attackedMonster);
+                damagePlayer(getGameController().getRivalPlayer(),damagePoints);
                 Utils.printSuccess("your opponent’s monster is destroyed and your opponent receives " + damagePoints + " battle damage");
             } else {
                 Utils.printSuccess("no card was destroyed because of attacked card effects");
             }
         } else if (rivalPoints > playerPoints){
             int damagePoints = rivalPoints - playerPoints;
-            damagePlayer(getGameController().getCurrentPlayer(),damagePoints);
             if (canBeDestroyed(attackingMonster)) {
                 getGameController().knockOutMonster(attackingMonster);
+                damagePlayer(getGameController().getCurrentPlayer(),damagePoints);
                 Utils.printError("Your monster card is destroyed and you received " + damagePoints + " battle damage");
             } else {
                 Utils.printSuccess("no card was destroyed because of attacking card effects");
@@ -101,15 +108,12 @@ public class AttackController {
     }
 
     private void damagePlayer(Player player,int damagePoints){
-        player.setLifePoints(player.getLifePoints() - damagePoints);
+        if (lpsCanBeChanged)
+            player.setLifePoints(player.getLifePoints() - damagePoints);
     }
 
     public int getAttackPoints(GameCard card) {
-        int attackPoints = ((Monster) card.getCard()).getAttackPoints();
-        for (Integer modifier : card.getAttackModifier())
-            attackPoints += modifier;
-        if (attackPoints < 0)
-            attackPoints = 0;
+        int attackPoints = card.getCurrentAttack();
         //special Cases
         if (card.getCard().getName().equals("The Calculator")) {
             int levelsSum = 0;
@@ -123,11 +127,7 @@ public class AttackController {
     }
 
     public int getDefensePoints(GameCard card) {
-        int defensePoints = ((Monster) card.getCard()).getDefensePoints();
-        for (Integer modifier : card.getDefenceModifier())
-            defensePoints += modifier;
-        if (defensePoints < 0)
-            defensePoints = 0;
+        int defensePoints = card.getCurrentDefense();
         //special cases
 
         return defensePoints;
@@ -138,7 +138,7 @@ public class AttackController {
     }
 
     private boolean canBeDestroyed(GameCard card) {
-        return card.getCard().getCardEffects().contains(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK);
+        return !card.getCard().getCardEffects().contains(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK);
     }
 
 }

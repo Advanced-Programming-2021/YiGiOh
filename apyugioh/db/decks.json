@@ -1,1 +1,111 @@
-[{"id":1,"mainDeck":{"Horn Imp":3,"Wattkid":3,"Warrior Dai Grepher":3,"Curtain Of The Dark Ones":3,"Axe Raider":3,"Hero Of The East":3,"Battle Ox":3,"Battle Warrior":3,"Command Knight":1,"Feral Imp":3,"Crawling Dragon":3,"Fireyarou":3,"Baby Dragon":3,"Silver Fang":3,"Flame Manipulator":3,"Haniwa":3,"Bitron":3},"name":"AIMain","sideDeck":{},"userID":1},{"id":2,"mainDeck":{"Horn Imp":3,"Wattkid":3,"Warrior Dai Grepher":3,"Curtain Of The Dark Ones":3,"Axe Raider":3,"Hero Of The East":3,"Battle Ox":3,"Battle Warrior":3,"Command Knight":1,"Feral Imp":3,"Crawling Dragon":3,"Fireyarou":3,"Baby Dragon":3,"Silver Fang":3,"Flame Manipulator":3,"Haniwa":3,"Bitron":3},"name":"AIMain","sideDeck":{},"userID":2},{"id":3,"mainDeck":{"Horn Imp":3,"Wattkid":3,"Warrior Dai Grepher":3,"Curtain Of The Dark Ones":3,"Axe Raider":3,"Hero Of The East":3,"Battle Ox":3,"Battle Warrior":3,"Command Knight":1,"Feral Imp":3,"Crawling Dragon":3,"Fireyarou":3,"Baby Dragon":3,"Silver Fang":3,"Flame Manipulator":3,"Haniwa":3,"Bitron":3},"name":"AIMain","sideDeck":{},"userID":3}]
+[
+  {
+    "id": 1,
+    "mainDeck": {
+      "Horn Imp": 3,
+      "Wattkid": 3,
+      "Warrior Dai Grepher": 3,
+      "Curtain Of The Dark Ones": 3,
+      "Axe Raider": 3,
+      "Hero Of The East": 3,
+      "Battle Ox": 3,
+      "Battle Warrior": 3,
+      "Command Knight": 1,
+      "Feral Imp": 3,
+      "Crawling Dragon": 3,
+      "Fireyarou": 3,
+      "Baby Dragon": 3,
+      "Silver Fang": 3,
+      "Flame Manipulator": 3,
+      "Haniwa": 3,
+      "Bitron": 3
+    },
+    "name": "AIMain",
+    "sideDeck": {},
+    "userID": 1
+  },
+  {
+    "id": 2,
+    "mainDeck": {
+      "Horn Imp": 3,
+      "Wattkid": 3,
+      "Warrior Dai Grepher": 3,
+      "Curtain Of The Dark Ones": 3,
+      "Axe Raider": 3,
+      "Hero Of The East": 3,
+      "Battle Ox": 3,
+      "Battle Warrior": 3,
+      "Command Knight": 1,
+      "Feral Imp": 3,
+      "Crawling Dragon": 3,
+      "Fireyarou": 3,
+      "Baby Dragon": 3,
+      "Silver Fang": 3,
+      "Flame Manipulator": 3,
+      "Haniwa": 3,
+      "Bitron": 3
+    },
+    "name": "AIMain",
+    "sideDeck": {},
+    "userID": 2
+  },
+  {
+    "id": 3,
+    "mainDeck": {
+      "Horn Imp": 3,
+      "Wattkid": 3,
+      "Warrior Dai Grepher": 3,
+      "Curtain Of The Dark Ones": 3,
+      "Axe Raider": 3,
+      "Hero Of The East": 3,
+      "Battle Ox": 3,
+      "Battle Warrior": 3,
+      "Command Knight": 1,
+      "Feral Imp": 3,
+      "Crawling Dragon": 3,
+      "Fireyarou": 3,
+      "Baby Dragon": 3,
+      "Silver Fang": 3,
+      "Flame Manipulator": 3,
+      "Haniwa": 3,
+      "Bitron": 3
+    },
+    "name": "AIMain",
+    "sideDeck": {},
+    "userID": 3
+  },
+  {
+    "id": 4,
+    "mainDeck": {
+      "Command Knight": 20,
+		"Marshmallon": 20
+    },
+    "name": "AIMain",
+    "sideDeck": {},
+    "userID": 4
+  },{
+    "id": 5,
+    "mainDeck": {
+      "Horn Imp": 3,
+      "Wattkid": 3,
+      "Warrior Dai Grepher": 3,
+      "Curtain Of The Dark Ones": 3,
+      "Axe Raider": 3,
+      "Hero Of The East": 3,
+      "Battle Ox": 3,
+      "Battle Warrior": 3,
+      "Command Knight": 1,
+      "Feral Imp": 3,
+      "Crawling Dragon": 3,
+      "Fireyarou": 3,
+      "Baby Dragon": 3,
+      "Silver Fang": 3,
+      "Flame Manipulator": 3,
+      "Haniwa": 3,
+      "Bitron": 3
+    },
+    "name": "AIMain",
+    "sideDeck": {},
+    "userID": 5
+  }
+]

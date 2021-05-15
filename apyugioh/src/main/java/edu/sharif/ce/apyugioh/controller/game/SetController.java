@@ -47,7 +47,7 @@ public class SetController {
         if (getCurrentPlayerField().isMonsterZoneFull()) {
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
             return false;
-        } else if (getGameTurnController().getSetOrSummonedMonster() != null) {
+        } else if (getGameTurnController().hasAnyMonsterSetOrSummon()) {
             GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
             return false;
         }
@@ -61,7 +61,6 @@ public class SetController {
         if (card.getCard().getCardEffects().contains(Effects.ACTIVE_AFTER_SET)) {
             getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, card));
         }
-        getGameTurnController().setSetOrSummonedMonster(card);
         GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
         return true;
     }

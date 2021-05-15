@@ -100,41 +100,11 @@ public abstract class PlayerController {
     }
 
     public void changePosition(boolean isChangeToAttack) {
-        if (getSelectionController() == null) {
-            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
-            return;
-        }
-        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
-            GameController.getView().showError(GameView.ERROR_CANT_CHANGE_CARD_POSITION);
-            return;
-        }
-        if (!getGameController().getGameTurnController().getPhase().equals(Phase.MAIN1) &&
-                !getGameController().getGameTurnController().getPhase().equals(Phase.MAIN2)) {
-            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return;
-        }
         getGameController().changePosition(isChangeToAttack);
         getGameController().deselect();
     }
 
     public void flipSummon() {
-        if (getSelectionController() == null) {
-            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
-            return;
-        }
-        if (!getPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
-            GameController.getView().showError(GameView.ERROR_CANT_CHANGE_CARD_POSITION);
-            return;
-        }
-        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
-            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return;
-        }
-        if (!getSelectionController().getCard().isFaceDown() ||
-                (getSelectionController().getCard().equals(getGameController().getGameTurnController().getSetOrSummonedMonster()))) {
-            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "flip summon");
-            return;
-        }
         getGameController().flipSummon();
         getGameController().deselect();
     }

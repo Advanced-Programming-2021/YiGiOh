@@ -17,6 +17,8 @@ public class Field {
     private GameCard[] spellZone;
     private GameCard fieldZone;
 
+    private GameCard recentlySummonedMonster;
+
     public Field() {
         deck = new ArrayList<>();
         hand = new ArrayList<>();
@@ -38,6 +40,7 @@ public class Field {
     public void putInMonsterZone(GameCard card) {
         if (!isMonsterZoneFull()) {
             monsterZone[getFirstFreeMonsterZoneIndex()] = card;
+            recentlySummonedMonster = card;
         }
     }
 

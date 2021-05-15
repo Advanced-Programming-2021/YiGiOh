@@ -28,7 +28,8 @@ public class GameTurnController {
     private Phase phase;
     private int gameControllerID;
     private boolean isFirstTurn;
-    private GameCard setOrSummonedMonster;
+    private GameCard summonedMonster;
+    private GameCard setMonster;
     private GameCard changedPositionMonster;
     private List<EffectController> disposableUsedEffects;
     private List<GameCard> attackedMonsters;
@@ -110,7 +111,7 @@ public class GameTurnController {
             return;
         if (new SetController(gameControllerID).set()
                 && getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER))
-            setSetOrSummonedMonster(getSelectionController().getCard());
+            setSetMonster(getSelectionController().getCard());
     }
 
     private boolean checkBeforeSet(){
@@ -132,8 +133,7 @@ public class GameTurnController {
     public void summon() {
          if (checkBeforeSummon()){
             if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()) {
-                setSetOrSummonedMonster(getSelectionController().getCard());
-                GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
+                setSummonedMonster(getSelectionController().getCard());
             }
         }
     }
@@ -160,7 +160,7 @@ public class GameTurnController {
             System.out.println(getCurrentPlayerField().isMonsterZoneFull());
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
             return false;
-        } else if (setOrSummonedMonster != null) {
+        } else if (hasAnyMonsterSetOrSummon()) {
             logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
             GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
             return false;
@@ -173,43 +173,100 @@ public class GameTurnController {
     }
 
     public void changePosition(boolean isChangeToAttack) {
+        if (checkBeforeChangePosition(isChangeToAttack)) {
+            getSelectionController().getCard().setRevealed(true);
+            getSelectionController().getCard().setFaceDown(!isChangeToAttack);
+            setChangedPositionMonster(getSelectionController().getCard());
+            GameController.getView().showSuccess(GameView.SUCCESS_CHANGE_POSITION_SUCCESSFUL);
+        }
+    }
+
+    private boolean checkBeforeChangePosition(boolean isChangeToAttack){
+        if (getSelectionController() == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return false;
+        }
+        if (!getGameController().getCurrentPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
+            GameController.getView().showError(GameView.ERROR_CANT_CHANGE_CARD_POSITION);
+            return false;
+        }
+        if (!getGameController().getGameTurnController().getPhase().equals(Phase.MAIN1) &&
+                !getGameController().getGameTurnController().getPhase().equals(Phase.MAIN2)) {
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return false;
+        }
         if (isChangeToAttack == (!getSelectionController().getCard().isFaceDown())) {
             GameController.getView().showError(GameView.ERROR_ALREADY_IN_WANTED_POSITION);
-            return;
+            return false;
         }
         if (getSelectionController().getCard().equals(changedPositionMonster)) {
             GameController.getView().showError(GameView.ERROR_ALREADY_CHANGED_POSITION_IN_TURN);
-            return;
+            return false;
         }
-        getSelectionController().getCard().setRevealed(true);
-        getSelectionController().getCard().setFaceDown(!isChangeToAttack);
-        setChangedPositionMonster(getSelectionController().getCard());
-        GameController.getView().showSuccess(GameView.SUCCESS_CHANGE_POSITION_SUCCESSFUL);
+        return true;
     }
 
     public void flipSummon() {
-        new SummonController(gameControllerID, getSelectionController().getCard()).flipSummon();
+        if (checkBeforeFlipSummon()) {
+            new SummonController(gameControllerID, getSelectionController().getCard()).flipSummon();
+        }
+    }
+
+    private boolean checkBeforeFlipSummon(){
+        if (getSelectionController() == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+            return false;
+        }
+        if (!getGameController().getCurrentPlayer().getField().isInMonsterZone(getSelectionController().getCard())) {
+            GameController.getView().showError(GameView.ERROR_CANT_CHANGE_CARD_POSITION);
+            return false;
+        }
+        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return false;
+        }
+        if (!getSelectionController().getCard().isFaceDown() ||
+                (getSelectionController().getCard().equals(getGameController().getGameTurnController().hasAnyMonsterSetOrSummon()))) {
+            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "flip summon");
+            return false;
+        }
+        return true;
     }
 
     public void attack(int position) {
-        if (isAttackImpossible()) return;
+        if (isAttackImpossible(position)) return;
+        getGameController().getAttackController().attack();
+        attackedMonsters.add(getSelectionController().getCard());
+    }
+
+    private boolean isAttackImpossible(int position) {
+        if (getSelectionController().getCard().isFaceDown()) {
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
+            return true;
+        }
+        if (getGameController().getPassedTurns() == 1) {
+            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_IN_FIRST_TURN);
+            return true;
+        }
+        if (hasMonsterAttacked(getSelectionController().getCard())) {
+            GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
+            return true;
+        }
         if (position < 1 || position > 5 || getGameController().getRivalPlayer().getField().getMonsterZone()[position - 1] == null) {
             GameController.getView().showError(GameView.ERROR_NO_CARD_TO_ATTACK_TO);
-            return;
+            return true;
         }
         getGameController().setAttackController(new AttackController(gameControllerID, position));
         EffectResponse response;
         if ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
-            return;
+            return true;
         }
-        getGameController().getAttackController().attack();
-        attackedMonsters.add(getSelectionController().getCard());
-        getGameController().applyEffect(Trigger.AFTER_ATTACK);
+        return false;
     }
 
     public void directAttack() {
-        if (isAttackImpossible()) return;
+        if (isDirectAttackImpossible()) return;
         EffectResponse response;
         if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0 || ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE))) {
             GameController.getView().showError(GameView.ERROR_CANT_DIRECTLY_ATTACK);
@@ -224,7 +281,7 @@ public class GameTurnController {
         getGameController().applyEffect(Trigger.AFTER_ATTACK);
     }
 
-    private boolean isAttackImpossible() {
+    private boolean isDirectAttackImpossible(){
         if (getSelectionController().getCard().isFaceDown()) {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return true;
@@ -246,6 +303,10 @@ public class GameTurnController {
 
     public void makeChain() {
 
+    }
+
+    public boolean hasAnyMonsterSetOrSummon(){
+        return (setMonster != null || summonedMonster != null);
     }
 
     private Field getCurrentPlayerField() {

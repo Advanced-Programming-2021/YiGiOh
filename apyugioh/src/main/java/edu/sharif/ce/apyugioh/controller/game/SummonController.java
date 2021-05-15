@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.model.EffectResponse;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
@@ -38,14 +39,13 @@ public class SummonController {
 
     public boolean normalSummon() {
         if (specialCases.contains(card.getCard().getName()))
-            return specialSummon();
+            return summonSpecialMonsters();
         if (!checkForTribute())
             return false;
-        summon();
-        return true;
+        return summon();
     }
 
-    private void summon(){
+    private boolean summon(){
         card.setRevealed(true);
         card.setFaceDown(false);
         summoningPlayer.getField().removeFromHand(card);
@@ -54,6 +54,62 @@ public class SummonController {
         logger.info("in game with id {}: summon successful", gameControllerID);
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
         getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
+        if (summoningPlayer.getField().isInMonsterZone(card))
+            GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
+        return summoningPlayer.getField().isInMonsterZone(card);
+    }
+
+    private boolean summonSpecialMonsters(){
+        ArrayList<String> choices = new ArrayList<>();
+        switch(card.getCard().getName()){
+            case "Beast King Barbaros":
+                choices.add("1. normal summon (by tributing 2 monsters)");
+                choices.add("2. normal summon without tribute (Attack points decreases to 1900");
+                choices.add("3. summon by tributing 3 monsters (all cards the your rival control will be kicked out");
+                int choice = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices)+1;
+                if (choice == 1) {
+                    if (!checkForTribute())
+                        return false;
+                    return summon();
+                } else if (choice == 2){
+                    card.addAttackModifier(-1100);
+                    return summon();
+                } else if (choice == 3){
+                    if (!tribute(3))
+                        return false;
+                    boolean result = summon();
+                    if (result)
+                        getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON);
+                    return result;
+                } else
+                    return false;
+            case "Gate Guardian":
+                if (summoningPlayer.getField().getAvailableMonstersInZoneCount() < 3){
+                    GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
+                    return false;
+                }
+                if (!tribute(3))
+                    return false;
+                return summon();
+            case "The Tricky":
+                choices.add("1. summon normally (tribute 1 monster)");
+                choices.add("2. summon by removing a card from your hand");
+                int result = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices);
+                if (result == 1){
+                    if (!checkForTribute())
+                        return false;
+                    return summon();
+                }else if (result == 2){
+                    GameCard selectedCardFromHand;
+                    if ((selectedCardFromHand = getGameController().getPlayerControllerByPlayer(summoningPlayer).selectCardFromHand()) != null){
+                        getGameController().removeMonsterCard(selectedCardFromHand);
+                        return summon();
+                    }
+                }
+                return false;
+            default:
+                return false;
+        }
     }
 
     private boolean checkForTribute(){
@@ -79,61 +135,19 @@ public class SummonController {
     }
 
     public boolean specialSummon(){
-        ArrayList<String> choices = new ArrayList<>();
-        switch(card.getCard().getName()){
-            case "Beast King Barbaros":
-                choices.add("1. normal summon (by tributing 2 monsters)");
-                choices.add("2. normal summon without tribute (Attack points decreases to 1900");
-                choices.add("3. summon by tributing 3 monsters (all cards the your rival control will be kicked out");
-                int choice = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices);
-                if (choice == 1) {
-                    if (!checkForTribute())
-                        return false;
-                    summon();
-                    return true;
-                } else if (choice == 2){
-                    card.addAttackModifier(-1100);
-                    summon();
-                    return true;
-                } else if (choice == 3){
-                    if (!tribute(3))
-                        return false;
-                    summon();
-                    getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON);
-                } else
-                    return false;
-            case "Gate Guardian":
-                if (summoningPlayer.getField().getAvailableMonstersInZoneCount() < 3){
-                    GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
-                    return false;
-                }
-                if (!tribute(3))
-                    return false;
-                summon();
-                return true;
-            case "The Tricky":
-                choices.add("1. summon normally (tribute 1 monster)");
-                choices.add("2. summon by removing a card from your hand");
-                int result = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices);
-                if (result == 1){
-                    if (!checkForTribute())
-                        return false;
-                    summon();
-                    return true;
-                }else if (result == 2){
-                    GameCard selectedCardFromHand;
-                    if ((selectedCardFromHand = getGameController().getPlayerControllerByPlayer(summoningPlayer).selectCardFromHand()) != null){
-                        getGameController().removeMonsterCard(selectedCardFromHand);
-                        summon();
-                    }
-                }
-                return true;
-            default:
-                normalSummon();
-                Utils.printError("Special summoned monster is not valid");
-                return false;
+        if (summoningPlayer.getField().getAvailableMonstersInZoneCount() == 0) {
+            GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
+            return false;
         }
-
+        boolean result = summon();
+        if (!result)
+            return false;
+        EffectResponse response = getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON);
+        if (response != null && response.equals(EffectResponse.SUMMON_CANT_BE_DONE)){
+            Utils.printError("you can't special summon this card");
+            return false;
+        }
+        return true;
     }
 
     public boolean ritualSummon() {
@@ -147,7 +161,7 @@ public class SummonController {
         for(GameCard gameCard:cards)
             getGameController().removeMonsterCard(gameCard);
         summon();
-        return true;
+        return summoningPlayer.getField().isInMonsterZone(card);
     }
 
     public boolean flipSummon() {
@@ -157,7 +171,7 @@ public class SummonController {
         getEffectControllersByPlayer().add(new EffectController(gameControllerID,card));
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
         getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
-        return true;
+        return summoningPlayer.getField().isInMonsterZone(card);
     }
 
     private boolean tribute(int amount) {

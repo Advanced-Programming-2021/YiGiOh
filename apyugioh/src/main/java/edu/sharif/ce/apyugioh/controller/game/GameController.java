@@ -165,6 +165,9 @@ public class GameController {
     public void removeMonsterCard(GameCard card) {
         Player cardPlayer = getPlayerByCard(card);
         if (cardPlayer != null && card.getCard().getCardType().equals(CardType.MONSTER)) {
+            if (cardPlayer.getField().isInMonsterZone(card))
+                removeEffects(card);
+            cardPlayer.getField().removeFromHand(card);
             cardPlayer.getField().removeFromMonsterZone(card);
             cardPlayer.getField().putInGraveyard(card);
         }
@@ -190,9 +193,9 @@ public class GameController {
 
     }
 
-    public void knockOutMonster(GameCard monster) {
+    public EffectResponse knockOutMonster(GameCard monster) {
         removeMonsterCard(monster);
-        applyEffect(Trigger.AFTER_MONSTER_KNOCK_OUT);
+        return applyEffect(Trigger.AFTER_MONSTER_KNOCK_OUT);
     }
 
     public void activeEffect() {
@@ -380,6 +383,12 @@ public class GameController {
                 //Supply Squad
                 if (effectController.containEffect(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
                     effectController.drawCard(1);
+                }
+                //Exploder Dragon
+                if (effectController.containEffect(Effects.DESTROY_ANOTHER_CARD_IN_BATTLE_IF_DESTROYED)){
+                    removeMonsterCard(attackController.getAttackingMonster());
+                    attackController.setLpsCanBeChanged(false);
+                    return EffectResponse.LPS_DOESNT_CHANGE;
                 }
             }
         }
