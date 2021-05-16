@@ -48,8 +48,7 @@ public class SummonController {
     private boolean summon(){
         card.setRevealed(true);
         card.setFaceDown(false);
-        summoningPlayer.getField().removeFromHand(card);
-        summoningPlayer.getField().putInMonsterZone(card);
+        moveMonsterToMonsterZone();
         getEffectControllersByPlayer().add(new EffectController(gameControllerID,card));
         logger.info("in game with id {}: summon successful", gameControllerID);
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
@@ -185,6 +184,16 @@ public class SummonController {
             getGameController().removeMonsterCard(tributeMonster);
         }
         return true;
+    }
+
+    private void moveMonsterToMonsterZone(){
+        if (summoningPlayer.getField().isInHand(card))
+            summoningPlayer.getField().removeFromHand(card);
+        if (summoningPlayer.getField().isInDeck(card))
+            summoningPlayer.getField().removeFromDeck(card);
+        if (summoningPlayer.getField().isInGraveyard(card))
+            summoningPlayer.getField().removeFromGraveyard(card);
+        summoningPlayer.getField().putInMonsterZone(card);
     }
 
     private List<EffectController> getEffectControllersByPlayer(){

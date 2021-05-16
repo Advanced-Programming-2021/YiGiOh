@@ -226,8 +226,7 @@ public class GameController {
             view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED, "spell");
         } else if (selectedCard.getCard().getCardType().equals(CardType.SPELL) &&
                 (!((Spell) selectedCard.getCard()).getProperty().equals(SpellProperty.QUICK_PLAY)
-                        && !getCurrentPlayer().getField().isInSpellZone(selectedCard)
-                        && !getCurrentPlayer().getField().isInField(selectedCard))) {
+                        && !getCurrentPlayer().getField().isInSpellZone(selectedCard))) {
             view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED,"spell");
         } else {
             EffectController effectController = new EffectController(id, selectedCard);
@@ -303,6 +302,7 @@ public class GameController {
                     getCurrentPlayerEffectControllers().add(effectController);
                 }
             }
+            applyEffect(Trigger.AFTER_ACTIVE_SPELL);
             view.showSuccess(GameView.SUCCESS_SPELL_ACTIVATED, selectedCard.getCard().getName());
         }
     }

@@ -41,18 +41,13 @@ public class EffectController {
     }
 
     public void specialSummonFromGraveyard() {
-        GameCard cardFromGraveyard = getCurrentPlayerController().selectCardFromGraveyard();
+        GameCard cardFromGraveyard = getCurrentPlayerController().selectCardFromAllGraveyards();
         if (cardFromGraveyard == null) {
             getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
         } else if (!(getCurrentPlayerField().isInGraveyard(cardFromGraveyard) ||
                 getRivalPlayerField().isInGraveyard(cardFromGraveyard))) {
             getGameControllerView().showError(GameView.ERROR_NOT_FROM_PLACE, "graveyard");
         } else {
-            if (getCurrentPlayerField().isInGraveyard(cardFromGraveyard)) {
-                getCurrentPlayerField().removeFromGraveyard(cardFromGraveyard);
-            } else {
-                getRivalPlayerField().removeFromGraveyard(cardFromGraveyard);
-            }
             new SummonController(gameControllerID, cardFromGraveyard).specialSummon();
         }
     }
@@ -83,7 +78,7 @@ public class EffectController {
             }
         }
         for (int i = 0; i < amount; i++) {
-            getCurrentPlayerField().putInHand(getCurrentPlayerField().drawCard());
+            getCurrentPlayerField().drawCard();
         }
     }
 
