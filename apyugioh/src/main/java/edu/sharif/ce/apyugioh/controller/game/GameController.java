@@ -195,14 +195,18 @@ public class GameController {
             } else {
                 if (cardPlayer.getField().isInHand(card))
                     cardPlayer.getField().removeFromHand(card);
-                cardPlayer.getField().removeFromSpellZone(card);
+                else {
+                    cardPlayer.getField().removeFromSpellZone(card);
+                }
                 cardPlayer.getField().putInGraveyard(card);
             }
+            removeEffects(card);
         }
     }
 
     public void removeEffects(GameCard card) {
-
+        getCurrentPlayerEffectControllers().removeIf(effectController -> effectController.getEffectCard().equals(card));
+        getRivalPlayerEffectControllers().removeIf(effectController -> effectController.getEffectCard().equals(card));
     }
 
     public EffectResponse knockOutMonster(GameCard monster) {
@@ -320,7 +324,7 @@ public class GameController {
     }
 
     public EffectResponse applyEffect(Trigger trigger) {
-        for (EffectController effectController : getCurrentPlayerEffectControllers()) {
+        for (EffectController effectController : new ArrayList<>(getCurrentPlayerEffectControllers())) {
             //ignore disposable effects
             if (gameTurnController.getDisposableUsedEffects().contains(effectController)) continue;
             //effects without trigger
@@ -407,7 +411,7 @@ public class GameController {
                 }
             }
         }
-        for (EffectController effectController : getRivalPlayerEffectControllers()) {
+        for (EffectController effectController : new ArrayList<>(getRivalPlayerEffectControllers())) {
             //ignore disposable effects
             if (gameTurnController.getDisposableUsedEffects().contains(effectController)) continue;
             //effects without trigger
