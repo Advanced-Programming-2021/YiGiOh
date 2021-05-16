@@ -32,6 +32,7 @@ public class GameTurnController {
     private GameCard setMonster;
     private GameCard changedPositionMonster;
     private List<EffectController> disposableUsedEffects;
+    private List<GameCard> flipSummonedMonsters;
     private List<GameCard> attackedMonsters;
     private List<GameCard> chain;
 
@@ -40,6 +41,7 @@ public class GameTurnController {
         attackedMonsters = new ArrayList<>();
         chain = new ArrayList<>();
         disposableUsedEffects = new ArrayList<>();
+        flipSummonedMonsters = new ArrayList<>();
         getGameController().setPassedTurns(getGameController().getPassedTurns() + 1);
     }
 
@@ -116,7 +118,7 @@ public class GameTurnController {
             setSetMonster(getSelectionController().getCard());
     }
 
-    private boolean checkBeforeSet(){
+    private boolean checkBeforeSet() {
         if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
             return false;
@@ -125,7 +127,7 @@ public class GameTurnController {
             GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "set");
             return false;
         }
-        if (!getPhase().equals(Phase.MAIN1) && !getPhase().equals(Phase.MAIN2)){
+        if (!getPhase().equals(Phase.MAIN1) && !getPhase().equals(Phase.MAIN2)) {
             GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
             return false;
         }
@@ -133,14 +135,14 @@ public class GameTurnController {
     }
 
     public void summon() {
-         if (checkBeforeSummon()){
+        if (checkBeforeSummon()) {
             if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()) {
                 setSummonedMonster(getSelectionController().getCard());
             }
         }
     }
 
-    private boolean checkBeforeSummon(){
+    private boolean checkBeforeSummon() {
         if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
             return false;
@@ -183,7 +185,7 @@ public class GameTurnController {
         }
     }
 
-    private boolean checkBeforeChangePosition(boolean isChangeToAttack){
+    private boolean checkBeforeChangePosition(boolean isChangeToAttack) {
         if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
             return false;
@@ -211,10 +213,11 @@ public class GameTurnController {
     public void flipSummon() {
         if (checkBeforeFlipSummon()) {
             new SummonController(gameControllerID, getSelectionController().getCard()).flipSummon();
+            flipSummonedMonsters.add(getGameController().getSelectionController().getCard());
         }
     }
 
-    private boolean checkBeforeFlipSummon(){
+    private boolean checkBeforeFlipSummon() {
         if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
             return false;
@@ -227,8 +230,7 @@ public class GameTurnController {
             GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
             return false;
         }
-        if (!getSelectionController().getCard().isFaceDown() ||
-                (getSelectionController().getCard().equals(getGameController().getGameTurnController().hasAnyMonsterSetOrSummon()))) {
+        if (!getSelectionController().getCard().isFaceDown() || (hasMonsterFlipped(getSelectionController().getCard()))) {
             GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "flip summon");
             return false;
         }
@@ -283,7 +285,7 @@ public class GameTurnController {
         getGameController().applyEffect(Trigger.AFTER_ATTACK);
     }
 
-    private boolean isDirectAttackImpossible(){
+    private boolean isDirectAttackImpossible() {
         if (getSelectionController().getCard().isFaceDown()) {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return true;
@@ -307,8 +309,18 @@ public class GameTurnController {
 
     }
 
-    public boolean hasAnyMonsterSetOrSummon(){
+    public boolean hasAnyMonsterSetOrSummon() {
         return (setMonster != null || summonedMonster != null);
+    }
+
+    private boolean hasMonsterFlipped(GameCard monster) {
+        if (monster == null)
+            return false;
+        for (GameCard flippedMonster : flipSummonedMonsters) {
+            if (monster.getId() == flippedMonster.getId())
+                return true;
+        }
+        return false;
     }
 
     private Field getCurrentPlayerField() {

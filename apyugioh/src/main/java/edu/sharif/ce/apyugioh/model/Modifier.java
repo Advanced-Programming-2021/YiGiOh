@@ -8,9 +8,9 @@ public class Modifier{
 	private final boolean isFromEffect;
 	private final boolean isDisposableEachTurn;
 	
-	public Modifier(int amount, boolean isFromEffect, boolean isDisposableEachTurn {
+	public Modifier(int amount, boolean isFromEffect, boolean isDisposableEachTurn) {
 		this.amount = amount;
-		this.isFromEffect = isFromEffecct;
+		this.isFromEffect = isFromEffect;
 		this.isDisposableEachTurn = isDisposableEachTurn;
 	}
 }
