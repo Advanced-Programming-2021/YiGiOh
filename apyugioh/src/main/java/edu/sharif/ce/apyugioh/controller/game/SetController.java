@@ -113,13 +113,11 @@ public class SetController {
             }
             getCurrentPlayerField().removeFromHand(card);
             getCurrentPlayerField().putInFieldZone(card);
-            getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
             GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
             return true;
         }
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInSpellZone(card);
-        getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID,card));
         GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
         return true;
     }

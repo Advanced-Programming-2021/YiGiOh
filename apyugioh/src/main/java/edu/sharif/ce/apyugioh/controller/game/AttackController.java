@@ -116,23 +116,11 @@ public class AttackController {
     }
 
     public int getAttackPoints(GameCard card) {
-        int attackPoints = card.getCurrentAttack();
-        //special Cases
-        if (card.getCard().getCardEffects().contains(Effects.COMBINE_LEVELS_OF)) {
-            int levelsSum = 0;
-            for (GameCard summingCard : getGameController().getCurrentPlayer().getField().getMonsterZone()) {
-                if (summingCard.isRevealed())
-                    levelsSum += ((Monster) summingCard.getCard()).getLevel();
-            }
-            attackPoints = levelsSum * 300;
-        }
-        return attackPoints;
+        return card.getCurrentAttack();
     }
 
     public int getDefensePoints(GameCard card) {
-        int defensePoints = card.getCurrentDefense();
-        //special cases
-        return defensePoints;
+        return card.getCurrentDefense();
     }
 
     private GameController getGameController() {

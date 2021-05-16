@@ -231,7 +231,6 @@ public class GameController {
         } else {
             EffectController effectController = new EffectController(id, selectedCard);
             selectedCard.setRevealed(true);
-            removeSpellTrapCard(selectedCard);
             for (Effects cardEffect : selectedCard.getCard().getCardEffects()) {
                 if (cardEffect.equals(Effects.SPECIAL_SUMMON_FROM_GRAVEYARD)) {
                     effectController.specialSummonFromGraveyard();
@@ -301,6 +300,9 @@ public class GameController {
                 if (cardEffect.equals(Effects.RING_OF_DEFENSE)) {
                     getCurrentPlayerEffectControllers().add(effectController);
                 }
+            }
+            if (!((Spell)selectedCard.getCard()).getProperty().equals(SpellProperty.CONTINUOUS)) {
+                removeSpellTrapCard(selectedCard);
             }
             applyEffect(Trigger.AFTER_ACTIVE_SPELL);
             view.showSuccess(GameView.SUCCESS_SPELL_ACTIVATED, selectedCard.getCard().getName());
