@@ -169,7 +169,7 @@ public class EffectController {
         if (confirm) {
             decreaseLP(100);
         } else {
-            getGameController().removeMonsterCard(effectCard);
+            getGameController().removeSpellTrapCard(effectCard);
         }
     }
 

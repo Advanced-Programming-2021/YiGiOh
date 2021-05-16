@@ -92,6 +92,7 @@ public class GameTurnController {
 
     public void standByPhase() {
         phase = Phase.STANDBY;
+        getGameController().applyEffect(Trigger.STANDBY);
     }
 
     public void firstMainPhase() {

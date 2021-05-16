@@ -135,7 +135,7 @@ public class SummonController {
     }
 
     public boolean specialSummon(){
-        if (summoningPlayer.getField().getAvailableMonstersInZoneCount() == 0) {
+        if (summoningPlayer.getField().getAvailableMonstersInZoneCount() == 5) {
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
             return false;
         }

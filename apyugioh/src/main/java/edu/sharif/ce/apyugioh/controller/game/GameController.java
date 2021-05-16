@@ -193,6 +193,8 @@ public class GameController {
                 cardPlayer.getField().removeFromFieldZone(card);
                 cardPlayer.getField().putInGraveyard(card);
             } else {
+                if (cardPlayer.getField().isInHand(card))
+                    cardPlayer.getField().removeFromHand(card);
                 cardPlayer.getField().removeFromSpellZone(card);
                 cardPlayer.getField().putInGraveyard(card);
             }
@@ -219,12 +221,18 @@ public class GameController {
                 || gameTurnController.getPhase().equals(Phase.MAIN2))) {
             view.showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
         } else if (selectedCard.isRevealed()) {
-            view.showError(GameView.ERROR_SPELL_ALREADY_ACTIVATED);
+            view.showError(GameView.ERROR_SPELL_ALREADY_ACTIVATED,"spell");
         } else if ((response = applyEffect(Trigger.BEFORE_ACTIVE_SPELL)) != null && response.equals(EffectResponse.ACTIVE_SPELL_CANT_BE_DONE)) {
             view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED, "spell");
+        } else if (selectedCard.getCard().getCardType().equals(CardType.SPELL) &&
+                (!((Spell) selectedCard.getCard()).getProperty().equals(SpellProperty.QUICK_PLAY)
+                        && !getCurrentPlayer().getField().isInSpellZone(selectedCard)
+                        && !getCurrentPlayer().getField().isInField(selectedCard))) {
+            view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED,"spell");
         } else {
             EffectController effectController = new EffectController(id, selectedCard);
             selectedCard.setRevealed(true);
+            removeSpellTrapCard(selectedCard);
             for (Effects cardEffect : selectedCard.getCard().getCardEffects()) {
                 if (cardEffect.equals(Effects.SPECIAL_SUMMON_FROM_GRAVEYARD)) {
                     effectController.specialSummonFromGraveyard();
@@ -308,7 +316,6 @@ public class GameController {
                     && getCurrentPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap");
         return true;
     }
-
 
     public EffectResponse applyEffect(Trigger trigger) {
         for (EffectController effectController : getCurrentPlayerEffectControllers()) {

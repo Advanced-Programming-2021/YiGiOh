@@ -107,8 +107,9 @@ public class SetController {
         }
         if (card.getCard().getCardType().equals(CardType.SPELL) && ((Spell)card.getCard()).getProperty().equals(SpellProperty.FIELD)){
             if ( getGameController().getPlayerByCard(card).getField().getFieldZone() != null) {
+                GameCard lastFieldZone = getGameController().getPlayerByCard(card).getField().getFieldZone();
                 getCurrentPlayerField().removeFromFieldZone(getCurrentPlayerField().getFieldZone());
-                getCurrentPlayerField().putInGraveyard(getCurrentPlayerField().getFieldZone());
+                getCurrentPlayerField().putInGraveyard(lastFieldZone);
             }
             getCurrentPlayerField().removeFromHand(card);
             getCurrentPlayerField().putInFieldZone(card);
