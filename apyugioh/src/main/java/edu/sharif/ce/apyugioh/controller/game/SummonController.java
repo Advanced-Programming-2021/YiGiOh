@@ -71,7 +71,7 @@ public class SummonController {
                         return false;
                     return summon();
                 } else if (choice == 2){
-                    card.addAttackModifier(-1100, true, false);
+                    card.addAttackModifier(-1100, false);
                     return summon();
                 } else if (choice == 3){
                     if (!tribute(3))

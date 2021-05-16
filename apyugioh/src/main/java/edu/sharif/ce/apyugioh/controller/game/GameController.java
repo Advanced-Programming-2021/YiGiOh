@@ -207,6 +207,16 @@ public class GameController {
     public void removeEffects(GameCard card) {
         getCurrentPlayerEffectControllers().removeIf(effectController -> effectController.getEffectCard().equals(card));
         getRivalPlayerEffectControllers().removeIf(effectController -> effectController.getEffectCard().equals(card));
+        for (GameCard monster : getCurrentPlayer().getField().getAllFieldMonsterCards()) {
+            if (monster == null) continue;
+            monster.getAttackModifier().removeIf(modifier -> modifier.getEffectCard().equals(card));
+            monster.getDefenceModifier().removeIf(modifier -> modifier.getEffectCard().equals(card));
+        }
+        for (GameCard monster : getRivalPlayer().getField().getAllFieldMonsterCards()) {
+            if (monster == null) continue;
+            monster.getAttackModifier().removeIf(modifier -> modifier.getEffectCard().equals(card));
+            monster.getDefenceModifier().removeIf(modifier -> modifier.getEffectCard().equals(card));
+        }
     }
 
     public EffectResponse knockOutMonster(GameCard monster) {

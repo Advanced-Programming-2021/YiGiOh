@@ -21,12 +21,20 @@ public class GameCard {
         defenceModifier = new ArrayList<>();
     }
 
-    public void addAttackModifier(int amount, boolean isFromEffect, boolean isDisposableEachTurn) {
-        attackModifier.add(new Modifier(amount, false, false));
+    public void addAttackModifier(int amount, boolean isDisposableEachTurn) {
+        attackModifier.add(new Modifier(amount,  isDisposableEachTurn));
     }
 
-    public void addDefenceModifier(int amount, boolean isFromEffect, boolean isDisposableEachTurn) {
-        defenceModifier.add(new Modifier(amount, false, false));
+    public void addAttackModifier(int amount, GameCard effectCard, boolean isDisposableEachTurn) {
+        attackModifier.add(new Modifier(amount, effectCard, isDisposableEachTurn));
+    }
+
+    public void addDefenceModifier(int amount, boolean isDisposableEachTurn) {
+        defenceModifier.add(new Modifier(amount,  isDisposableEachTurn));
+    }
+
+    public void addDefenceModifier(int amount, GameCard effectCard, boolean isDisposableEachTurn) {
+        defenceModifier.add(new Modifier(amount, effectCard, isDisposableEachTurn));
     }
 
     public int getCurrentAttack() {

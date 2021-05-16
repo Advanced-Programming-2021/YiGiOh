@@ -177,22 +177,22 @@ public class EffectController {
             if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.FIEND)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.SPELLCASTER)) {
-                monster.addAttackModifier(200, true, false);
-                monster.addDefenceModifier(200, true, false);
+                monster.addAttackModifier(200, effectCard, false);
+                monster.addDefenceModifier(200, effectCard, false);
             } else if (((Monster) monster.getCard()).getType().equals(MonsterType.FAIRY)) {
-                monster.addAttackModifier(-200, true, false);
-                monster.addDefenceModifier(-200, true, false);
+                monster.addAttackModifier(-200, effectCard, false);
+                monster.addDefenceModifier(-200, effectCard, false);
             }
         }
         for (GameCard monster : getRivalPlayerField().getMonsterZone()) {
             if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.FIEND)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.SPELLCASTER)) {
-                monster.addAttackModifier(200, true, false);
-                monster.addDefenceModifier(200, true, false);
+                monster.addAttackModifier(200, effectCard, false);
+                monster.addDefenceModifier(200, effectCard, false);
             } else if (((Monster) monster.getCard()).getType().equals(MonsterType.FAIRY)) {
-                monster.addAttackModifier(-200, true, false);
-                monster.addDefenceModifier(-200, true, false);
+                monster.addAttackModifier(-200, effectCard, false);
+                monster.addDefenceModifier(-200, effectCard, false);
             }
         }
     }
@@ -203,8 +203,8 @@ public class EffectController {
             if (((Monster) monster.getCard()).getType().equals(MonsterType.INSECT)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST_WARRIOR)) {
-                monster.addAttackModifier(200, true, false);
-                monster.addDefenceModifier(200, true, false);
+                monster.addAttackModifier(200, effectCard, false);
+                monster.addDefenceModifier(200, effectCard, false);
             }
         }
         for (GameCard monster : getRivalPlayerField().getMonsterZone()) {
@@ -212,8 +212,8 @@ public class EffectController {
             if (((Monster) monster.getCard()).getType().equals(MonsterType.INSECT)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)
                     || ((Monster) monster.getCard()).getType().equals(MonsterType.BEAST_WARRIOR)) {
-                monster.addAttackModifier(200, true, false);
-                monster.addDefenceModifier(200, true, false);
+                monster.addAttackModifier(200, effectCard, false);
+                monster.addDefenceModifier(200, effectCard, false);
             }
         }
     }
@@ -223,8 +223,8 @@ public class EffectController {
             if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.BEAST)) {
                 int amount = getCurrentPlayerField().getGraveyard().size();
-                monster.addAttackModifier(amount, true , false);
-                monster.addDefenceModifier(amount, true, false);
+                monster.addAttackModifier(amount, effectCard, false);
+                monster.addDefenceModifier(amount, effectCard, false);
             }
         }
     }
@@ -233,8 +233,8 @@ public class EffectController {
         for (GameCard monster : getCurrentPlayerField().getMonsterZone()) {
             if (monster == null) continue;
             if (((Monster) monster.getCard()).getType().equals(MonsterType.AQUA)) {
-                monster.addAttackModifier(500, true, false);
-                monster.addDefenceModifier(-400, true, false);
+                monster.addAttackModifier(500, effectCard, false);
+                monster.addDefenceModifier(-400, effectCard, false);
             }
         }
     }
@@ -247,7 +247,7 @@ public class EffectController {
         if (!isUsedBefore) {
             boolean userResponse = getRivalPlayerController().confirm("do you want to active set zero attack for attacker card?!");
             if (userResponse) {
-                getGameController().getAttackController().getAttackingMonster().addAttackModifier(-1000000, true, true);
+                getGameController().getAttackController().getAttackingMonster().addAttackModifier(-1000000, effectCard, true);
                 cardsAffected.add(getGameController().getAttackController().getAttackingMonster());
                 setUsed();
             }
@@ -271,8 +271,8 @@ public class EffectController {
         for (GameCard equippedCard : cardsAffected) {
             if ((((Monster) equippedCard.getCard()).getType().equals(MonsterType.FIEND))
                     || (((Monster) equippedCard.getCard()).getType().equals(MonsterType.SPELLCASTER))) {
-                equippedCard.addAttackModifier(400, true, false);
-                equippedCard.addDefenceModifier(-200, true, false);
+                equippedCard.addAttackModifier(400, effectCard, false);
+                equippedCard.addDefenceModifier(-200, effectCard, false);
             }
         }
     }
@@ -280,7 +280,7 @@ public class EffectController {
     public void blackPendant() {
         equipMonster();
         for (GameCard equippedCard : cardsAffected) {
-            equippedCard.addAttackModifier(500, true, false);
+            equippedCard.addAttackModifier(500, effectCard, false);
         }
     }
 
@@ -292,7 +292,7 @@ public class EffectController {
             if (!monster.isFaceDown()) numberOfFaceUpMonsters++;
         }
         for (GameCard equippedCard : cardsAffected) {
-            equippedCard.addAttackModifier(800 * numberOfFaceUpMonsters, true, false);
+            equippedCard.addAttackModifier(800 * numberOfFaceUpMonsters, effectCard, false);
         }
     }
 
@@ -301,9 +301,9 @@ public class EffectController {
         for (GameCard equippedCard : cardsAffected) {
             if (((Monster) equippedCard.getCard()).getType().equals(MonsterType.WARRIOR)) {
                 if (equippedCard.isFaceDown()) {
-                    equippedCard.addDefenceModifier(equippedCard.getCurrentAttack(), true, false);
+                    equippedCard.addDefenceModifier(equippedCard.getCurrentAttack(), effectCard, false);
                 } else {
-                    equippedCard.addAttackModifier(equippedCard.getCurrentDefense(), true, false);
+                    equippedCard.addAttackModifier(equippedCard.getCurrentDefense(), effectCard, false);
                 }
             }
         }
@@ -430,8 +430,8 @@ public class EffectController {
         effectCard.setAttackModifier(new ArrayList<>());
         effectCard.setDefenceModifier(new ArrayList<>());
 
-        effectCard.addAttackModifier(cardsAffected.get(0).getCurrentAttack(), true, true);
-        effectCard.addDefenceModifier(cardsAffected.get(0).getCurrentDefense(), true, true);
+        effectCard.addAttackModifier(cardsAffected.get(0).getCurrentAttack(), true);
+        effectCard.addDefenceModifier(cardsAffected.get(0).getCurrentDefense(), true);
     }
 
     public void specialSetFromHand() {
@@ -479,13 +479,13 @@ public class EffectController {
 
     public void changeAttack(int amount) {
         for (GameCard gameCard : cardsAffected) {
-            gameCard.addAttackModifier(amount, true, false);
+            gameCard.addAttackModifier(amount, effectCard, false);
         }
     }
 
     public void changeDefence(int amount) {
         for (GameCard gameCard : cardsAffected) {
-            gameCard.addDefenceModifier(amount, true, false);
+            gameCard.addDefenceModifier(amount, effectCard, false);
         }
     }
 
@@ -501,7 +501,7 @@ public class EffectController {
                 result += monster.getLevel() * 300;
             }
         }
-        newModifiers.add(new Modifier(result, false, false));
+        newModifiers.add(new Modifier(result, false));
         for (Modifier modifier : effectCard.getAttackModifier()) {
             if (modifier.isFromEffect()) newModifiers.add(modifier);
         }
