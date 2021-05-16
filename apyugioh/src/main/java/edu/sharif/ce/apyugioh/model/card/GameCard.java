@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.model.card;
 
+import edu.sharif.ce.apyugioh.model.Modifier;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,8 +10,8 @@ import java.util.*;
 @Setter
 public class GameCard {
     private Card card;
-    private List<Integer> attackModifier;
-    private List<Integer> defenceModifier;
+    private List<Modifier> attackModifier;
+    private List<Modifier> defenceModifier;
     private boolean isFaceDown;
     private boolean isRevealed;
     private int id;
@@ -20,28 +21,20 @@ public class GameCard {
         defenceModifier = new ArrayList<>();
     }
 
-    public void addAttackModifier(int amount) {
-        attackModifier.add(amount);
+    public void addAttackModifier(int amount, boolean isFromEffect, boolean isDisposableEachTurn) {
+        attackModifier.add(new Modifier(amount, false, false));
     }
 
-    public void addDefenceModifier(int amount) {
-        defenceModifier.add(amount);
-    }
-
-    public void removeAttackModifier(int amount) {
-        attackModifier.remove(Integer.valueOf(amount));
-    }
-
-    public void removeDefenceModifier(int amount) {
-        defenceModifier.remove(Integer.valueOf(amount));
+    public void addDefenceModifier(int amount, boolean isFromEffect, boolean isDisposableEachTurn) {
+        defenceModifier.add(new Modifier(amount, false, false));
     }
 
     public int getCurrentAttack() {
         if (card.getCardType().equals(CardType.MONSTER)) {
             Monster monster = (Monster) card;
             int finalAttack = monster.getAttackPoints();
-            for (int modifier : attackModifier) {
-                finalAttack += modifier;
+            for (Modifier modifier : attackModifier) {
+                finalAttack += modifier.getAmount();
             }
             return Math.max(finalAttack, 0);
         }
@@ -52,8 +45,8 @@ public class GameCard {
         if (card.getCardType().equals(CardType.MONSTER)) {
             Monster monster = (Monster) card;
             int finalDefense = monster.getDefensePoints();
-            for (int modifier : defenceModifier) {
-                finalDefense += modifier;
+            for (Modifier modifier : defenceModifier) {
+                finalDefense += modifier.getAmount();
             }
             return Math.max(finalDefense, 0);
         }

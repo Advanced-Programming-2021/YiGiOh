@@ -321,8 +321,8 @@ public class AIPlayerController extends PlayerController {
     }
 
     //Select card from hand
-    public GameCard selectCardFromHand() {
-        super.selectCardFromHand();
+    public GameCard selectCardFromHand(GameCard exceptCard) {
+        super.selectCardFromHand(exceptCard);
         return getBestMonster(availableCards);
     }
 

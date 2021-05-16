@@ -18,3 +18,5 @@ phase0.simp.user
 .idea/vcs.xml
 
 apyugioh/logs/
+
+apyugioh/run.sh

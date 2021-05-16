@@ -9,6 +9,7 @@ import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -83,7 +84,7 @@ public abstract class PlayerController {
         if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
         } else {
-            GameController.getView().showSuccess(GameView.SUCCESS_SELECTION_SUCCESSFUL,
+            GameController.getView().showSuccess(GameView.SUCCESS_DESELECTION_SUCCESSFUL,
                     getSelectionController().getCard().getCard().getName());
             getGameController().deselect();
         }
@@ -251,8 +252,9 @@ public abstract class PlayerController {
     }
 
     //Select card from hand
-    public GameCard selectCardFromHand() {
-        availableCards = player.getField().getHand();
+    public GameCard selectCardFromHand(GameCard exceptCard) {
+        availableCards = new ArrayList<>(player.getField().getHand());
+        if (exceptCard != null) availableCards.remove(exceptCard);
         return null;
     }
 

@@ -78,12 +78,14 @@ public class GameTurnController {
         logger.info("in game with id {}: {} drew {} from deck", gameControllerID, getCurrentPlayer().getUser()
                 .getNickname(), drawnCard.getCard().getName());
         if (getCurrentPlayerField().getHand().size() > 6) {
-            GameCard toBeRemoved = getGameController().getCurrentPlayerController().selectCardFromHand();
+            GameCard toBeRemoved = getGameController().getCurrentPlayerController().selectCardFromHand(null);
             getCurrentPlayerField().removeFromHand(toBeRemoved);
             logger.info("in game with id {}: {} removed {} from hand", gameControllerID, getCurrentPlayer().getUser()
                     .getNickname(), toBeRemoved.getCard().getName());
         }
         phase = Phase.DRAW;
+        getGameController().resetEffect();
+        getGameController().applyEffect(Trigger.DRAW);
     }
 
     public void standByPhase() {

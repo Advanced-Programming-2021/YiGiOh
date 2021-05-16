@@ -371,16 +371,17 @@ public class GameController {
                     if (effectController.isAttackerMonsterPowerful(1500))
                         return EffectResponse.ATTACK_CANT_BE_DONE;
                 }
+                //Exploder Dragon
+                if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
+                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    effectController.lpsCantChange();
+                }
             } else if (trigger.equals(Trigger.AFTER_ATTACK)) {
                 //Exploder Dragon
                 if (effectController.containEffect(Effects.DESTROY_ANOTHER_CARD_IN_BATTLE_IF_DESTROYED)
                         && (attackController.getAttackedMonster().equals(effectController.getEffectCard())
                         || attackController.getAttackingMonster().equals(effectController.getEffectCard()))) {
                     effectController.destroyAnotherCardInBattleIfDestroyed();
-                }
-                if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
-                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
-                    return EffectResponse.LPS_DOESNT_CHANGE;
                 }
             } else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
 
@@ -393,12 +394,7 @@ public class GameController {
                 //Supply Squad
                 if (effectController.containEffect(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
                     effectController.drawCard(1);
-                }
-                //Exploder Dragon
-                if (effectController.containEffect(Effects.DESTROY_ANOTHER_CARD_IN_BATTLE_IF_DESTROYED)){
-                    removeMonsterCard(attackController.getAttackingMonster());
-                    attackController.setLpsCanBeChanged(false);
-                    return EffectResponse.LPS_DOESNT_CHANGE;
+                    effectController.disposableEffect();
                 }
             }
         }
@@ -465,14 +461,15 @@ public class GameController {
                     effectController.decreaseAttackerLPIfAttackedCardFaceDown(1000);
                 }
                 //Texchanger
-                if (effectController.containEffect(Effects.NEUTRAL_ONE_ATTACK_IN_EACH_TURN)
-                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
-                    effectController.disposableEffect();
-                    return EffectResponse.ATTACK_CANT_BE_DONE;
-                }
                 if (effectController.containEffect(Effects.SPECIAL_SUMMON_A_NORMAL_CYBERSE_MONSTER)
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     effectController.summonNormalCyberseMonster();
+                }
+                if (effectController.containEffect(Effects.NEUTRAL_ONE_ATTACK_IN_EACH_TURN)
+                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    effectController.disposableEffect();
+                    getGameTurnController().getAttackedMonsters().add(attackController.getAttackingMonster());
+                    return EffectResponse.ATTACK_CANT_BE_DONE;
                 }
                 //Sword of Revealing Light
                 if (effectController.containEffect(Effects.SWORD_OF_REVEALING_LIGHT)
@@ -483,6 +480,11 @@ public class GameController {
                 if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
                     if (effectController.isAttackerMonsterPowerful(1500))
                         return EffectResponse.ATTACK_CANT_BE_DONE;
+                }
+                //Exploder Dragon
+                if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
+                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                    effectController.lpsCantChange();
                 }
             } else if (trigger.equals(Trigger.AFTER_ATTACK)) {
                 //Yomi ship
@@ -496,10 +498,6 @@ public class GameController {
                         || attackController.getAttackingMonster().equals(effectController.getEffectCard()))) {
                     effectController.destroyAnotherCardInBattleIfDestroyed();
                 }
-                if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
-                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
-                    return EffectResponse.LPS_DOESNT_CHANGE;
-                }
             } else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
                 //Mirage Dragon
                 if (effectController.containEffect(Effects.RIVAL_CANT_ACTIVE_TRAP)) {
@@ -510,6 +508,12 @@ public class GameController {
             }
         }
         return null;
+    }
+
+    public void resetEffect() {
+        for (GameCard monster : getFirstPlayer().getPlayer().getField().getAllFieldMonsterCards()) {
+            monster.getAttackModifier().removeIf(modifier -> modifier.isFromEffect() && modifier.isDisposableEachTurn());
+        }
     }
 
     private void isRoundEnded() {

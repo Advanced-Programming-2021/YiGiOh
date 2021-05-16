@@ -188,6 +188,20 @@ public class Field {
         return -1;
     }
 
+    public ArrayList<GameCard> getAllFieldMonsterCards() {
+        ArrayList<GameCard> allFieldMonsters = new ArrayList<>();
+        for (GameCard monster : monsterZone) {
+            if (monster != null) allFieldMonsters.add(monster);
+        }
+        for (GameCard monster : hand) {
+            if (monster != null) allFieldMonsters.add(monster);
+        }
+        for (GameCard monster : graveyard) {
+            if (monster != null) allFieldMonsters.add(monster);
+        }
+        return allFieldMonsters;
+    }
+
     public ArrayList<GameCard> getActiveTraps() {
         return null;
     }

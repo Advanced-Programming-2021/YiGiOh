@@ -72,7 +72,7 @@ public class SummonController {
                         return false;
                     return summon();
                 } else if (choice == 2){
-                    card.addAttackModifier(-1100);
+                    card.addAttackModifier(-1100, true, false);
                     return summon();
                 } else if (choice == 3){
                     if (!tribute(3))
@@ -94,14 +94,14 @@ public class SummonController {
             case "The Tricky":
                 choices.add("1. summon normally (tribute 1 monster)");
                 choices.add("2. summon by removing a card from your hand");
-                int result = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices);
-                if (result == 1){
+                int result = 1 + getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices);
+                if (result == 1) {
                     if (!checkForTribute())
                         return false;
                     return summon();
-                }else if (result == 2){
+                } else if (result == 2){
                     GameCard selectedCardFromHand;
-                    if ((selectedCardFromHand = getGameController().getPlayerControllerByPlayer(summoningPlayer).selectCardFromHand()) != null){
+                    if ((selectedCardFromHand = getGameController().getPlayerControllerByPlayer(summoningPlayer).selectCardFromHand(card)) != null){
                         getGameController().removeMonsterCard(selectedCardFromHand);
                         return summon();
                     }

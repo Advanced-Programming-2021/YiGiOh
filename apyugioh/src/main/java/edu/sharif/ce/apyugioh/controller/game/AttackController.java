@@ -45,19 +45,22 @@ public class AttackController {
         else
             attackToOffensiveMonster(getAttackPoints(attackingMonster),getAttackPoints(attackedMonster));
         if (!wasRevealed) {
-            getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, attackedMonster));
+            if (!attackedMonster.getCard().getCardEffects().contains(Effects.ACTIVE_AFTER_SET)) {
+                getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, attackedMonster));
+            }
             getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
         }
+        getGameController().applyEffect(Trigger.AFTER_ATTACK);
         return true;
     }
 
     private void attackToDefensiveMonster(int playerPoints,int rivalPoints){
         if (playerPoints > rivalPoints) {
             if (canBeDestroyed(attackedMonster)) {
-                Utils.printSuccess("no card was destroyed because of attacked card effects");
-            } else {
                 getGameController().knockOutMonster(attackedMonster);
                 Utils.printSuccess("the defense position monster is destroyed");
+            } else {
+                Utils.printSuccess("no card was destroyed because of attacked card effects");
             }
         } else if (rivalPoints > playerPoints) {
             int damagePoints = rivalPoints - playerPoints;
@@ -115,7 +118,7 @@ public class AttackController {
     public int getAttackPoints(GameCard card) {
         int attackPoints = card.getCurrentAttack();
         //special Cases
-        if (card.getCard().getName().equals("The Calculator")) {
+        if (card.getCard().getCardEffects().contains(Effects.COMBINE_LEVELS_OF)) {
             int levelsSum = 0;
             for (GameCard summingCard : getGameController().getCurrentPlayer().getField().getMonsterZone()) {
                 if (summingCard.isRevealed())
@@ -129,7 +132,6 @@ public class AttackController {
     public int getDefensePoints(GameCard card) {
         int defensePoints = card.getCurrentDefense();
         //special cases
-
         return defensePoints;
     }
 
