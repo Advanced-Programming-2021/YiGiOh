@@ -64,16 +64,37 @@ public class AIPlayerController extends PlayerController {
     private boolean setOrSummon(int roundCount) {
         CardLocation location = selectMonsterFromHand();
         if (location != null) select(location);
-        if (getSelectionController() != null && !player.getField().isMonsterZoneFull()) {
-            if (getSelectionController().getCard().getCurrentAttack() > 700 &&
-                    getSelectionController().getCard().getCurrentAttack() > getSelectionController().getCard().getCurrentDefense()) {
-                summon();
-            } else {
+        if (getSelectionController() != null) {
+            if ((((Monster) getSelectionController().getCard().getCard()).getLevel() <= 4 && !player.getField().isMonsterZoneFull())
+                    || (((Monster) getSelectionController().getCard().getCard()).getLevel() > 4)) {
+                if (getSelectionController().getCard().getCurrentAttack() > 700 &&
+                        getSelectionController().getCard().getCurrentAttack() > getSelectionController().getCard().getCurrentDefense()) {
+                    summon();
+                } else {
+                    set();
+                }
+            }
+            if (isRoundEnded(roundCount)) return true;
+        }
+        location = selectSpellFromHand();
+        if (location != null) select(location);
+        if (getSelectionController() != null) {
+            if (!player.getField().isSpellZoneFull()) {
                 set();
             }
             if (isRoundEnded(roundCount)) return true;
         }
         return false;
+    }
+
+    private CardLocation selectSpellFromHand() {
+        CardLocation location = new CardLocation();
+        location.setInHand(true);
+        GameCard selected = player.getField().getHand().stream().
+                filter(e -> !e.getCard().getCardType().equals(CardType.MONSTER)).findAny().orElse(null);
+        if (selected == null) return null;
+        location.setPosition(player.getField().getHand().indexOf(selected));
+        return location;
     }
 
     private boolean isRoundEnded(int roundCount) {

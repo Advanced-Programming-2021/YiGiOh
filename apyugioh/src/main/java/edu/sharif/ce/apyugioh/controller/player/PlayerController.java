@@ -10,10 +10,7 @@ import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -175,6 +172,25 @@ public abstract class PlayerController {
 
     }
 
+    public void exchange(String sideDeckCardName, String mainDeckCardName) {
+        Card sideDeckCard = DatabaseManager.getCards().getCardByName(sideDeckCardName);
+        Card mainDeckCard = DatabaseManager.getCards().getCardByName(mainDeckCardName);
+        if (sideDeckCard == null || mainDeckCard == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NAME_INVALID, sideDeckCard == null ?
+                    sideDeckCardName : mainDeckCardName);
+            return;
+        }
+        if (!player.getDeck().getSideDeck().contains(sideDeckCard)) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_IN_DECK, sideDeckCard.getName(), "side");
+            return;
+        }
+        if (!player.getDeck().getMainDeck().contains(mainDeckCard)) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_IN_DECK, mainDeckCard.getName(), "main");
+            return;
+        }
+        getGameController().exchange(sideDeckCard, mainDeckCard);
+    }
+
     //SpecialCases
     //TributeMonsterForSummon
     public GameCard[] tributeMonster(int amount) {
@@ -285,6 +301,8 @@ public abstract class PlayerController {
 
     //Select one of rival monsters
     public GameCard selectRivalMonster() {
+        System.out.printf("%s = %s\n", player.getUser().getUsername(), getGameController().getCurrentPlayer().getUser().getUsername());
+        System.out.println(getRivalPlayer().getUser().getUsername());
         availableCards = Arrays.stream(getRivalPlayer().getField().getMonsterZone())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -341,8 +359,9 @@ public abstract class PlayerController {
         return getGameController().getGameTurnController().getPhase();
     }
 
-    protected Player getRivalPlayer() {
-        return getGameController().getCurrentPlayer().equals(player) ? getGameController().getRivalPlayer() : player;
+    public Player getRivalPlayer() {
+        return player.getUser().getUsername().equals(getGameController().getCurrentPlayer().getUser().getUsername()) ?
+                getGameController().getRivalPlayer() : getGameController().getCurrentPlayer();
     }
 
     protected GameController getGameController() {
@@ -351,24 +370,5 @@ public abstract class PlayerController {
 
     public boolean isAI() {
         return this instanceof AIPlayerController;
-    }
-
-    public void exchange(String sideDeckCardName, String mainDeckCardName) {
-        Card sideDeckCard = DatabaseManager.getCards().getCardByName(sideDeckCardName);
-        Card mainDeckCard = DatabaseManager.getCards().getCardByName(mainDeckCardName);
-        if (sideDeckCard == null || mainDeckCard == null) {
-            GameController.getView().showError(GameView.ERROR_CARD_NAME_INVALID, sideDeckCard == null ?
-                    sideDeckCardName : mainDeckCardName);
-            return;
-        }
-        if (!player.getDeck().getSideDeck().contains(sideDeckCard)) {
-            GameController.getView().showError(GameView.ERROR_CARD_NOT_IN_DECK, sideDeckCard.getName(), "side");
-            return;
-        }
-        if (!player.getDeck().getMainDeck().contains(mainDeckCard)) {
-            GameController.getView().showError(GameView.ERROR_CARD_NOT_IN_DECK, mainDeckCard.getName(), "main");
-            return;
-        }
-        getGameController().exchange(sideDeckCard, mainDeckCard);
     }
 }

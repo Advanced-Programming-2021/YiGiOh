@@ -75,7 +75,6 @@ public class CheatController {
         }
         card.setId(++fakeID);
         card.setFaceDown(true);
-        getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, card));
         getCurrentPlayer().getField().getSpellZone()[getCurrentPlayer().getField().getFirstFreeSpellZoneIndex()] = card;
     }
 

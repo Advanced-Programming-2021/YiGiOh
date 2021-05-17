@@ -31,7 +31,7 @@ public class SummonController {
     private GameCard card;
     private int gameControllerID;
 
-    public SummonController(int gameControllerID,GameCard card) {
+    public SummonController(int gameControllerID, GameCard card) {
         this.gameControllerID = gameControllerID;
         this.card = card;
         summoningPlayer = getGameController().getPlayerByCard(card);
@@ -45,11 +45,11 @@ public class SummonController {
         return summon();
     }
 
-    private boolean summon(){
+    private boolean summon() {
         card.setRevealed(true);
         card.setFaceDown(false);
         moveMonsterToMonsterZone();
-        getEffectControllersByPlayer().add(new EffectController(gameControllerID,card));
+        getEffectControllersByPlayer().add(new EffectController(gameControllerID, card));
         logger.info("in game with id {}: summon successful", gameControllerID);
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
         getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
@@ -58,22 +58,22 @@ public class SummonController {
         return summoningPlayer.getField().isInMonsterZone(card);
     }
 
-    private boolean summonSpecialMonsters(){
+    private boolean summonSpecialMonsters() {
         ArrayList<String> choices = new ArrayList<>();
-        switch(card.getCard().getName()){
+        switch (card.getCard().getName()) {
             case "Beast King Barbaros":
                 choices.add("1. normal summon (by tributing 2 monsters)");
                 choices.add("2. normal summon without tribute (Attack points decreases to 1900");
                 choices.add("3. summon by tributing 3 monsters (all cards the your rival control will be kicked out");
-                int choice = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices)+1;
+                int choice = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices) + 1;
                 if (choice == 1) {
                     if (!checkForTribute())
                         return false;
                     return summon();
-                } else if (choice == 2){
+                } else if (choice == 2) {
                     card.addAttackModifier(-1100, false);
                     return summon();
-                } else if (choice == 3){
+                } else if (choice == 3) {
                     if (!tribute(3))
                         return false;
                     boolean result = summon();
@@ -83,7 +83,7 @@ public class SummonController {
                 } else
                     return false;
             case "Gate Guardian":
-                if (summoningPlayer.getField().getAvailableMonstersInZoneCount() < 3){
+                if (summoningPlayer.getField().getAvailableMonstersInZoneCount() < 3) {
                     GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
                     return false;
                 }
@@ -98,9 +98,9 @@ public class SummonController {
                     if (!checkForTribute())
                         return false;
                     return summon();
-                } else if (result == 2){
+                } else if (result == 2) {
                     GameCard selectedCardFromHand;
-                    if ((selectedCardFromHand = getGameController().getPlayerControllerByPlayer(summoningPlayer).selectCardFromHand(card)) != null){
+                    if ((selectedCardFromHand = getGameController().getPlayerControllerByPlayer(summoningPlayer).selectCardFromHand(card)) != null) {
                         getGameController().removeMonsterCard(selectedCardFromHand);
                         return summon();
                     }
@@ -111,7 +111,7 @@ public class SummonController {
         }
     }
 
-    private boolean checkForTribute(){
+    private boolean checkForTribute() {
         int availableMonsters = summoningPlayer.getField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
@@ -133,7 +133,7 @@ public class SummonController {
         return true;
     }
 
-    public boolean specialSummon(){
+    public boolean specialSummon() {
         if (summoningPlayer.getField().getAvailableMonstersInZoneCount() == 5) {
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
             return false;
@@ -142,7 +142,7 @@ public class SummonController {
         if (!result)
             return false;
         EffectResponse response = getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON);
-        if (response != null && response.equals(EffectResponse.SUMMON_CANT_BE_DONE)){
+        if (response != null && response.equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
             Utils.printError("you can't special summon this card");
             return false;
         }
@@ -150,14 +150,14 @@ public class SummonController {
     }
 
     public boolean ritualSummon() {
-        List<GameCard> cards = getGameController().getCurrentPlayerController().selectCardsForRitualTribute(((Monster)card.getCard()).getLevel());
+        List<GameCard> cards = getGameController().getCurrentPlayerController().selectCardsForRitualTribute(((Monster) card.getCard()).getLevel());
         if (cards == null)
             return false;
-        if (getGameController().getPlayerByCard(card).getField().getAvailableMonstersInZoneCount() == 5){
+        if (getGameController().getPlayerByCard(card).getField().getAvailableMonstersInZoneCount() == 5) {
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
             return false;
         }
-        for(GameCard gameCard:cards)
+        for (GameCard gameCard : cards)
             getGameController().removeMonsterCard(gameCard);
         summon();
         return summoningPlayer.getField().isInMonsterZone(card);
@@ -167,7 +167,7 @@ public class SummonController {
         card.setRevealed(true);
         card.setFaceDown(false);
         getGameTurnController().setChangedPositionMonster(card);
-        getEffectControllersByPlayer().add(new EffectController(gameControllerID,card));
+        getEffectControllersByPlayer().add(new EffectController(gameControllerID, card));
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
         getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
         return summoningPlayer.getField().isInMonsterZone(card);
@@ -186,7 +186,7 @@ public class SummonController {
         return true;
     }
 
-    private void moveMonsterToMonsterZone(){
+    private void moveMonsterToMonsterZone() {
         if (summoningPlayer.getField().isInHand(card))
             summoningPlayer.getField().removeFromHand(card);
         if (summoningPlayer.getField().isInDeck(card))
@@ -196,7 +196,7 @@ public class SummonController {
         summoningPlayer.getField().putInMonsterZone(card);
     }
 
-    private List<EffectController> getEffectControllersByPlayer(){
+    private List<EffectController> getEffectControllersByPlayer() {
         if (summoningPlayer.equals(getGameController().getFirstPlayer().getPlayer()))
             return getGameController().getFirstPlayerEffectControllers();
         return getGameController().getSecondPlayerEffectControllers();
