@@ -316,7 +316,8 @@ public class GameController {
                     getCurrentPlayerEffectControllers().add(effectController);
                 }
             }
-            if (!((Spell)selectedCard.getCard()).getProperty().equals(SpellProperty.CONTINUOUS)) {
+            if (!((Spell)selectedCard.getCard()).getProperty().equals(SpellProperty.CONTINUOUS) &&
+                    !selectedCard.getCard().getCardEffects().contains(Effects.SWORD_OF_REVEALING_LIGHT)) {
                 removeSpellTrapCard(selectedCard);
             }
             applyEffect(Trigger.AFTER_ACTIVE_SPELL);
@@ -436,9 +437,9 @@ public class GameController {
             if (trigger.equals(Trigger.DRAW)) {
                 if (effectController.containEffect(Effects.SWORD_OF_REVEALING_LIGHT)) {
                     effectController.decreaseRemainTurns();
-                    if (effectController.getRemainsTurn() == 1) {
+                    if (effectController.getRemainsTurn() == 0) {
                         getRivalPlayerEffectControllers().remove(effectController);
-                        removeMonsterCard(effectController.getEffectCard());
+                        removeSpellTrapCard(effectController.getEffectCard());
                     }
                 }
             } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {

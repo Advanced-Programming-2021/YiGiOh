@@ -52,7 +52,6 @@ public class SetController {
             return false;
         }
         if (!checkForTribute()){
-            GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
             return false;
         }
         card.setFaceDown(true);
