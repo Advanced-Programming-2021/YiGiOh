@@ -186,13 +186,13 @@ public abstract class PlayerController {
 
     //Scanner
     public GameCard scanMonsterForScanner() {
-        availableCards = getGameController().getRivalPlayer().getField().getGraveyard();
+        availableCards = new ArrayList<>(getRivalPlayer().getField().getGraveyard());
         return null;
     }
 
     //Man-Eater Bug
     public GameCard directRemove() {
-        availableCards = Arrays.stream(getGameController().getRivalPlayer().getField().getMonsterZone())
+        availableCards = Arrays.stream(getRivalPlayer().getField().getMonsterZone())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         return null;
@@ -200,12 +200,13 @@ public abstract class PlayerController {
 
     //TexChanger
     public GameCard specialCyberseSummon() {
-        availableCards = player.getField().getGraveyard();
+        availableCards = new ArrayList<>(player.getField().getGraveyard());
         availableCards.addAll(player.getField().getHand());
         availableCards.addAll(player.getField().getDeck());
         availableCards = availableCards.stream()
                 .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
                 .filter(e -> ((Monster) e.getCard()).getType().equals(MonsterType.CYBERSE))
+                .filter(e -> ((Monster) e.getCard()).getEffect().equals(MonsterEffect.NORMAL))
                 .collect(Collectors.toList());
         return null;
     }
@@ -241,7 +242,7 @@ public abstract class PlayerController {
 
     //Select card from graveyard
     public GameCard selectCardFromGraveyard() {
-        availableCards = player.getField().getGraveyard();
+        availableCards = new ArrayList<>(player.getField().getGraveyard());
         return null;
     }
 
@@ -255,8 +256,8 @@ public abstract class PlayerController {
 
     //Select card from both graveyards
     public GameCard selectCardFromAllGraveyards() {
-        availableCards = player.getField().getGraveyard();
-        availableCards.addAll(getGameController().getRivalPlayer().getField().getGraveyard());
+        availableCards = new ArrayList<>(player.getField().getGraveyard());
+        availableCards.addAll(getRivalPlayer().getField().getGraveyard());
         return null;
     }
 
@@ -269,7 +270,7 @@ public abstract class PlayerController {
 
     //Select card from deck
     public GameCard selectCardFromDeck() {
-        availableCards = player.getField().getDeck();
+        availableCards = new ArrayList<>(player.getField().getDeck());
         return null;
     }
 
@@ -284,7 +285,7 @@ public abstract class PlayerController {
 
     //Select one of rival monsters
     public GameCard selectRivalMonster() {
-        availableCards = Arrays.stream(getGameController().getRivalPlayer().getField().getMonsterZone())
+        availableCards = Arrays.stream(getRivalPlayer().getField().getMonsterZone())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         return null;
@@ -338,6 +339,10 @@ public abstract class PlayerController {
 
     protected Phase getPhase() {
         return getGameController().getGameTurnController().getPhase();
+    }
+
+    protected Player getRivalPlayer() {
+        return getGameController().getCurrentPlayer().equals(player) ? getGameController().getRivalPlayer() : player;
     }
 
     protected GameController getGameController() {

@@ -38,11 +38,11 @@ public class AIPlayerController extends PlayerController {
             if (location != null) {
                 select(location);
                 toAttackMonsters.remove(getSelectionController().getCard());
-                int position = selectLowestAttackMonster(getGameController().getRivalPlayer().getField().getMonsterZone());
+                int position = selectLowestAttackMonster(getRivalPlayer().getField().getMonsterZone());
                 if (position == -1) {
                     directAttack();
                 } else {
-                    GameCard monsterToGetAttacked = getGameController().getRivalPlayer().getField().getMonsterZone()[position];
+                    GameCard monsterToGetAttacked = getRivalPlayer().getField().getMonsterZone()[position];
                     if (monsterToGetAttacked.isFaceDown()) {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentDefense()) {
                             attack(position + 1);
@@ -179,8 +179,8 @@ public class AIPlayerController extends PlayerController {
             }
         }
         for (int i = 0; i < 5; i++) {
-            if (getGameController().getRivalPlayer().getField().getMonsterZone()[i] != null &&
-                    getGameController().getRivalPlayer().getField().getMonsterZone()[i].getId() == selected.getId()) {
+            if (getRivalPlayer().getField().getMonsterZone()[i] != null &&
+                    getRivalPlayer().getField().getMonsterZone()[i].getId() == selected.getId()) {
                 return i;
             }
         }
@@ -226,6 +226,8 @@ public class AIPlayerController extends PlayerController {
         if (attackMonster == null && defenseMonster == null) {
             if (cards.size() > 0) {
                 return selectRandom(cards);
+            } else {
+                return null;
             }
         } else if (attackMonster == null) {
             return defenseMonster;
@@ -240,12 +242,12 @@ public class AIPlayerController extends PlayerController {
                 return defenseMonster;
             }
         }
-        return null;
     }
 
     //special Cases
 
     //TributeMonsterForSummon
+    @Override
     public GameCard[] tributeMonster(int amount) {
         super.tributeMonster(amount);
         GameCard[] cards = new GameCard[amount];
@@ -261,71 +263,83 @@ public class AIPlayerController extends PlayerController {
     }
 
     //Scanner
+    @Override
     public GameCard scanMonsterForScanner() {
         super.scanMonsterForScanner();
         return getBestMonster(availableCards);
     }
 
     //Man-Eater Bug
+    @Override
     public GameCard directRemove() {
         super.directRemove();
         return getBestMonster(availableCards);
     }
 
     //TexChanger
+    @Override
     public GameCard specialCyberseSummon() {
         super.specialCyberseSummon();
         return getBestMonster(availableCards);
     }
 
     //HeraldOfCreation
+    @Override
     public GameCard summonFromGraveyard() {
         super.summonFromGraveyard();
         return getBestMonster(availableCards);
     }
 
     //Beast King Barbaros & Tricky
+    @Override
     public int chooseHowToSummon(List<String> choices) {
         return new Random().nextInt(choices.size());
     }
 
     //terratiger
+    @Override
     public GameCard selectMonsterToSummon() {
         super.selectMonsterToSummon();
         return getBestMonster(availableCards);
     }
 
     //EquipMonster
+    @Override
     public GameCard equipMonster() {
         super.equipMonster();
         return getBestMonster(availableCards);
     }
 
     //Select card from graveyard
+    @Override
     public GameCard selectCardFromGraveyard() {
         super.selectCardFromGraveyard();
         return getBestMonster(availableCards);
     }
 
     //Select card from monster zone
+    @Override
     public GameCard selectCardFromMonsterZone() {
         super.selectCardFromMonsterZone();
         return getBestMonster(availableCards);
     }
 
     //Select card from both graveyards
+    @Override
     public GameCard selectCardFromAllGraveyards() {
         super.selectCardFromAllGraveyards();
         return getBestMonster(availableCards);
     }
 
     //Select card from hand
+    @Override
     public GameCard selectCardFromHand(GameCard exceptCard) {
         super.selectCardFromHand(exceptCard);
         return getBestMonster(availableCards);
     }
 
     //Select card from deck
+    @Override
     public GameCard selectCardFromDeck() {
         super.selectCardFromDeck();
         return getBestMonster(availableCards);

@@ -123,6 +123,11 @@ public class GameController {
 
     public void flipSummon() {
         gameTurnController.flipSummon();
+        if (!getCurrentPlayerController().isAI()) {
+            showCurrentPlayerBoard();
+        } else {
+            showRivalPlayerBoard();
+        }
     }
 
     public void attack(int position) {
@@ -258,13 +263,13 @@ public class GameController {
         getRivalPlayerEffectControllers().removeIf(effectController -> effectController.getEffectCard().equals(card));
         for (GameCard monster : getCurrentPlayer().getField().getAllFieldMonsterCards()) {
             if (monster == null) continue;
-            monster.getAttackModifier().removeIf(modifier -> modifier.getEffectCard().equals(card));
-            monster.getDefenceModifier().removeIf(modifier -> modifier.getEffectCard().equals(card));
+            monster.getAttackModifier().removeIf(modifier -> modifier.getEffectCard() != null && modifier.getEffectCard().equals(card));
+            monster.getDefenceModifier().removeIf(modifier -> modifier.getEffectCard() != null && modifier.getEffectCard().equals(card));
         }
         for (GameCard monster : getRivalPlayer().getField().getAllFieldMonsterCards()) {
             if (monster == null) continue;
-            monster.getAttackModifier().removeIf(modifier -> modifier.getEffectCard().equals(card));
-            monster.getDefenceModifier().removeIf(modifier -> modifier.getEffectCard().equals(card));
+            monster.getAttackModifier().removeIf(modifier -> modifier.getEffectCard() != null && modifier.getEffectCard().equals(card));
+            monster.getDefenceModifier().removeIf(modifier -> modifier.getEffectCard() != null && modifier.getEffectCard().equals(card));
         }
     }
 

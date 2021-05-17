@@ -83,9 +83,11 @@ public class GameTurnController {
                 .getNickname(), drawnCard.getCard().getName());
         while (getCurrentPlayerField().getHand().size() > 6) {
             GameCard toBeRemoved = getGameController().getCurrentPlayerController().selectCardFromHand(null);
-            getCurrentPlayerField().removeFromHand(toBeRemoved);
-            logger.info("in game with id {}: {} removed {} from hand", gameControllerID, getCurrentPlayer().getUser()
-                    .getNickname(), toBeRemoved.getCard().getName());
+            if (toBeRemoved != null) {
+                getCurrentPlayerField().removeFromHand(toBeRemoved);
+                logger.info("in game with id {}: {} removed {} from hand", gameControllerID, getCurrentPlayer().getUser()
+                        .getNickname(), toBeRemoved.getCard().getName());
+            }
         }
         phase = Phase.DRAW;
         getGameController().applyEffect(Trigger.DRAW);
