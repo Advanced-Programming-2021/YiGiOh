@@ -13,6 +13,8 @@ public class ScoreboardView extends View {
     public void showScoreboard(List<User> users) {
         AsciiTable scoreboard = new AsciiTable();
         scoreboard.addRule();
+        scoreboard.addRow(null, null, "Scoreboard");
+        scoreboard.addStrongRule();
         scoreboard.addRow("rank", "nickname", "score");
         scoreboard.addStrongRule();
         int counter = 0;

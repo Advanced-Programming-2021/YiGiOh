@@ -70,7 +70,9 @@ public class GameTurnController {
         if (!phase.equals(Phase.END) || getGameController().getGameTurnController().equals(this)) {
             logger.info("in game with id {}: it's {} phase", gameControllerID,
                     Utils.firstUpperOnly(phase.name().replaceAll("(\\d)", " $1")));
-            GameController.getView().showPhase(phase);
+            if (!getGameController().getCurrentPlayerController().isAI()) {
+                GameController.getView().showPhase(phase);
+            }
         }
     }
 
@@ -79,7 +81,7 @@ public class GameTurnController {
         if (drawnCard == null) getGameController().endRound(!getGameController().isFirstPlayerTurn());
         logger.info("in game with id {}: {} drew {} from deck", gameControllerID, getCurrentPlayer().getUser()
                 .getNickname(), drawnCard.getCard().getName());
-        if (getCurrentPlayerField().getHand().size() > 6) {
+        while (getCurrentPlayerField().getHand().size() > 6) {
             GameCard toBeRemoved = getGameController().getCurrentPlayerController().selectCardFromHand(null);
             getCurrentPlayerField().removeFromHand(toBeRemoved);
             logger.info("in game with id {}: {} removed {} from hand", gameControllerID, getCurrentPlayer().getUser()

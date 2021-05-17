@@ -26,7 +26,6 @@ public class AIPlayerController extends PlayerController {
         getGameController().nextPhaseAI();
         getGameController().nextPhaseAI();
         getGameController().nextPhase();
-        getGameController().showCurrentPlayerBoard();
     }
 
     private boolean attackEachCard(int roundCount) {

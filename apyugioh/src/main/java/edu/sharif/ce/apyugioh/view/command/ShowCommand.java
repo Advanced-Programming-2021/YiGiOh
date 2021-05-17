@@ -24,6 +24,13 @@ public class ShowCommand {
         }
     }
 
+    @Command(name = "deck", mixinStandardHelpOptions = true, description = "show duel decks")
+    public void showDuelDecks() {
+        if (!isAvailable() || !GameController.getGameControllerById(ProgramController.getGameControllerID()).isDeckExchange())
+            return;
+        GameController.getView().showDuelDecks(ProgramController.getCurrentPlayerController().getPlayer().getDeck());
+    }
+
     private boolean isAvailable() {
         return AttackCommand.isDuelCommandsAvailable();
     }

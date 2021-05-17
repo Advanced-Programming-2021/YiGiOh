@@ -2,6 +2,7 @@ package edu.sharif.ce.apyugioh.controller.player;
 
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.game.SelectionController;
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.*;
@@ -42,8 +43,10 @@ public abstract class PlayerController {
                 GameController.getView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
             } else {
                 getGameController().select(location);
-                GameController.getView().showSuccess(GameView.SUCCESS_SELECTION_SUCCESSFUL,
-                        getSelectionController().getCard().getCard().getName());
+                if (!isAI()) {
+                    GameController.getView().showSuccess(GameView.SUCCESS_SELECTION_SUCCESSFUL,
+                            getSelectionController().getCard().getCard().getName());
+                }
             }
             return true;
         }
@@ -56,8 +59,10 @@ public abstract class PlayerController {
                 GameController.getView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
             } else {
                 getGameController().select(location);
-                GameController.getView().showSuccess(GameView.SUCCESS_SELECTION_SUCCESSFUL,
-                        getSelectionController().getCard().getCard().getName());
+                if (!isAI()) {
+                    GameController.getView().showSuccess(GameView.SUCCESS_SELECTION_SUCCESSFUL,
+                            getSelectionController().getCard().getCard().getName());
+                }
             }
             return true;
         }
@@ -72,8 +77,10 @@ public abstract class PlayerController {
                 GameController.getView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
             } else {
                 getGameController().select(location);
-                GameController.getView().showSuccess(GameView.SUCCESS_SELECTION_SUCCESSFUL,
-                        getSelectionController().getCard().getCard().getName());
+                if (!isAI()) {
+                    GameController.getView().showSuccess(GameView.SUCCESS_SELECTION_SUCCESSFUL,
+                            getSelectionController().getCard().getCard().getName());
+                }
             }
             return true;
         }
@@ -84,8 +91,10 @@ public abstract class PlayerController {
         if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
         } else {
-            GameController.getView().showSuccess(GameView.SUCCESS_DESELECTION_SUCCESSFUL,
-                    getSelectionController().getCard().getCard().getName());
+            if (!isAI()) {
+                GameController.getView().showSuccess(GameView.SUCCESS_DESELECTION_SUCCESSFUL,
+                        getSelectionController().getCard().getCard().getName());
+            }
             getGameController().deselect();
         }
     }
@@ -309,11 +318,11 @@ public abstract class PlayerController {
         return null;
     }
 
-    public GameCard selectRitualMonsterFromHand(){
+    public GameCard selectRitualMonsterFromHand() {
         return null;
     }
 
-    public List<GameCard> selectCardsForRitualTribute(int level){
+    public List<GameCard> selectCardsForRitualTribute(int level) {
         return null;
     }
 
@@ -333,5 +342,28 @@ public abstract class PlayerController {
 
     protected GameController getGameController() {
         return GameController.getGameControllerById(gameControllerID);
+    }
+
+    public boolean isAI() {
+        return this instanceof AIPlayerController;
+    }
+
+    public void exchange(String sideDeckCardName, String mainDeckCardName) {
+        Card sideDeckCard = DatabaseManager.getCards().getCardByName(sideDeckCardName);
+        Card mainDeckCard = DatabaseManager.getCards().getCardByName(mainDeckCardName);
+        if (sideDeckCard == null || mainDeckCard == null) {
+            GameController.getView().showError(GameView.ERROR_CARD_NAME_INVALID, sideDeckCard == null ?
+                    sideDeckCardName : mainDeckCardName);
+            return;
+        }
+        if (!player.getDeck().getSideDeck().contains(sideDeckCard)) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_IN_DECK, sideDeckCard.getName(), "side");
+            return;
+        }
+        if (!player.getDeck().getMainDeck().contains(mainDeckCard)) {
+            GameController.getView().showError(GameView.ERROR_CARD_NOT_IN_DECK, mainDeckCard.getName(), "main");
+            return;
+        }
+        getGameController().exchange(sideDeckCard, mainDeckCard);
     }
 }

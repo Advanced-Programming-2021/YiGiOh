@@ -78,6 +78,27 @@ public class Utils {
         System.out.print(output);
     }
 
+    public static void printSideBySide(String first, String second) {
+        String[] firstLines = first.lines().toArray(String[]::new);
+        String[] secondLines = second.lines().toArray(String[]::new);
+        int counter = 0;
+        while (counter < firstLines.length && counter < secondLines.length) {
+            System.out.println(firstLines[counter] + " " + secondLines[counter]);
+            counter++;
+        }
+        if (firstLines.length > secondLines.length) {
+            while (counter < firstLines.length) {
+                System.out.println(firstLines[counter]);
+                counter++;
+            }
+        } else {
+            while (counter < secondLines.length) {
+                System.out.println(secondLines[counter]);
+                counter++;
+            }
+        }
+    }
+
     public static double getTerminalScale(double scale) {
         if (scale >= 1) {
             return Math.max((ProgramController.getReader().getTerminal().getWidth() / 200.0) * scale, 1);

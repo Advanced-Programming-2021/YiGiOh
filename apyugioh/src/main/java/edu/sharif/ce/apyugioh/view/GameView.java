@@ -6,10 +6,12 @@ import de.codeshelf.consoleui.prompt.PromtResultItemIF;
 import de.codeshelf.consoleui.prompt.builder.ListPromptBuilder;
 import de.codeshelf.consoleui.prompt.builder.PromptBuilder;
 import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.asciitable.CWC_LongestLine;
 import de.vandermeer.asciithemes.u8.U8_Grids;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.model.GameDeck;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.RoundResult;
@@ -45,6 +47,8 @@ public class GameView extends View {
     public static final int ERROR_WRONG_CARD_TYPE = -19;
     public static final int ERROR_SPELL_ALREADY_ACTIVATED = -20;
     public static final int ERROR_CARD_CANT_BE_ACTIVATED = -21;
+    public static final int ERROR_CARD_NAME_INVALID = -22;
+    public static final int ERROR_CARD_NOT_IN_DECK = -23;
 
 
     public static final int SUCCESS_SELECTION_SUCCESSFUL = 1;
@@ -56,6 +60,7 @@ public class GameView extends View {
     public static final int SUCCESS_DIRECT_ATTACK_SUCCESSFUL = 7;
     public static final int SUCCESS_EFFECT = 8;
     public static final int SUCCESS_SPELL_ACTIVATED = 9;
+    public static final int SUCCESS_EXCHANGE_SUCCESSFUL = 10;
 
     {
         errorMessages.put(ERROR_SELECTION_CARD_POSITION_INVALID, "card position invalid");
@@ -79,6 +84,8 @@ public class GameView extends View {
         errorMessages.put(ERROR_WRONG_CARD_TYPE, "this card in not a %s");
         errorMessages.put(ERROR_SPELL_ALREADY_ACTIVATED, "this spell is already activated");
         errorMessages.put(ERROR_CARD_CANT_BE_ACTIVATED, "preparations of this %s are not done yet");
+        errorMessages.put(ERROR_CARD_NAME_INVALID, "%s is not a valid card name");
+        errorMessages.put(ERROR_CARD_NOT_IN_DECK, "%s is not in your %s deck");
 
 
         successMessages.put(SUCCESS_SELECTION_SUCCESSFUL, "%s selected successfully");
@@ -90,6 +97,7 @@ public class GameView extends View {
         successMessages.put(SUCCESS_DIRECT_ATTACK_SUCCESSFUL, "you opponent receives %s battle damage");
         successMessages.put(SUCCESS_EFFECT, "%s effect successfully done");
         successMessages.put(SUCCESS_SPELL_ACTIVATED, "%s spell activated");
+        successMessages.put(SUCCESS_EXCHANGE_SUCCESSFUL, "%s from side deck is exchanged with %s in your main deck successfully!");
     }
 
     public void showGraveyard(Player player) {
@@ -154,11 +162,11 @@ public class GameView extends View {
 
     private void addRivalPlayerToBoard(Player secondPlayer, AsciiTable board) {
         board.addRule();
-        board.addRow(null, null, null, secondPlayer.getUser().getNickname(), null, null, secondPlayer.getLifePoints());
+        board.addRow(null, null, null, secondPlayer.getUser().getNickname(), null, null, Math.max(secondPlayer.getLifePoints(), 0));
         board.addRule();
         String[] secondHand = new String[7];
-        for (int i = 0; i < 7; i++) {
-            if (secondPlayer.getField().getHand().size() > i) {
+        for (int i = 6; i >= 0; i--) {
+            if (secondPlayer.getField().getHand().size() > 6 - i) {
                 secondHand[i] = "C";
             } else {
                 secondHand[i] = "";
@@ -203,7 +211,7 @@ public class GameView extends View {
         }
         board.addRow((Object[]) firstHand);
         board.addRule();
-        board.addRow(null, null, null, firstPlayer.getUser().getNickname(), null, null, firstPlayer.getLifePoints());
+        board.addRow(null, null, null, firstPlayer.getUser().getNickname(), null, null, Math.max(firstPlayer.getLifePoints(), 0));
         board.addRule();
     }
 
@@ -274,5 +282,32 @@ public class GameView extends View {
     public void showGameResult(Player winner, int numberOfRounds, int winnerLP) {
         Utils.printInfo(winner.getUser().getNickname() + " won the game!");
         Utils.printInfo(winner.getUser().getNickname() + " earned " + (numberOfRounds * 1000 + winnerLP) + " coins!");
+    }
+
+    public void showDuelDecks(GameDeck deck) {
+        AsciiTable mainDeckTable = new AsciiTable();
+        prepareDeck(deck, mainDeckTable, false);
+        AsciiTable sideDeckTable = new AsciiTable();
+        prepareDeck(deck, sideDeckTable, true);
+        Utils.printSideBySide(sideDeckTable.render(Math.max(40, ProgramController.getReader().getTerminal().getWidth() / 2)),
+                mainDeckTable.render(Math.max(40, ProgramController.getReader().getTerminal().getWidth() / 2)));
+    }
+
+    private void prepareDeck(GameDeck deck, AsciiTable sideDeckTable, boolean isSide) {
+        int counter;
+        String[] deckNames = (isSide ? deck.getSideDeck() : deck.getMainDeck()).stream().map(Card::getName).sorted().toArray(String[]::new);
+        sideDeckTable.addRule();
+        sideDeckTable.addRow(null, (isSide ? "Side" : "Main") + " Deck");
+        sideDeckTable.addRule();
+        counter = 0;
+        for (String card : deckNames) {
+            sideDeckTable.addRow(++counter, card);
+            sideDeckTable.addRule();
+        }
+        if (counter == 0) {
+            sideDeckTable.addRow("-", "-");
+        }
+        sideDeckTable.setTextAlignment(TextAlignment.CENTER);
+        sideDeckTable.getContext().setGrid(U8_Grids.borderStrongDoubleLight());
     }
 }

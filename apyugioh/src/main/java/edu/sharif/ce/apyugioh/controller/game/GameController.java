@@ -35,6 +35,7 @@ public class GameController {
     private int passedTurns;
     private boolean isFirstPlayerTurn;
     private boolean isTurnTempChanged;
+    private boolean isDeckExchange;
     private AttackController attackController;
     private SelectionController selectionController;
     private GameTurnController gameTurnController;
@@ -93,18 +94,31 @@ public class GameController {
 
     public void set() {
         gameTurnController.set();
-        showCurrentPlayerBoard();
+        if (!getCurrentPlayerController().isAI()) {
+            showCurrentPlayerBoard();
+        } else {
+            showRivalPlayerBoard();
+        }
         isRoundEnded();
     }
 
     public void summon() {
         gameTurnController.summon();
-        showCurrentPlayerBoard();
+        if (!getCurrentPlayerController().isAI()) {
+            showCurrentPlayerBoard();
+        } else {
+            showRivalPlayerBoard();
+        }
         isRoundEnded();
     }
 
     public void changePosition(boolean isChangeToAttack) {
         gameTurnController.changePosition(isChangeToAttack);
+        if (!getCurrentPlayerController().isAI()) {
+            showCurrentPlayerBoard();
+        } else {
+            showRivalPlayerBoard();
+        }
     }
 
     public void flipSummon() {
@@ -113,13 +127,21 @@ public class GameController {
 
     public void attack(int position) {
         gameTurnController.attack(position);
-        showCurrentPlayerBoard();
+        if (!getCurrentPlayerController().isAI()) {
+            showCurrentPlayerBoard();
+        } else {
+            showRivalPlayerBoard();
+        }
         isRoundEnded();
     }
 
     public void directAttack() {
         gameTurnController.directAttack();
-        showCurrentPlayerBoard();
+        if (!getCurrentPlayerController().isAI()) {
+            showCurrentPlayerBoard();
+        } else {
+            showRivalPlayerBoard();
+        }
         isRoundEnded();
     }
 
@@ -162,14 +184,41 @@ public class GameController {
                 .getUser().getNickname() : secondPlayer.getPlayer().getUser().getNickname());
         gameTurnController.drawPhase();
         getView().showPhase(Phase.DRAW);
-        if (getCurrentPlayerController() instanceof AIPlayerController) {
+        if (getCurrentPlayerController().isAI()) {
             ((AIPlayerController) getCurrentPlayerController()).startRoundAction();
+        } else {
+            showCurrentPlayerBoard();
         }
     }
 
 
-    public void exchangeSideDeckCards() {
+    public void nextPlayerExchangeStart() {
+        if (!isFirstPlayerTurn) {
+            isDeckExchange = false;
+            firstPlayer.getPlayer().resetField();
+            firstPlayer.getPlayer().setLifePoints(8000);
+            secondPlayer.getPlayer().resetField();
+            secondPlayer.getPlayer().setLifePoints(8000);
+            passedTurns = 0;
+            isFirstPlayerTurn = roundResults.size() % 2 != 0;
+            play();
+        } else {
+            isFirstPlayerTurn = false;
+            if (secondPlayer.getPlayer().getDeck().getSideDeck().isEmpty()) {
+                nextPlayerExchangeStart();
+            }
+        }
+    }
 
+    public void exchange(Card sideDeckCard, Card mainDeckCard) {
+        if (getCurrentPlayer().getDeck().getMainDeck().contains(mainDeckCard)
+                && getCurrentPlayer().getDeck().getSideDeck().contains(sideDeckCard)) {
+            getCurrentPlayer().getDeck().getSideDeck().remove(sideDeckCard);
+            getCurrentPlayer().getDeck().getMainDeck().remove(mainDeckCard);
+            getCurrentPlayer().getDeck().getMainDeck().add(sideDeckCard);
+            getCurrentPlayer().getDeck().getSideDeck().add(mainDeckCard);
+            getView().showSuccess(GameView.SUCCESS_EXCHANGE_SUCCESSFUL, sideDeckCard.getName(), mainDeckCard.getName());
+        }
     }
 
     public void removeMonsterCard(GameCard card) {
@@ -235,13 +284,13 @@ public class GameController {
                 || gameTurnController.getPhase().equals(Phase.MAIN2))) {
             view.showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
         } else if (selectedCard.isRevealed()) {
-            view.showError(GameView.ERROR_SPELL_ALREADY_ACTIVATED,"spell");
+            view.showError(GameView.ERROR_SPELL_ALREADY_ACTIVATED, "spell");
         } else if ((response = applyEffect(Trigger.BEFORE_ACTIVE_SPELL)) != null && response.equals(EffectResponse.ACTIVE_SPELL_CANT_BE_DONE)) {
             view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED, "spell");
         } else if (selectedCard.getCard().getCardType().equals(CardType.SPELL) &&
                 (!((Spell) selectedCard.getCard()).getProperty().equals(SpellProperty.QUICK_PLAY)
                         && !getCurrentPlayer().getField().isInSpellZone(selectedCard))) {
-            view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED,"spell");
+            view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED, "spell");
         } else {
             EffectController effectController = new EffectController(id, selectedCard);
             selectedCard.setRevealed(true);
@@ -316,7 +365,7 @@ public class GameController {
                     getCurrentPlayerEffectControllers().add(effectController);
                 }
             }
-            if (!((Spell)selectedCard.getCard()).getProperty().equals(SpellProperty.CONTINUOUS) &&
+            if (!((Spell) selectedCard.getCard()).getProperty().equals(SpellProperty.CONTINUOUS) &&
                     !selectedCard.getCard().getCardEffects().contains(Effects.SWORD_OF_REVEALING_LIGHT)) {
                 removeSpellTrapCard(selectedCard);
             }
@@ -523,9 +572,11 @@ public class GameController {
                 for (GameCard card : disposableEffect.getCardsAffected()) {
                     card.getAttackModifier().removeIf(modifier -> modifier.getEffectCard().equals(disposableEffect.getEffectCard()));
                 }
-            } if (disposableEffect.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
+            }
+            if (disposableEffect.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
                 disposableEffect.setCardsAffected(new ArrayList<>());
-            } if (disposableEffect.containEffect(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
+            }
+            if (disposableEffect.containEffect(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
                 GameCard controlledMonster = disposableEffect.getCardsAffected().get(0);
                 if (controlledMonster != null) {
                     getCurrentPlayer().getField().removeFromMonsterZone(controlledMonster);
@@ -569,13 +620,11 @@ public class GameController {
                 return;
             }
         }
-        firstPlayer.getPlayer().resetField();
-        firstPlayer.getPlayer().setLifePoints(8000);
-        secondPlayer.getPlayer().resetField();
-        secondPlayer.getPlayer().setLifePoints(8000);
-        passedTurns = 0;
-        isFirstPlayerTurn = (roundResults.size() % 2 == 0) == isFirstPlayerTurn;
-        play();
+        isFirstPlayerTurn = true;
+        isDeckExchange = true;
+        if (firstPlayer.getPlayer().getDeck().getSideDeck().isEmpty()) {
+            nextPlayerExchangeStart();
+        }
     }
 
     public void surrender() {

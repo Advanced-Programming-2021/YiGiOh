@@ -71,7 +71,9 @@
       "Bitron": 3
     },
     "name": "AIMain",
-    "sideDeck": {},
+    "sideDeck": {
+      "Dark Magician": 3
+    },
     "userID": 3
   }
 ]

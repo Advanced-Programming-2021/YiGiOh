@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ScoreboardController {
 
@@ -27,8 +28,9 @@ public class ScoreboardController {
     private User user;
 
     public void showScoreboard() {
-        List<User> users = DatabaseManager.getUserList();
-        Collections.sort(users);
+        List<User> users = DatabaseManager.getUserList().stream()
+                .filter(e -> !e.getUsername().equals("AIHard") && !e.getUsername().equals("AIMediocre")
+                        && !e.getUsername().equals("AIEasy")).sorted().collect(Collectors.toList());
         view.showScoreboard(users);
     }
 
