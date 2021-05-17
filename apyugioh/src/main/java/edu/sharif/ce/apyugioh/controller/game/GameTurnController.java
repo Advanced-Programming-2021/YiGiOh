@@ -86,7 +86,6 @@ public class GameTurnController {
                     .getNickname(), toBeRemoved.getCard().getName());
         }
         phase = Phase.DRAW;
-        getGameController().resetEffect();
         getGameController().applyEffect(Trigger.DRAW);
     }
 
@@ -109,6 +108,7 @@ public class GameTurnController {
 
     public void endPhase() {
         phase = Phase.END;
+        getGameController().resetEffect();
     }
 
     public void set() {

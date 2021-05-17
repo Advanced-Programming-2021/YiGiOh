@@ -7,6 +7,7 @@ import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import edu.sharif.ce.apyugioh.view.View;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Getter
 public class EffectController {
+    @Setter
     private List<GameCard> cardsAffected;
     private GameCard effectCard;
     private int remainsTurn;
@@ -88,8 +90,12 @@ public class EffectController {
             getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
         } else if (!getRivalPlayerField().isInMonsterZone(rivalMonster)) {
             getGameControllerView().showError(GameView.ERROR_NOT_FROM_PLACE, "rival monster zone");
+        } else if (getCurrentPlayerField().isMonsterZoneFull()) {
+            getGameControllerView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
         } else {
             cardsAffected.add(rivalMonster);
+            getRivalPlayerField().removeFromMonsterZone(rivalMonster);
+            getCurrentPlayerField().putInMonsterZone(rivalMonster);
         }
     }
 
@@ -105,8 +111,7 @@ public class EffectController {
         for (int monsterIndex = 0; monsterIndex < 5; monsterIndex++) {
             GameCard monsterForRemove = getCurrentPlayerField().getMonsterZone()[monsterIndex];
             if (monsterForRemove == null) continue;
-            getCurrentPlayerField().removeFromMonsterZone(monsterForRemove);
-            getCurrentPlayerField().putInGraveyard(monsterForRemove);
+            getGameController().removeMonsterCard(monsterForRemove);
         }
     }
 
@@ -115,8 +120,7 @@ public class EffectController {
         for (; monsterIndex < 5; monsterIndex++) {
             GameCard monsterForRemove = getRivalPlayerField().getMonsterZone()[monsterIndex];
             if (monsterForRemove == null) continue;
-            getRivalPlayerField().removeFromMonsterZone(monsterForRemove);
-            getRivalPlayerField().putInGraveyard(monsterForRemove);
+            getGameController().removeMonsterCard(monsterForRemove);
         }
     }
 
@@ -134,11 +138,9 @@ public class EffectController {
 
             for (GameCard spellTrap : spellTraps) {
                 if (getCurrentPlayerField().isInSpellZone(spellTrap)) {
-                    getCurrentPlayerField().removeFromSpellZone(spellTrap);
-                    getCurrentPlayerField().putInGraveyard(spellTrap);
+                    getGameController().removeSpellTrapCard(spellTrap);
                 } else {
-                    getRivalPlayerField().removeFromSpellZone(spellTrap);
-                    getRivalPlayerField().putInGraveyard(spellTrap);
+                    getGameController().removeSpellTrapCard(spellTrap);
                 }
             }
         }
@@ -150,11 +152,9 @@ public class EffectController {
             getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
         } else {
             if (getCurrentPlayerField().isInSpellZone(spellTrap)) {
-                getCurrentPlayerField().removeFromSpellZone(spellTrap);
-                getCurrentPlayerField().putInGraveyard(spellTrap);
+                getGameController().removeSpellTrapCard(spellTrap);
             } else {
-                getRivalPlayerField().removeFromSpellZone(spellTrap);
-                getRivalPlayerField().putInGraveyard(spellTrap);
+                getGameController().removeSpellTrapCard(spellTrap);
             }
         }
     }
@@ -381,8 +381,7 @@ public class EffectController {
     public void destroyRivalFieldZone() {
         GameCard fieldSpell = getRivalPlayerField().getFieldZone();
         if (fieldSpell != null) {
-            getRivalPlayerField().removeFromFieldZone(fieldSpell);
-            getRivalPlayerField().putInGraveyard(fieldSpell);
+            getGameController().removeSpellTrapCard(fieldSpell);
         }
     }
 
@@ -391,8 +390,7 @@ public class EffectController {
         for (; spellTrapIndex < 5; spellTrapIndex++) {
             GameCard spellTrap = getRivalPlayerField().getSpellZone()[spellTrapIndex];
             if (spellTrap == null) continue;
-            getRivalPlayerField().removeFromSpellZone(spellTrap);
-            getRivalPlayerField().putInGraveyard(spellTrap);
+            getGameController().removeSpellTrapCard(spellTrap);
         }
     }
 
@@ -417,8 +415,7 @@ public class EffectController {
             } else if (!getRivalPlayerField().isInMonsterZone(destructibleCard)) {
                 getGameControllerView().showError(GameView.ERROR_NOT_FROM_PLACE, "rival monster zone");
             } else {
-                getRivalPlayerField().removeFromMonsterZone(destructibleCard);
-                getRivalPlayerField().putInGraveyard(destructibleCard);
+                getGameController().removeMonsterCard(destructibleCard);
             }
         }
     }

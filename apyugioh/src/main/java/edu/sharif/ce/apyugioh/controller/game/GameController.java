@@ -260,6 +260,7 @@ public class GameController {
                 }
                 if (cardEffect.equals(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
                     effectController.controlRivalMonster();
+                    effectController.disposableEffect();
                 }
                 if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_SPELL_TRAPS)) {
                     effectController.destroyRivalSpellTraps();
@@ -367,10 +368,6 @@ public class GameController {
                     effectController.scanDestroyedRivalMonster();
                     effectController.disposableEffect();
                 }
-            } else if (trigger.equals(Trigger.SET)) {
-
-            } else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
-
             } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
                 //Man-Eater Bug
                 if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
@@ -406,8 +403,6 @@ public class GameController {
                         || attackController.getAttackingMonster().equals(effectController.getEffectCard()))) {
                     effectController.destroyAnotherCardInBattleIfDestroyed();
                 }
-            } else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
-
             } else if (trigger.equals(Trigger.AFTER_ACTIVE_SPELL)) {
                 //Spell Absorption
                 if (effectController.containEffect(Effects.INCREASE_LP_IF_SPELL_ACTIVATED)) {
@@ -446,16 +441,6 @@ public class GameController {
                         removeMonsterCard(effectController.getEffectCard());
                     }
                 }
-            } else if (trigger.equals(Trigger.SET)) {
-
-            } else if (trigger.equals(Trigger.BEFORE_SUMMON)) {
-
-            } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
-
-            } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
-
-            } else if (trigger.equals(Trigger.AFTER_NORMAL_SUMMON)) {
-
             } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
                 //Magic Cylinder
                 if (effectController.containEffect(Effects.MAGIC_CYLINDER) && canActiveTrap(effectController)) {
@@ -526,16 +511,30 @@ public class GameController {
                 if (effectController.containEffect(Effects.RIVAL_CANT_ACTIVE_TRAP)) {
                     return EffectResponse.ACTIVE_TRAP_CANT_BE_DONE;
                 }
-            } else if (trigger.equals(Trigger.AFTER_ACTIVE_SPELL)) {
-
             }
         }
         return null;
     }
 
     public void resetEffect() {
-        for (GameCard monster : getFirstPlayer().getPlayer().getField().getAllFieldMonsterCards()) {
-            monster.getAttackModifier().removeIf(modifier -> modifier.isFromEffect() && modifier.isDisposableEachTurn());
+        for (EffectController disposableEffect : gameTurnController.getDisposableUsedEffects()) {
+            if (disposableEffect.containEffect(Effects.ZERO_ATTACK_POWER_FOR_ATTACKER_ON_THAT_TURN)) {
+                for (GameCard card : disposableEffect.getCardsAffected()) {
+                    card.getAttackModifier().removeIf(modifier -> modifier.getEffectCard().equals(disposableEffect.getEffectCard()));
+                }
+            } if (disposableEffect.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
+                disposableEffect.setCardsAffected(new ArrayList<>());
+            } if (disposableEffect.containEffect(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
+                GameCard controlledMonster = disposableEffect.getCardsAffected().get(0);
+                if (controlledMonster != null) {
+                    getCurrentPlayer().getField().removeFromMonsterZone(controlledMonster);
+                    if (getRivalPlayer().getField().isMonsterZoneFull()) {
+                        getRivalPlayer().getField().putInGraveyard(controlledMonster);
+                    } else {
+                        getRivalPlayer().getField().putInMonsterZone(controlledMonster);
+                    }
+                }
+            }
         }
     }
 
