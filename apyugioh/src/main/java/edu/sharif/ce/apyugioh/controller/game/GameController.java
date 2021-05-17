@@ -512,6 +512,11 @@ public class GameController {
                 if (effectController.containEffect(Effects.RIVAL_CANT_ACTIVE_TRAP)) {
                     return EffectResponse.ACTIVE_TRAP_CANT_BE_DONE;
                 }
+            } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
+                //Man-Eater Bug
+                if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
+                    effectController.destroyOneOfRivalMonsters();
+                }
             }
         }
         return null;

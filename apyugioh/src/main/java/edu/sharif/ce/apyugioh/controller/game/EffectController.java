@@ -664,6 +664,12 @@ public class EffectController {
         return null;
     }
 
+    private PlayerController getAnotherPlayerControllerByCard(GameCard card) {
+        if (getCurrentPlayerController().getPlayer().getField().isInField(card)) return getRivalPlayerController();
+        if (getRivalPlayerController().getPlayer().getField().isInField(card)) return getCurrentPlayerController();
+        return null;
+    }
+
     private PlayerController getCurrentPlayerController() {
         return getGameController().getCurrentPlayerController();
     }
