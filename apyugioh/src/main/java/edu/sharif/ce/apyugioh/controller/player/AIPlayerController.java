@@ -2,6 +2,7 @@ package edu.sharif.ce.apyugioh.controller.player;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
+import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.*;
 
@@ -90,8 +91,8 @@ public class AIPlayerController extends PlayerController {
     private CardLocation selectSpellFromHand() {
         CardLocation location = new CardLocation();
         location.setInHand(true);
-        GameCard selected = player.getField().getHand().stream().
-                filter(e -> !e.getCard().getCardType().equals(CardType.MONSTER)).findAny().orElse(null);
+        GameCard selected = selectRandom(player.getField().getHand().stream().
+                filter(e -> !e.getCard().getCardType().equals(CardType.MONSTER)).collect(Collectors.toList()));
         if (selected == null) return null;
         location.setPosition(player.getField().getHand().indexOf(selected));
         return location;
@@ -137,6 +138,7 @@ public class AIPlayerController extends PlayerController {
     }
 
     private GameCard checkForTributePossibility(GameCard monster, Comparator<GameCard> gameCardComparator) {
+        if (monster == null) return null;
         if (((Monster) monster.getCard()).getLevel() > 6 && player.getField().getAvailableMonstersInZoneCount() < 2) {
             monster = player.getField().getHand().stream()
                     .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
@@ -144,6 +146,7 @@ public class AIPlayerController extends PlayerController {
                     .max(gameCardComparator)
                     .orElse(null);
         }
+        if (monster == null) return null;
         if (((Monster) monster.getCard()).getLevel() > 4 && player.getField().getAvailableMonstersInZoneCount() < 1) {
             monster = player.getField().getHand().stream()
                     .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
@@ -202,6 +205,12 @@ public class AIPlayerController extends PlayerController {
         for (int i = 0; i < 5; i++) {
             if (getRivalPlayer().getField().getMonsterZone()[i] != null &&
                     getRivalPlayer().getField().getMonsterZone()[i].getId() == selected.getId()) {
+                return i;
+            }
+        }
+        for (int i = 0; i < 5; i++) {
+            if (player.getField().getMonsterZone()[i] != null &&
+                    player.getField().getMonsterZone()[i].getId() == selected.getId()) {
                 return i;
             }
         }
@@ -273,11 +282,11 @@ public class AIPlayerController extends PlayerController {
         super.tributeMonster(amount);
         GameCard[] cards = new GameCard[amount];
         for (int i = 0; i < amount; i++) {
-            int selection = selectLowestAttackMonster(availableCards.toArray(new GameCard[0]));
+            int selection = selectLowestAttackMonster(availableCards.toArray(GameCard[]::new));
             if (selection == -1) {
                 return null;
             }
-            cards[i] = availableCards.get(selection);
+            cards[i] = player.getField().getMonsterZone()[selection];
             availableCards.remove(cards[i]);
         }
         return cards;
@@ -314,6 +323,40 @@ public class AIPlayerController extends PlayerController {
     //Beast King Barbaros & Tricky
     @Override
     public int chooseHowToSummon(List<String> choices) {
+        if (getSelectionController().getCard().getCard().getCardEffects().contains(Effects.BEAST_KING_BARBAROS)) {
+            if (player.getField().getAvailableMonstersInZoneCount() < 2) {
+                return 1;
+            } else if (player.getField().getAvailableMonstersInZoneCount() < 3) {
+                return 0;
+            } else {
+                GameCard currentHighest = getHighestAttackMonster(Arrays.stream(player.getField().getMonsterZone())
+                        .filter(Objects::nonNull).collect(Collectors.toList()));
+                GameCard rivalHighest = getHighestAttackMonster(Arrays.stream(getRivalPlayer().getField().getMonsterZone())
+                        .filter(Objects::nonNull).collect(Collectors.toList()));
+                if (rivalHighest == null) {
+                    return 0;
+                }
+                if (currentHighest.getCurrentAttack() < rivalHighest.getCurrentAttack()) {
+                    return 2;
+                }
+                if (player.getField().getAvailableMonstersInZoneCount() > 3) {
+                    return 2;
+                }
+                return 0;
+            }
+        } else if (getSelectionController().getCard().getCard().getCardEffects().contains(Effects.SPECIAL_SUMMON_BY_REMOVE_CARD_FROM_HAND)) {
+            if (player.getField().getAvailableMonstersInZoneCount() == 0) {
+                return 1;
+            } else {
+                GameCard lowestInField = getLowestAttackMonster(Arrays.stream(player.getField().getMonsterZone())
+                        .filter(Objects::nonNull).collect(Collectors.toList()));
+                GameCard lowestInHand = getLowestAttackMonster(player.getField().getHand());
+                if (lowestInField.getCurrentAttack() < lowestInHand.getCurrentAttack()) {
+                    return 0;
+                }
+                return 1;
+            }
+        }
         return new Random().nextInt(choices.size());
     }
 
@@ -408,7 +451,8 @@ public class AIPlayerController extends PlayerController {
     }
 
     public GameCard selectRandomCardFromHand() {
-        return null;
+        super.selectRandomCardFromHand();
+        return selectRandom(availableCards);
     }
 
     @Override

@@ -11,6 +11,7 @@ public class SurrenderCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        if (!isAvailable()) return -1;
         GameController.getGameControllerById(ProgramController.getGameControllerID()).surrender();
         return 0;
     }

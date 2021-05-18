@@ -7,6 +7,7 @@ import edu.sharif.ce.apyugioh.model.card.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class NormalPlayerController extends PlayerController {
@@ -145,8 +146,9 @@ public class NormalPlayerController extends PlayerController {
         return DatabaseManager.getCards().getCardByName(result);
     }
 
-    public GameCard selectRandomCardFromHand(){
-        return null;
+    public GameCard selectRandomCardFromHand() {
+        super.selectRandomCardFromHand();
+        return availableCards.get(new Random().nextInt(availableCards.size()));
     }
 
     @Override

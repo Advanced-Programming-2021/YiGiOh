@@ -148,28 +148,12 @@ public abstract class PlayerController {
         getGameController().nextPhase();
     }
 
-    public void endRound() {
-
-    }
-
     public void startRound() {
         getGameController().startRound();
     }
 
     public void activeEffect() {
         getGameController().activeEffect();
-    }
-
-    public void surrender() {
-
-    }
-
-    public void cancel() {
-
-    }
-
-    public void exchangeSideDeckCards() {
-
     }
 
     public void exchange(String sideDeckCardName, String mainDeckCardName) {
@@ -345,7 +329,10 @@ public abstract class PlayerController {
 
     public abstract Card getACard();
 
-    public abstract GameCard selectRandomCardFromHand();
+    public GameCard selectRandomCardFromHand() {
+        availableCards = player.getField().getHand();
+        return null;
+    }
 
     public abstract boolean confirm(String message);
 

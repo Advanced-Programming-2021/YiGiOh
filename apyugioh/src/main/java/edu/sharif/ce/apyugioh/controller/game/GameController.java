@@ -695,6 +695,7 @@ public class GameController {
             getView().showGameResult(winner, numberOfRounds, winnerLP);
         }
         DatabaseManager.updateInventoriesToDB();
+        DatabaseManager.updateUsersToDB();
         ProgramController.setGameControllerID(-1);
     }
 
