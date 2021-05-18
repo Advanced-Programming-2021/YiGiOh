@@ -378,13 +378,13 @@ public class EffectController {
                 return;
             }
             Player cardPlayer = getGameController().getPlayerByCard(cardToRemove);
-            cardPlayer.getField().removeFromHand(cardToRemove);
-            cardPlayer.getField().putInGraveyard(cardToRemove);
             GameCard drawnCard = getCurrentPlayerController().selectCardFromGraveyard(minLevel);
             if (drawnCard == null) return;
             if (((Monster) drawnCard.getCard()).getLevel() < 7) {
                 getGameControllerView().showError(GameView.ERROR_WRONG_CARD_TYPE, "card with level greater than 7");
             } else {
+                cardPlayer.getField().removeFromHand(cardToRemove);
+                cardPlayer.getField().putInGraveyard(cardToRemove);
                 getCurrentPlayerField().removeFromGraveyard(drawnCard);
                 getCurrentPlayerField().putInHand(drawnCard);
             }
