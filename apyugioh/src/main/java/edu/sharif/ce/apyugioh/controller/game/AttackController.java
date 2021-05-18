@@ -60,7 +60,8 @@ public class AttackController {
         } else if (rivalPoints > playerPoints) {
             int damagePoints = rivalPoints - playerPoints;
             damagePlayer(getGameController().getCurrentPlayer(),damagePoints);
-            Utils.printError("no card is destroyed and you received " + damagePoints +" battle damage");
+            if (lpsCanBeChanged)
+                Utils.printError("no card is destroyed and you received " + damagePoints +" battle damage");
         } else{
             Utils.printInfo("no card is destroyed");
         }
@@ -72,7 +73,8 @@ public class AttackController {
             if (canBeDestroyed(attackedMonster)) {
                 getGameController().knockOutMonster(attackedMonster);
                 damagePlayer(getGameController().getRivalPlayer(),damagePoints);
-                Utils.printSuccess("your opponent’s monster is destroyed and your opponent receives " + damagePoints + " battle damage");
+                if (lpsCanBeChanged)
+                    Utils.printSuccess("your opponent’s monster is destroyed and your opponent receives " + damagePoints + " battle damage");
             } else {
                 Utils.printSuccess("no card was destroyed because of attacked card effects");
             }
@@ -81,7 +83,8 @@ public class AttackController {
             if (canBeDestroyed(attackingMonster)) {
                 getGameController().knockOutMonster(attackingMonster);
                 damagePlayer(getGameController().getCurrentPlayer(),damagePoints);
-                Utils.printError("Your monster card is destroyed and you received " + damagePoints + " battle damage");
+                if (lpsCanBeChanged)
+                    Utils.printError("Your monster card is destroyed and you received " + damagePoints + " battle damage");
             } else {
                 Utils.printSuccess("no card was destroyed because of attacking card effects");
             }

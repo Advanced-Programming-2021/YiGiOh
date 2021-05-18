@@ -276,6 +276,18 @@ public class GameController {
 
     public EffectResponse knockOutMonster(GameCard monster) {
         removeMonsterCard(monster);
+        EffectController effectController = new EffectController(id, monster);
+        //Exploder Dragon
+        if (effectController.containEffect(Effects.DESTROY_ANOTHER_CARD_IN_BATTLE_IF_DESTROYED)
+                && (attackController.getAttackedMonster().equals(effectController.getEffectCard())
+                || attackController.getAttackingMonster().equals(effectController.getEffectCard()))) {
+            effectController.destroyAnotherCardInBattleIfDestroyed();
+        }
+        //Yomi Ship
+        if (effectController.containEffect(Effects.DESTROY_ATTACKER_CARD_IF_DESTROYED)
+                && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+            effectController.destroyAttackerCardIfDestroyed();
+        }
         return applyEffect(Trigger.AFTER_MONSTER_KNOCK_OUT);
     }
 
@@ -468,15 +480,17 @@ public class GameController {
                     getCurrentPlayerEffectControllers().remove(effectController);
                 }
             } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
-                //Messenger of peace
-                if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
-                    if (effectController.isAttackerMonsterPowerful(1500))
-                        return EffectResponse.ATTACK_CANT_BE_DONE;
-                }
                 //Exploder Dragon
                 if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
-                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                        && (attackController.getAttackedMonster().equals(effectController.getEffectCard())
+                        || attackController.getAttackingMonster().equals(effectController.getEffectCard()))) {
                     effectController.lpsCantChange();
+                }
+                //Messenger of peace
+                if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
+                    if (effectController.isAttackerMonsterPowerful(1500)) {
+                        return EffectResponse.ATTACK_CANT_BE_DONE;
+                    }
                 }
             } else if (trigger.equals(Trigger.AFTER_ATTACK)) {
                 //Exploder Dragon
@@ -573,7 +587,8 @@ public class GameController {
                 }
                 //Exploder Dragon
                 if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
-                        && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
+                        && (attackController.getAttackedMonster().equals(effectController.getEffectCard())
+                        || attackController.getAttackingMonster().equals(effectController.getEffectCard()))) {
                     effectController.lpsCantChange();
                 }
             } else if (trigger.equals(Trigger.AFTER_ATTACK)) {
