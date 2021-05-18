@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Getter
@@ -389,7 +390,27 @@ public class GameController {
         return true;
     }
 
+    public void removeDuplicateEffects() {
+        HashSet<GameCard> effectCards = new HashSet<>();
+        for (EffectController effectController : new ArrayList<>(getCurrentPlayerEffectControllers())) {
+            if (!effectCards.contains(effectController.getEffectCard())) {
+                effectCards.add(effectController.getEffectCard());
+            } else {
+                getCurrentPlayerEffectControllers().remove(effectController);
+            }
+        }
+        effectCards = new HashSet<>();
+        for (EffectController effectController : new ArrayList<>(getRivalPlayerEffectControllers())) {
+            if (!effectCards.contains(effectController.getEffectCard())) {
+                effectCards.add(effectController.getEffectCard());
+            } else {
+                getRivalPlayerEffectControllers().remove(effectController);
+            }
+        }
+    }
+
     public EffectResponse applyEffect(Trigger trigger) {
+        removeDuplicateEffects();
         for (EffectController effectController : new ArrayList<>(getCurrentPlayerEffectControllers())) {
             //ignore disposable effects
             if (gameTurnController.getDisposableUsedEffects().contains(effectController)) continue;
@@ -412,12 +433,12 @@ public class GameController {
                 if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
                     effectController.messengerOfPeace();
                 }
-            } else if (trigger.equals(Trigger.DRAW)) {
                 //Herald of Creation
                 if (effectController.containEffect(Effects.HERALD_OF_CREATION)) {
                     effectController.drawCardFromGraveyard(7);
                     effectController.disposableEffect();
                 }
+            } else if (trigger.equals(Trigger.DRAW)) {
                 //Scanner
                 if (effectController.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
                     effectController.scanDestroyedRivalMonster();
@@ -427,6 +448,7 @@ public class GameController {
                 //Man-Eater Bug
                 if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
                     effectController.destroyOneOfRivalMonsters();
+                    getCurrentPlayerEffectControllers().remove(effectController);
                 }
             } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
                 //Command Knight
@@ -438,6 +460,12 @@ public class GameController {
                 //Terratiger
                 if (effectController.containEffect(Effects.TERRATIGER)) {
                     effectController.specialSetFromHand();
+                    getCurrentPlayerEffectControllers().remove(effectController);
+                }
+            } else if (trigger.equals(Trigger.AFTER_SPECIAL_SUMMON)) {
+                //Beast King Barbaros
+                if (effectController.containEffect(Effects.BEAST_KING_BARBAROS)) {
+                    effectController.destroyAllRivalCards();
                     getCurrentPlayerEffectControllers().remove(effectController);
                 }
             } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
@@ -570,6 +598,7 @@ public class GameController {
                 //Man-Eater Bug
                 if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
                     effectController.destroyOneOfRivalMonsters();
+                    getCurrentPlayerEffectControllers().remove(effectController);
                 }
             }
         }
@@ -666,6 +695,21 @@ public class GameController {
         }
         DatabaseManager.updateInventoriesToDB();
         ProgramController.setGameControllerID(-1);
+    }
+
+    public boolean isAlreadyActivated(GameCard card) {
+        for (EffectController effectController : getCurrentPlayerEffectControllers()) {
+            if (card.equals(effectController.getEffectCard())) return true;
+        }
+        for (EffectController effectController : getRivalPlayerEffectControllers()) {
+            if (card.equals(effectController.getEffectCard())) return true;
+        }
+        return false;
+    }
+
+    public List<EffectController> getEffectControllersByPlayer(Player player) {
+        return player.getUser().getUsername().equals(firstPlayer.getPlayer().getUser().getUsername()) ?
+                firstPlayerEffectControllers : secondPlayerEffectControllers;
     }
 
     public PlayerController getPlayerControllerByPlayer(Player player) {

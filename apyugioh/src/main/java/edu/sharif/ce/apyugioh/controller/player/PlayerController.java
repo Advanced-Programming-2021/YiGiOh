@@ -301,8 +301,6 @@ public abstract class PlayerController {
 
     //Select one of rival monsters
     public GameCard selectRivalMonster() {
-        System.out.printf("%s = %s\n", player.getUser().getUsername(), getGameController().getCurrentPlayer().getUser().getUsername());
-        System.out.println(getRivalPlayer().getUser().getUsername());
         availableCards = Arrays.stream(getRivalPlayer().getField().getMonsterZone())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -322,7 +320,7 @@ public abstract class PlayerController {
     public GameCard selectCardFromGraveyard(int mostLevel) {
         availableCards = player.getField().getGraveyard().stream()
                 .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
-                .filter(e -> ((Monster) e.getCard()).getLevel() <= mostLevel)
+                .filter(e -> ((Monster) e.getCard()).getLevel() >= mostLevel)
                 .collect(Collectors.toList());
         return null;
     }

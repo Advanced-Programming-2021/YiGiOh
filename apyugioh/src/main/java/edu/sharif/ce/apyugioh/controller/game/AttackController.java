@@ -1,12 +1,10 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
-import edu.sharif.ce.apyugioh.model.EffectResponse;
 import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
-import edu.sharif.ce.apyugioh.model.card.Monster;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,9 +43,6 @@ public class AttackController {
         else
             attackToOffensiveMonster(getAttackPoints(attackingMonster),getAttackPoints(attackedMonster));
         if (!wasRevealed) {
-            if (!attackedMonster.getCard().getCardEffects().contains(Effects.ACTIVE_AFTER_SET)) {
-                getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, attackedMonster));
-            }
             getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
         }
         getGameController().applyEffect(Trigger.AFTER_ATTACK);

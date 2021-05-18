@@ -23,11 +23,17 @@ public class SetController {
         card = getSelectionController().getCard();
     }
 
-    public void specialSet(GameCard monsterToSet) {
-        if (!monsterToSet.getCard().getCardType().equals(CardType.MONSTER)) {
+    public SetController(int gameControllerID, GameCard card) {
+        this.gameControllerID = gameControllerID;
+        this.card = card;
+    }
+
+    public boolean specialSet() {
+        if (!card.getCard().getCardType().equals(CardType.MONSTER)) {
             GameController.getView().showError(GameView.ERROR_WRONG_CARD_TYPE, "monster");
+            return false;
         } else {
-            monsterSet();
+            return monsterSet();
         }
     }
 

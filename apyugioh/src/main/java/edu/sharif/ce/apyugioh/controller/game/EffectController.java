@@ -79,6 +79,10 @@ public class EffectController {
                 getCurrentPlayerField().putInGraveyard(cardForRemove);
             }
         }
+        if (amount + getCurrentPlayerField().getHand().size() > 7) {
+            getGameControllerView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
+            return;
+        }
         for (int i = 0; i < amount; i++) {
             getCurrentPlayerField().drawCard();
         }
@@ -358,19 +362,28 @@ public class EffectController {
                     !((Monster) monsterToSummon.getCard()).getType().equals(MonsterType.CYBERSE)) {
                 getGameControllerView().showError(GameView.ERROR_WRONG_CARD_TYPE, "normal Cyberse monster");
             } else {
+                if (!effectCard.isRevealed()) effectCard.setRevealed(true);
                 new SummonController(gameControllerID, monsterToSummon).specialSummon();
             }
         }
     }
 
-    public void drawCardFromGraveyard(int mostLevel) {
+    public void drawCardFromGraveyard(int minLevel) {
         boolean confirm = getCurrentPlayerController()
-                .confirm("do you want to draw card with level less than 7 by remove a card from your hand?");
+                .confirm("do you want to draw card with level greater than 7 by remove a card from your hand?!");
         if (confirm) {
-            GameCard drawnCard = getCurrentPlayerController().selectCardFromGraveyard(mostLevel);
+            GameCard cardToRemove;
+            if ((cardToRemove = selectCardToRemoveFromHand()) == null) {
+                getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
+                return;
+            }
+            Player cardPlayer = getGameController().getPlayerByCard(cardToRemove);
+            cardPlayer.getField().removeFromHand(cardToRemove);
+            cardPlayer.getField().putInGraveyard(cardToRemove);
+            GameCard drawnCard = getCurrentPlayerController().selectCardFromGraveyard(minLevel);
             if (drawnCard == null) return;
             if (((Monster) drawnCard.getCard()).getLevel() < 7) {
-                getGameControllerView().showError(GameView.ERROR_WRONG_CARD_TYPE, "card with level less than 7");
+                getGameControllerView().showError(GameView.ERROR_WRONG_CARD_TYPE, "card with level greater than 7");
             } else {
                 getCurrentPlayerField().removeFromGraveyard(drawnCard);
                 getCurrentPlayerField().putInHand(drawnCard);
@@ -439,7 +452,9 @@ public class EffectController {
             if (monsterToSet == null) {
                 getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
             } else {
-                new SetController(gameControllerID).specialSet(monsterToSet);
+                if (!new SetController(gameControllerID, monsterToSet).specialSet()) {
+                    getGameControllerView().showError(GameView.ERROR_EFFECT_ACTIVATING_FAILED, effectCard.getCard().getName());
+                }
             }
         }
     }
@@ -508,12 +523,10 @@ public class EffectController {
 
     public GameCard selectCardToRemoveFromHand() {
         GameCard cardForRemove;
-        do {
-            cardForRemove = getCurrentPlayerController().selectCardFromHand(null);
-            if (cardForRemove == null) {
-                getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
-            }
-        } while (cardForRemove == null);
+        cardForRemove = getCurrentPlayerController().selectCardFromHand(null);
+        if (cardForRemove == null) {
+            getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
+        }
         return cardForRemove;
     }
 

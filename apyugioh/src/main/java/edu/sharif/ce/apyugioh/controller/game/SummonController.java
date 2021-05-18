@@ -49,7 +49,8 @@ public class SummonController {
         card.setRevealed(true);
         card.setFaceDown(false);
         moveMonsterToMonsterZone();
-        getEffectControllersByPlayer().add(new EffectController(gameControllerID, card));
+        getGameController().getEffectControllersByPlayer(getGameController().getPlayerByCard(card))
+                .add(new EffectController(gameControllerID, card));
         logger.info("in game with id {}: summon successful", gameControllerID);
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
         getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
@@ -77,8 +78,11 @@ public class SummonController {
                     if (!tribute(3))
                         return false;
                     boolean result = summon();
-                    if (result)
+                    if (result) {
+                        getGameController().getEffectControllersByPlayer(getGameController().getPlayerByCard(card))
+                                .add(new EffectController(gameControllerID, card));
                         getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON);
+                    }
                     return result;
                 } else
                     return false;
@@ -167,7 +171,8 @@ public class SummonController {
         card.setRevealed(true);
         card.setFaceDown(false);
         getGameTurnController().setChangedPositionMonster(card);
-        getEffectControllersByPlayer().add(new EffectController(gameControllerID, card));
+        getGameController().getEffectControllersByPlayer(getGameController().getPlayerByCard(card))
+                .add(new EffectController(gameControllerID, card));
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
         getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
         return summoningPlayer.getField().isInMonsterZone(card);
@@ -194,12 +199,6 @@ public class SummonController {
         if (summoningPlayer.getField().isInGraveyard(card))
             summoningPlayer.getField().removeFromGraveyard(card);
         summoningPlayer.getField().putInMonsterZone(card);
-    }
-
-    private List<EffectController> getEffectControllersByPlayer() {
-        if (summoningPlayer.equals(getGameController().getFirstPlayer().getPlayer()))
-            return getGameController().getFirstPlayerEffectControllers();
-        return getGameController().getSecondPlayerEffectControllers();
     }
 
     private GameTurnController getGameTurnController() {
