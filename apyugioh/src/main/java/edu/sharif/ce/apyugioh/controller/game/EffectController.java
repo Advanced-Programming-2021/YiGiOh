@@ -654,6 +654,7 @@ public class EffectController {
     }
 
     public boolean containEffect(Effects effect) {
+        if (getEffectCard().getEffects() == null) return false;
         return effectCard.getEffects().contains(effect);
     }
 

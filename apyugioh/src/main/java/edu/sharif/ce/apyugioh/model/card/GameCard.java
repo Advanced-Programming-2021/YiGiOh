@@ -21,6 +21,7 @@ public class GameCard {
     public GameCard() {
         attackModifier = new ArrayList<>();
         defenceModifier = new ArrayList<>();
+        effects = new ArrayList<>();
     }
 
     public void addAttackModifier(int amount, boolean isDisposableEachTurn) {
