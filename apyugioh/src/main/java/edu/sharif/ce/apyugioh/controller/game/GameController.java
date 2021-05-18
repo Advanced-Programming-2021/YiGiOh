@@ -438,7 +438,6 @@ public class GameController {
                     effectController.drawCardFromGraveyard(7);
                     effectController.disposableEffect();
                 }
-            } else if (trigger.equals(Trigger.DRAW)) {
                 //Scanner
                 if (effectController.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
                     effectController.scanDestroyedRivalMonster();
@@ -613,7 +612,9 @@ public class GameController {
                 }
             }
             if (disposableEffect.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
-                disposableEffect.setCardsAffected(new ArrayList<>());
+                ArrayList<Effects> resetEffects = new ArrayList<>();
+                resetEffects.add(Effects.SCAN_A_DESTROYED_MONSTER);
+                disposableEffect.getEffectCard().setEffects(resetEffects);
             }
             if (disposableEffect.containEffect(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
                 GameCard controlledMonster = disposableEffect.getCardsAffected().get(0);

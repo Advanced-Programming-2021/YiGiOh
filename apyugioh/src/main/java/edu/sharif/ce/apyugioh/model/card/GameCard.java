@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.model.card;
 
+import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Modifier;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ public class GameCard {
     private Card card;
     private List<Modifier> attackModifier;
     private List<Modifier> defenceModifier;
+    private List<Effects> effects;
     private boolean isFaceDown;
     private boolean isRevealed;
     private int id;
@@ -59,5 +61,9 @@ public class GameCard {
             return Math.max(finalDefense, 0);
         }
         return 0;
+    }
+
+    public void setEffects(List<Effects> effects) {
+        this.effects = new ArrayList<>(effects);
     }
 }
