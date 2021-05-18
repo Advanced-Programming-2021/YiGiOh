@@ -437,13 +437,12 @@ public class EffectController {
     public void scanDestroyedRivalMonster() {
         GameCard monsterToScan = getCurrentPlayerController().scanMonsterForScanner();
         if (monsterToScan == null) return;
-        cardsAffected.add(monsterToScan);
-        effectCard.setAttackModifier(new ArrayList<>());
-        effectCard.setDefenceModifier(new ArrayList<>());
+        effectCard.resetAttackModifier();
+        effectCard.resetDefenseModifier();
         effectCard.setEffects(monsterToScan.getCard().getCardEffects());
 
-        effectCard.addAttackModifier(cardsAffected.get(0).getCurrentAttack(), true);
-        effectCard.addDefenceModifier(cardsAffected.get(0).getCurrentDefense(), true);
+        effectCard.addAttackModifier(monsterToScan.getCurrentAttack(), true);
+        effectCard.addDefenceModifier(monsterToScan.getCurrentDefense(), true);
     }
 
     public void specialSetFromHand() {

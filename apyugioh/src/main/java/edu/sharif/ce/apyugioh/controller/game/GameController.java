@@ -626,10 +626,11 @@ public class GameController {
                     card.getAttackModifier().removeIf(modifier -> modifier.getEffectCard().equals(disposableEffect.getEffectCard()));
                 }
             }
-            if (disposableEffect.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
-                ArrayList<Effects> resetEffects = new ArrayList<>();
-                resetEffects.add(Effects.SCAN_A_DESTROYED_MONSTER);
-                disposableEffect.getEffectCard().setEffects(resetEffects);
+            if (disposableEffect.getEffectCard().getCard().getCardEffects().contains(Effects.SCAN_A_DESTROYED_MONSTER)) {
+                disposableEffect.getEffectCard().resetAttackModifier();
+                disposableEffect.getEffectCard().resetDefenseModifier();
+                disposableEffect.getEffectCard().getEffects().clear();
+                disposableEffect.getEffectCard().getEffects().add(Effects.SCAN_A_DESTROYED_MONSTER);
             }
             if (disposableEffect.containEffect(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
                 GameCard controlledMonster = disposableEffect.getCardsAffected().get(0);

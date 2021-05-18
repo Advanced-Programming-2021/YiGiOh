@@ -40,6 +40,14 @@ public class GameCard {
         defenceModifier.add(new Modifier(amount, effectCard, isDisposableEachTurn));
     }
 
+    public void resetAttackModifier() {
+        attackModifier.clear();
+    }
+
+    public void resetDefenseModifier() {
+        defenceModifier.clear();
+    }
+
     public int getCurrentAttack() {
         if (card.getCardType().equals(CardType.MONSTER)) {
             Monster monster = (Monster) card;
