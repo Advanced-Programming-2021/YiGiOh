@@ -18,7 +18,10 @@ public class DuelCommand implements Callable<Integer> {
     boolean isNew;
 
     @Option(names = {"-a", "--ai"}, paramLabel = "single player")
-    AILevel level;
+    AILevel AILevel;
+
+    @Option(names = {"-aa", "--ai2"}, paramLabel = "single player")
+    AILevel secondAILevel;
 
     @Option(names = {"-s", "--second-player"}, paramLabel = "second player")
     String secondPlayer;
@@ -33,12 +36,14 @@ public class DuelCommand implements Callable<Integer> {
             ErrorView.showError(ErrorView.COMMAND_INVALID);
             return 0;
         }
-        if (secondPlayer != null && level == null) {
+        if (secondPlayer != null && AILevel == null && secondAILevel == null) {
             DuelController.getInstance().startMultiplayerDuel(MainMenuController.getInstance().getUser().getUsername(),
                     secondPlayer, rounds);
-        } else if (level != null && secondPlayer == null) {
+        } else if (AILevel != null && secondPlayer == null && secondAILevel == null) {
             DuelController.getInstance().startSinglePlayerDuel(MainMenuController.getInstance().getUser().getUsername(),
-                    level, rounds);
+                    AILevel, rounds);
+        } else if (AILevel != null && secondAILevel != null && secondPlayer == null) {
+            DuelController.getInstance().startNoPlayerDuel(AILevel, secondAILevel, rounds);
         } else {
             ErrorView.showError(ErrorView.COMMAND_INVALID);
         }

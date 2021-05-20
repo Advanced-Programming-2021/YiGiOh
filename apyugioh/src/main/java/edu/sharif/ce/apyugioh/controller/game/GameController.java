@@ -95,59 +95,35 @@ public class GameController {
 
     public void set() {
         gameTurnController.set();
-        if (!getCurrentPlayerController().isAI()) {
-            showCurrentPlayerBoard();
-        } else {
-            showRivalPlayerBoard();
-        }
+        showBoard();
         isRoundEnded();
     }
 
     public void summon() {
         gameTurnController.summon();
-        if (!getCurrentPlayerController().isAI()) {
-            showCurrentPlayerBoard();
-        } else {
-            showRivalPlayerBoard();
-        }
+        showBoard();
         isRoundEnded();
     }
 
     public void changePosition(boolean isChangeToAttack) {
         gameTurnController.changePosition(isChangeToAttack);
-        if (!getCurrentPlayerController().isAI()) {
-            showCurrentPlayerBoard();
-        } else {
-            showRivalPlayerBoard();
-        }
+        showBoard();
     }
 
     public void flipSummon() {
         gameTurnController.flipSummon();
-        if (!getCurrentPlayerController().isAI()) {
-            showCurrentPlayerBoard();
-        } else {
-            showRivalPlayerBoard();
-        }
+        showBoard();
     }
 
     public void attack(int position) {
         gameTurnController.attack(position);
-        if (!getCurrentPlayerController().isAI()) {
-            showCurrentPlayerBoard();
-        } else {
-            showRivalPlayerBoard();
-        }
+        showBoard();
         isRoundEnded();
     }
 
     public void directAttack() {
         gameTurnController.directAttack();
-        if (!getCurrentPlayerController().isAI()) {
-            showCurrentPlayerBoard();
-        } else {
-            showRivalPlayerBoard();
-        }
+        showBoard();
         isRoundEnded();
     }
 
@@ -746,6 +722,14 @@ public class GameController {
         if (getRivalPlayerController().equals(firstPlayer))
             return firstPlayerEffectControllers;
         return secondPlayerEffectControllers;
+    }
+
+    private void showBoard() {
+        if (getCurrentPlayerController().isAI() && !getRivalPlayerController().isAI()) {
+            showRivalPlayerBoard();
+        } else {
+            showCurrentPlayerBoard();
+        }
     }
 
     public void showCurrentPlayerBoard() {

@@ -139,7 +139,6 @@ public class EffectController {
             getCurrentPlayerField().putInGraveyard(cardToRemoveFromHand);
             GameCard[] spellTraps = getCurrentPlayerController().selectSpellTrapsFromField(2);
             if (spellTraps == null) return;
-
             for (GameCard spellTrap : spellTraps) {
                 if (getCurrentPlayerField().isInSpellZone(spellTrap)) {
                     getGameController().removeSpellTrapCard(spellTrap);
@@ -151,14 +150,19 @@ public class EffectController {
     }
 
     public void destroySpellTrap() {
-        GameCard spellTrap = getCurrentPlayerController().selectSpellTrapsFromField(1)[0];
-        if (spellTrap == null) {
+        GameCard[] spellTraps = getCurrentPlayerController().selectSpellTrapsFromField(1);
+        if (spellTraps == null) {
             getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
         } else {
-            if (getCurrentPlayerField().isInSpellZone(spellTrap)) {
-                getGameController().removeSpellTrapCard(spellTrap);
+            GameCard spellTrap = spellTraps[0];
+            if (spellTrap == null) {
+                getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
             } else {
-                getGameController().removeSpellTrapCard(spellTrap);
+                if (getCurrentPlayerField().isInSpellZone(spellTrap)) {
+                    getGameController().removeSpellTrapCard(spellTrap);
+                } else {
+                    getGameController().removeSpellTrapCard(spellTrap);
+                }
             }
         }
     }

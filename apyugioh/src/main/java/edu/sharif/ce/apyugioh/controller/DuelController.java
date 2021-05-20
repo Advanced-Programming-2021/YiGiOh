@@ -27,21 +27,32 @@ public class DuelController {
         logger = LogManager.getLogger(DuelController.class);
     }
 
+    public void startNoPlayerDuel(AILevel firstAILevel, AILevel secondAILevel, int rounds) {
+        String firstAIUsername = getAIUsernameByLevel(firstAILevel);
+        String secondAIUsername = getAIUsernameByLevel(secondAILevel);
+        if (isRoundCountValid(rounds)) return;
+        if (isUsernameDifferent(firstAIUsername, secondAIUsername)) return;
+        User firstUser = User.getUserByUsername(firstAIUsername);
+        User secondUser = User.getUserByUsername(secondAIUsername);
+        if (isUserDecksActive(firstAIUsername, secondAIUsername, firstUser, secondUser)) return;
+        Deck firstDeck = Deck.getDeckByID(firstUser.getMainDeckID());
+        Deck secondDeck = Deck.getDeckByID(secondUser.getMainDeckID());
+        if (isUserDecksValid(firstAIUsername, secondAIUsername, firstDeck, secondDeck)) return;
+        Player firstPlayer = initializePlayer(firstUser, firstDeck);
+        Player secondPlayer = initializePlayer(secondUser, secondDeck);
+        Random random = new Random();
+        boolean isFirstPlayerTurn = random.nextBoolean();
+        AIPlayerController firstPlayerController = new AIPlayerController(firstPlayer);
+        AIPlayerController secondPlayerController = new AIPlayerController(secondPlayer);
+        GameController gameController = new GameController(isFirstPlayerTurn ? firstPlayerController : secondPlayerController, isFirstPlayerTurn ? secondPlayerController : firstPlayerController, rounds);
+        ProgramController.setGameControllerID(gameController.getId());
+        logger.info("duel with id {} started between {} and {} with {} rounds", gameController.getId(), firstUser.getNickname(),
+                secondUser.getNickname(), rounds);
+        gameController.play();
+    }
+
     public void startSinglePlayerDuel(String username, AILevel level, int rounds) {
-        String AIUsername;
-        switch (level) {
-            case EASY:
-                AIUsername = "AIEasy";
-                break;
-            case MEDIOCRE:
-                AIUsername = "AIMediocre";
-                break;
-            case HARD:
-                AIUsername = "AIHard";
-                break;
-            default:
-                AIUsername = "AIEasy";
-        }
+        String AIUsername = getAIUsernameByLevel(level);
         if (isRoundCountValid(rounds)) return;
         if (isUsernameDifferent(username, AIUsername)) return;
         User firstUser = User.getUserByUsername(username);
@@ -165,5 +176,23 @@ public class DuelController {
             }
         }
         return cards;
+    }
+
+    private String getAIUsernameByLevel(AILevel secondAILevel) {
+        String secondAIUsername;
+        switch (secondAILevel) {
+            case EASY:
+                secondAIUsername = "AIEasy";
+                break;
+            case MEDIOCRE:
+                secondAIUsername = "AIMediocre";
+                break;
+            case HARD:
+                secondAIUsername = "AIHard";
+                break;
+            default:
+                secondAIUsername = "AIEasy";
+        }
+        return secondAIUsername;
     }
 }

@@ -11,6 +11,7 @@ import de.vandermeer.asciithemes.u8.U8_Grids;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.GameDeck;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
@@ -20,6 +21,7 @@ import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 import org.jetbrains.annotations.NotNull;
+import picocli.CommandLine;
 
 import java.util.HashMap;
 import java.util.List;
@@ -147,6 +149,7 @@ public class GameView extends View {
     }
 
     public void showPhase(Phase phase) {
+        System.out.print(ProgramController.getPromptTitle());
         Utils.printInfo("Phase: " + Utils.firstUpperOnly(phase.name().replaceAll("(\\d)", " $1")));
     }
 

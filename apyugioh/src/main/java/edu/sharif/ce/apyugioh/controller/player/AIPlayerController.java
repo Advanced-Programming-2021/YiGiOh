@@ -24,9 +24,11 @@ public class AIPlayerController extends PlayerController {
         if (getGameController().getPassedTurns() > 1) {
             if (attackEachCard(roundCount)) return;
         }
-        getGameController().nextPhaseAI();
-        getGameController().nextPhaseAI();
-        getGameController().nextPhase();
+        if (!isRoundEnded(roundCount)) {
+            getGameController().nextPhaseAI();
+            getGameController().nextPhaseAI();
+            getGameController().nextPhase();
+        }
     }
 
     private boolean attackEachCard(int roundCount) {
@@ -102,14 +104,13 @@ public class AIPlayerController extends PlayerController {
         if (ProgramController.getGameControllerID() == -1) {
             return true;
         }
-        if (getGameController().getRoundResults().size() != roundCount) {
-            return true;
-        }
-        return false;
+        return getGameController().getRoundResults().size() != roundCount;
     }
 
     public void nextPhaseAction() {
-        nextPhase();
+        if (!isRoundEnded(getGameController().getRoundResults().size())) {
+            nextPhase();
+        }
     }
 
     private CardLocation selectMonsterFromHand() {
@@ -254,11 +255,7 @@ public class AIPlayerController extends PlayerController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
         if (attackMonster == null && defenseMonster == null) {
-            if (cards.size() > 0) {
-                return selectRandom(cards);
-            } else {
-                return null;
-            }
+            return selectRandom(cards);
         } else if (attackMonster == null) {
             return defenseMonster;
         } else if (defenseMonster == null) {
@@ -425,8 +422,10 @@ public class AIPlayerController extends PlayerController {
     public GameCard[] selectSpellTrapsFromField(int amount) {
         super.selectSpellTrapsFromField(amount);
         GameCard[] cards = new GameCard[amount];
+        if (availableCards.size() < amount) return null;
         for (int i = 0; i < amount; i++) {
             cards[i] = selectRandom(availableCards);
+            if (cards[i] == null) return null;
             availableCards.remove(cards[i]);
         }
         return cards;
@@ -461,7 +460,12 @@ public class AIPlayerController extends PlayerController {
     }
 
     private GameCard selectRandom(List<GameCard> cards) {
-        return cards.get(new Random().nextInt(cards.size()));
+        if (cards != null && !cards.isEmpty()) {
+            int random = new Random().nextInt(cards.size());
+            return cards.get(random);
+        } else {
+            return null;
+        }
     }
 
 }
