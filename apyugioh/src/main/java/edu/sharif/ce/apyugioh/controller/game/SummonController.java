@@ -54,8 +54,10 @@ public class SummonController {
         logger.info("in game with id {}: summon successful", gameControllerID);
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
         getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
-        if (summoningPlayer.getField().isInMonsterZone(card))
+        if (summoningPlayer.getField().isInMonsterZone(card)) {
             GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
+            getGameTurnController().setSummonedMonster(card);
+        }
         return summoningPlayer.getField().isInMonsterZone(card);
     }
 
@@ -175,6 +177,10 @@ public class SummonController {
                 .add(new EffectController(gameControllerID, card));
         getGameController().applyEffect(Trigger.AFTER_SUMMON);
         getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
+        if (summoningPlayer.getField().isInMonsterZone(card)) {
+            GameController.getView().showSuccess(GameView.SUCCESS_FLIP_SUMMON_SUCCESSFUL);
+            getGameTurnController().setSummonedMonster(card);
+        }
         return summoningPlayer.getField().isInMonsterZone(card);
     }
 

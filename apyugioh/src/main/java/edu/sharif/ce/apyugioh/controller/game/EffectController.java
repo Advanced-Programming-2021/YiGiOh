@@ -7,7 +7,9 @@ import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import edu.sharif.ce.apyugioh.view.View;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -536,10 +538,13 @@ public class EffectController {
 
     public void magicCylinder() {
         decreaseAttackerLP(getGameController().getAttackController().getAttackingMonster().getCurrentAttack());
+        getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, effectCard.getCard().getName());
+        getGameController().removeSpellTrapCard(getEffectCard());
     }
 
     public void destroyAllRivalFaceUpMonsters() {
-        List<GameCard> rivalFaceUpMonsters = Arrays.stream(getRivalPlayerField().getMonsterZone()).filter(Objects::nonNull).collect(Collectors.toList());
+        List<GameCard> rivalFaceUpMonsters = Arrays.stream(getAnotherPlayerControllerByCard(effectCard).getPlayer().getField().getMonsterZone())
+                .filter(Objects::nonNull).collect(Collectors.toList());
         for (GameCard rivalFaceUpMonster : rivalFaceUpMonsters) {
             if (rivalFaceUpMonster == null) continue;
             getGameController().removeMonsterCard(rivalFaceUpMonster);
@@ -547,109 +552,94 @@ public class EffectController {
     }
 
     public void mindCrush() {
-        Card userCard = getCurrentPlayerController().getACard();
+        Card userCard = Objects.requireNonNull(getPlayerControllerByCard(effectCard)).getACard();
         if (userCard == null) {
             getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
             return;
         }
-        List<GameCard> userCardsInHand = getCurrentPlayerField().getHand().stream().filter(e -> e.getCard().getName()
-                .equals(userCard.getName())).collect(Collectors.toList());
+        List<GameCard> userCardsInHand = getPlayerByCard(effectCard).getField().getHand().stream()
+                .filter(e -> e.getCard().getName().equals(userCard.getName())).collect(Collectors.toList());
         if (userCardsInHand.size() == 0) {
-            GameCard randomCard = getCurrentPlayerController().selectRandomCardFromHand();
-            if (randomCard == null) {
+            Utils.printError(userCard.getName() + " card is not in your rival's hand!");
+            GameCard randomCard = Objects.requireNonNull(getPlayerControllerByCard(effectCard)).selectRandomCardFromHand();
+            while (randomCard == null) {
                 getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
-            } else {
-                getGameController().removeMonsterCard(randomCard);
+                randomCard = Objects.requireNonNull(getPlayerControllerByCard(effectCard)).selectRandomCardFromHand();
             }
+            getGameController().removeMonsterCard(randomCard);
         } else {
+            getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, getEffectCard().getCard().getName());
             for (GameCard gameCard : userCardsInHand) {
                 getGameController().removeMonsterCard(gameCard);
             }
         }
+        getGameController().removeSpellTrapCard(effectCard);
     }
 
     public void trapHole() {
-        if (getGameController().getSelectionController() == null)
-            return;
         GameCard summonedCard = getGameController().getSelectionController().getCard();
-        if (((Monster) summonedCard.getCard()).getAttackPoints() <= 1000)
-            return;
-        //check for activating trap
-        if (!getCurrentPlayerController().confirm("Do you want to activate your \"Trap Hole\" trap?"))
-            return;
-        if (!activateTrapAndCheck())
-            return;
         getGameController().removeMonsterCard(summonedCard);
+        getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, getEffectCard().getCard().getName());
+        getGameController().removeSpellTrapCard(effectCard);
+        getGameController().deselect();
+    }
+
+    public void cantDraw() {
+        getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, effectCard.getCard().getName());
+        Utils.printInfo("you can't draw card in this turn!");
+        getGameController().removeSpellTrapCard(effectCard);
     }
 
     public void negateAttackPhase() {
-        if (!getCurrentPlayerController().confirm("do you want to activate your \"Negate Attack\" trap?"))
-            return;
-        if (!activateTrapAndCheck())
-            return;
-        getGameController().nextPhase();
+        if (getGameTurnController().getPhase().equals(Phase.BATTLE)) {
+            getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, effectCard.getCard().getName());
+            getGameController().removeSpellTrapCard(effectCard);
+            getGameTurnController().setPhase(Phase.MAIN2);
+        }
     }
 
     public void solemnWarning() {
         if (!getCurrentPlayerController().confirm("do you want to activate \"Solemn Warning\" trap by spending 2000LPs?"))
             return;
-        if (getCurrentPlayer().getLifePoints() <= 2000) {
+        if (getPlayerByCard(effectCard).getLifePoints() <= 2000) {
             Utils.printError("not enough LPs to activate this trap");
             return;
         }
-        if (!activateTrapAndCheck())
-            return;
-        getCurrentPlayer().decreaseLifePoints(2000);
+        getPlayerByCard(effectCard).decreaseLifePoints(2000);
         GameCard summonedMonster = getCurrentPlayer().getField().getRecentlySummonedMonster();
         if (summonedMonster == null)
             return;
         getGameController().removeMonsterCard(summonedMonster);
+        getGameController().removeSpellTrapCard(effectCard);
+        getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, effectCard.getCard().getName());
     }
 
-    public void magicJammer() {
+    public boolean magicJammer() {
         if (getGameController().getSelectionController() == null)
-            return;
-        if (!getGameController().getCurrentPlayerController().confirm("do you want to activate your \"Magic Jammer\" trap?"))
-            return;
-        GameCard handCard = getGameController().getCurrentPlayerController().selectCardFromHand(null);
+            return false;
+        GameCard handCard = Objects.requireNonNull(getPlayerControllerByCard(effectCard)).selectCardFromHand(null);
         if (handCard == null) {
-            Utils.printError("trap activation failed");
-            return;
+            return false;
         }
-        if (!activateTrapAndCheck())
-            return;
-        getGameController().getCurrentPlayer().getField().removeFromHand(handCard);
-        getGameController().getCurrentPlayer().getField().putInGraveyard(handCard);
+        Player player = getPlayerByCard(handCard);
+        player.getField().removeFromHand(handCard);
+        player.getField().putInGraveyard(handCard);
         GameCard activatedSpell = getGameController().getSelectionController().getCard();
         getGameController().removeSpellTrapCard(activatedSpell);
+        return true;
     }
 
     public void callOfTheHaunted() {
-        if (!getCurrentPlayerController().confirm("do you want to activate your \"Call of the Haunted\" trap?"))
-            return;
-        GameCard monsterToSummon = getCurrentPlayerController().selectCardFromGraveyard();
+        GameCard monsterToSummon = Objects.requireNonNull(getPlayerControllerByCard(effectCard)).selectCardFromGraveyard();
         if (monsterToSummon == null || !monsterToSummon.getCard().getCardType().equals(CardType.MONSTER)) {
             Utils.printError("trap activation failed");
             return;
         }
-        if (!activateTrapAndCheck())
-            return;
         new SummonController(gameControllerID, monsterToSummon).specialSummon();
     }
 
-    private boolean activateTrapAndCheck() {
-        Utils.printSuccess("trap activated successfully");
-        getGameController().removeSpellTrapCard(effectCard);
-        EffectResponse effectResponse = getGameController().applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
-        if (effectResponse != null && effectResponse.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
-            Utils.printError("your trap function failed");
-            return false;
-        }
-        return true;
-    }
-
-    public void resetAffectedCards() {
-        cardsAffected = new ArrayList<>();
+    private Player getPlayerByCard(GameCard card) {
+        return getPlayerControllerByCard(card).getPlayer();
     }
 
     private void setUsed() {

@@ -121,6 +121,9 @@ public class SetController {
             GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);
             return true;
         }
+        if (card.getCard().getCardType().equals(CardType.TRAP)) {
+            getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, card));
+        }
         getCurrentPlayerField().removeFromHand(card);
         getCurrentPlayerField().putInSpellZone(card);
         GameController.getView().showSuccess(GameView.SUCCESS_SET_SUCCESSFUL);

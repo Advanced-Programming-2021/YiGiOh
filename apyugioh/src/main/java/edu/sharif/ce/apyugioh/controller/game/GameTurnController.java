@@ -77,6 +77,11 @@ public class GameTurnController {
     }
 
     public void drawPhase() {
+        EffectResponse response = getGameController().applyEffect(Trigger.DRAW);
+        if (response != null && response.equals(EffectResponse.CANT_DRAW)) {
+            phase = Phase.DRAW;
+            return;
+        }
         GameCard drawnCard = getCurrentPlayerField().drawCard();
         if (drawnCard == null) getGameController().endRound(!getGameController().isFirstPlayerTurn());
         logger.info("in game with id {}: {} drew {} from deck", gameControllerID, getCurrentPlayer().getUser()
@@ -90,7 +95,6 @@ public class GameTurnController {
             }
         }
         phase = Phase.DRAW;
-        getGameController().applyEffect(Trigger.DRAW);
     }
 
     public void standByPhase() {
@@ -271,6 +275,10 @@ public class GameTurnController {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
             return true;
         }
+        if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)) {
+            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+            return true;
+        }
         return false;
     }
 
@@ -308,10 +316,6 @@ public class GameTurnController {
 
     public boolean hasMonsterAttacked(GameCard monster) {
         return attackedMonsters.stream().anyMatch(e -> e != null && e.getId() == getSelectionController().getCard().getId());
-    }
-
-    public void makeChain() {
-
     }
 
     public boolean hasAnyMonsterSetOrSummon() {

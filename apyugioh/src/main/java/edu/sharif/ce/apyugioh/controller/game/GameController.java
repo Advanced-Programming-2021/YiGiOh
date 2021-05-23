@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
+import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.player.AIPlayerController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.*;
@@ -149,6 +150,15 @@ public class GameController {
     public void changeTurnTemp() {
         isTurnTempChanged = true;
         isFirstPlayerTurn = !isFirstPlayerTurn;
+        Utils.printInfo("now it will be " + getCurrentPlayer().getUser().getUsername() + "'s turn");
+        showBoard();
+    }
+
+    public void resetTurnTemp() {
+        if (isTurnTempChanged) {
+            isTurnTempChanged = false;
+            isFirstPlayerTurn = !isFirstPlayerTurn;
+        }
     }
 
     public void nextPhaseAI() {
@@ -221,14 +231,12 @@ public class GameController {
                 cardPlayer.getField().removeFromSpellZone(card);
                 cardPlayer.getField().putInGraveyard(card);
             } else if (((Spell) card.getCard()).getProperty().equals(SpellProperty.FIELD)) {
-                cardPlayer.getField().removeFromFieldZone(card);
+                if (cardPlayer.getField().isInHand(card)) cardPlayer.getField().removeFromHand(card);
+                else cardPlayer.getField().removeFromFieldZone(card);
                 cardPlayer.getField().putInGraveyard(card);
             } else {
-                if (cardPlayer.getField().isInHand(card))
-                    cardPlayer.getField().removeFromHand(card);
-                else {
-                    cardPlayer.getField().removeFromSpellZone(card);
-                }
+                if (cardPlayer.getField().isInHand(card)) cardPlayer.getField().removeFromHand(card);
+                else cardPlayer.getField().removeFromSpellZone(card);
                 cardPlayer.getField().putInGraveyard(card);
             }
             removeEffects(card);
@@ -368,14 +376,35 @@ public class GameController {
         }
     }
 
+    public void activeTrapInRivalTurn() {
+        changeTurnTemp();
+    }
+
     public boolean canActiveTrap(EffectController effectController) {
-        if (getRivalPlayerEffectControllers().contains(effectController))
-            return !applyEffect(Trigger.BEFORE_ACTIVE_TRAP).equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)
-                    && getRivalPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap");
-        else if (getCurrentPlayerEffectControllers().contains(effectController))
-            return !applyEffect(Trigger.BEFORE_ACTIVE_TRAP).equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)
-                    && getCurrentPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap");
-        return true;
+        if (getRivalPlayerEffectControllers().contains(effectController)) {
+            activeTrapInRivalTurn();
+            if (getRivalPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
+                EffectResponse response = applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
+                if (response == null) return true;
+                if (response.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
+                    removeSpellTrapCard(effectController.getEffectCard());
+                    return false;
+                }
+                else return true;
+            }
+        }
+        else if (getCurrentPlayerEffectControllers().contains(effectController)) {
+            if (getCurrentPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
+                EffectResponse response = applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
+                if (response == null) return true;
+                if (response.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
+                    removeSpellTrapCard(effectController.getEffectCard());
+                    return false;
+                }
+                else return true;
+            }
+        }
+        return false;
     }
 
     public void removeDuplicateEffects() {
@@ -406,10 +435,6 @@ public class GameController {
             if (effectController.containEffect(Effects.SELECT_FACE_UP_MONSTERS)) {
                 effectController.selectFaceUpMonsters();
             }
-            //Mind Crush
-            if (effectController.containEffect(Effects.MIND_CRUSH)) {
-                effectController.mindCrush();
-            }
             //Calculator
             if (effectController.containEffect(Effects.COMBINE_LEVELS_OF) &&
                     effectController.containEffect(Effects.SET_ATTACK)) {
@@ -417,6 +442,10 @@ public class GameController {
             }
             //effects with trigger
             if (trigger.equals(Trigger.STANDBY)) {
+                //Mind Crush
+                if (effectController.containEffect(Effects.MIND_CRUSH) && canActiveTrap(effectController)) {
+                    effectController.mindCrush();
+                }
                 //Messenger of peace
                 if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
                     effectController.messengerOfPeace();
@@ -438,6 +467,16 @@ public class GameController {
                     getCurrentPlayerEffectControllers().remove(effectController);
                 }
             } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
+                //Solemn Warning
+                if (effectController.containEffect(Effects.SOLEMN_WARNING) && canActiveTrap(effectController)) {
+                    effectController.solemnWarning();
+                }
+                //Torrential Tribute
+                if (effectController.containEffect(Effects.DESTROY_ALL_MONSTERS) && canActiveTrap(effectController)) {
+                    effectController.destroyCurrentPlayerMonsters();
+                    effectController.destroyRivalMonsters();
+                    removeSpellTrapCard(effectController.getEffectCard());
+                }
                 //Command Knight
                 if (effectController.containEffect(Effects.ADD_ATTACK_TO_ALL_MONSTERS)) {
                     //we can change this value (400) if we want
@@ -450,6 +489,10 @@ public class GameController {
                     getCurrentPlayerEffectControllers().remove(effectController);
                 }
             } else if (trigger.equals(Trigger.AFTER_SPECIAL_SUMMON)) {
+                //Solemn Warning
+                if (effectController.containEffect(Effects.SOLEMN_WARNING) && canActiveTrap(effectController)) {
+                    effectController.solemnWarning();
+                }
                 //Beast King Barbaros
                 if (effectController.containEffect(Effects.BEAST_KING_BARBAROS)) {
                     effectController.destroyAllRivalCards();
@@ -500,10 +543,6 @@ public class GameController {
                     effectController.containEffect(Effects.SET_ATTACK)) {
                 effectController.combineLevelsOfFaceUpCards();
             }
-            //Mind Crush
-            if (effectController.containEffect(Effects.MIND_CRUSH)) {
-                effectController.mindCrush();
-            }
             //effects with trigger
             if (trigger.equals(Trigger.DRAW)) {
                 if (effectController.containEffect(Effects.SWORD_OF_REVEALING_LIGHT)) {
@@ -513,15 +552,30 @@ public class GameController {
                         removeSpellTrapCard(effectController.getEffectCard());
                     }
                 }
+                //Time Seal
+                if (effectController.containEffect(Effects.CANT_DRAW) && canActiveTrap(effectController)) {
+                    effectController.cantDraw();
+                    return EffectResponse.CANT_DRAW;
+                }
+            } else if (trigger.equals(Trigger.STANDBY)) {
+                //Mind Crush
+                if (effectController.containEffect(Effects.MIND_CRUSH) && canActiveTrap(effectController)) {
+                    effectController.mindCrush();
+                }
             } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
+                //Mirror Force
+                if (effectController.containEffect(Effects.DESTROY_ALL_RIVAL_FACE_UP_MONSTERS) && canActiveTrap(effectController)) {
+                    effectController.destroyAllRivalFaceUpMonsters();
+                    removeSpellTrapCard(effectController.getEffectCard());
+                }
+                //Negate Attack
+                if (effectController.containEffect(Effects.NEGATE_ATTACK_PHASE) && canActiveTrap(effectController)) {
+                    effectController.negateAttackPhase();
+                }
                 //Magic Cylinder
                 if (effectController.containEffect(Effects.MAGIC_CYLINDER) && canActiveTrap(effectController)) {
                     effectController.magicCylinder();
                     return EffectResponse.ATTACK_CANT_BE_DONE;
-                }
-                //Mirror Force
-                if (effectController.containEffect(Effects.DESTROY_ALL_RIVAL_FACE_UP_MONSTERS) && canActiveTrap(effectController)) {
-                    effectController.destroyAllRivalFaceUpMonsters();
                 }
                 //Command Knight
                 if (effectController.containEffect(Effects.CAN_NOT_BE_ATTACKED_WHEN_WE_HAVE_ANOTHER_MONSTER) &&
@@ -582,16 +636,58 @@ public class GameController {
             } else if (trigger.equals(Trigger.BEFORE_ACTIVE_TRAP)) {
                 //Mirage Dragon
                 if (effectController.containEffect(Effects.RIVAL_CANT_ACTIVE_TRAP)) {
+                    view.showError(GameView.ERROR_TRAP_FAILED);
                     return EffectResponse.ACTIVE_TRAP_CANT_BE_DONE;
                 }
             } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
+                //Trap Hole
+                if (effectController.containEffect(Effects.TRAP_HOLE)
+                        && getSelectionController() != null
+                        && getSelectionController().getCard().getCurrentAttack() >= 1000
+                        && canActiveTrap(effectController)) {
+                    effectController.trapHole();
+                }
                 //Man-Eater Bug
                 if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
                     effectController.destroyOneOfRivalMonsters();
                     getRivalPlayerEffectControllers().remove(effectController);
                 }
+            } else if (trigger.equals(Trigger.AFTER_NORMAL_SUMMON)) {
+                //Trap Hole
+                if (effectController.containEffect(Effects.TRAP_HOLE)
+                        && getSelectionController() != null
+                        && getSelectionController().getCard().getCurrentAttack() >= 1000
+                        && canActiveTrap(effectController)) {
+                    effectController.trapHole();
+                }
+            } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
+                //Solemn Warning
+                if (effectController.containEffect(Effects.SOLEMN_WARNING) && canActiveTrap(effectController)) {
+                    effectController.solemnWarning();
+                }
+                //Torrential Tribute
+                if (effectController.containEffect(Effects.DESTROY_ALL_MONSTERS) && canActiveTrap(effectController)) {
+                    effectController.destroyCurrentPlayerMonsters();
+                    effectController.destroyRivalMonsters();
+                    removeSpellTrapCard(effectController.getEffectCard());
+                }
+            } else if (trigger.equals(Trigger.AFTER_SPECIAL_SUMMON)) {
+                //Solemn Warning
+                if (effectController.containEffect(Effects.SOLEMN_WARNING) && canActiveTrap(effectController)) {
+                    effectController.solemnWarning();
+                }
+            } else if (trigger.equals(Trigger.BEFORE_ACTIVE_SPELL)) {
+                //Magic Jammer
+                if (effectController.containEffect(Effects.MAGIC_JAMMER) && canActiveTrap(effectController)) {
+                    if (effectController.magicJammer()) {
+                        removeSpellTrapCard(effectController.getEffectCard());
+                        view.showSuccess(GameView.SUCCESS_EFFECT, effectController.getEffectCard().getCard().getName());
+                        return EffectResponse.ACTIVE_SPELL_CANT_BE_DONE;
+                    }
+                }
             }
         }
+        if (isTurnTempChanged) resetTurnTemp();
         return null;
     }
 

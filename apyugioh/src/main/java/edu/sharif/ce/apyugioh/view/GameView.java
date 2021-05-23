@@ -52,6 +52,7 @@ public class GameView extends View {
     public static final int ERROR_CARD_NAME_INVALID = -22;
     public static final int ERROR_CARD_NOT_IN_DECK = -23;
     public static final int ERROR_EFFECT_ACTIVATING_FAILED = -24;
+    public static final int ERROR_TRAP_FAILED = -25;
 
 
     public static final int SUCCESS_SELECTION_SUCCESSFUL = 1;
@@ -90,6 +91,7 @@ public class GameView extends View {
         errorMessages.put(ERROR_CARD_NAME_INVALID, "%s is not a valid card name");
         errorMessages.put(ERROR_CARD_NOT_IN_DECK, "%s is not in your %s deck");
         errorMessages.put(ERROR_EFFECT_ACTIVATING_FAILED, "%s's effect activating failed");
+        errorMessages.put(ERROR_TRAP_FAILED, "your trap activation failed");
 
 
         successMessages.put(SUCCESS_SELECTION_SUCCESSFUL, "%s selected successfully");
