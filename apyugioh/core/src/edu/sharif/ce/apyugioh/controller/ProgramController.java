@@ -3,6 +3,7 @@ package edu.sharif.ce.apyugioh.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
@@ -12,6 +13,8 @@ import lombok.Setter;
 
 public class ProgramController {
 
+    @Getter
+    private static YuGiOh game;
     @Getter
     private static ProgramController instance;
     @Getter
@@ -46,8 +49,10 @@ public class ProgramController {
         return null;
     }
 
-    public void initialize() {
+    public void initialize(YuGiOh game) {
+        ProgramController.game = game;
         logger.info("initialization started");
         DatabaseManager.init();
+        MainMenuController.getInstance().showMainMenu();
     }
 }

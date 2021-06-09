@@ -34,13 +34,9 @@ public class CSVParser {
                     }
                     contentsAsMap.add(data);
                 }
-            } else {
-                System.out.println("CSV not found!");
-                System.out.println(filePath.toString());
             }
         } catch (Exception e) {
             Utils.printError("can't read CSV");
-            e.printStackTrace();
             System.exit(0);
         }
     }

@@ -1,12 +1,13 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.view.MainMenuView;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class MainMenuController {
 
@@ -17,7 +18,7 @@ public class MainMenuController {
 
     static {
         instance = new MainMenuController();
-        view = new MainMenuView();
+        view = new MainMenuView(ProgramController.getGame());
         logger = LogManager.getLogger(MainMenuController.class);
     }
 
@@ -33,5 +34,9 @@ public class MainMenuController {
         user = null;
         view.showSuccess(MainMenuView.SUCCESS_LOGOUT);
         ProgramController.setState(MenuState.LOGIN);
+    }
+
+    public void showMainMenu() {
+        ProgramController.getGame().setScreen(view);
     }
 }
