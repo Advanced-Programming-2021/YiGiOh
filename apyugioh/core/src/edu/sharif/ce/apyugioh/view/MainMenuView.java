@@ -64,7 +64,6 @@ public class MainMenuView extends Menu {
         card.setTranslation(35, 0, -13);
         cards.add(card);
         createMainWindow();
-
         Gdx.input.setInputProcessor(stage);
     }
 

@@ -105,7 +105,6 @@ public class Menu extends View implements Screen {
             camPos.y = deltaY;
             camPos.z = -deltaX;
             camPos.x = -z;
-//            System.out.println(camPos.x + " : " + camPos.y + ":" + camPos.z);
             cam.position.lerp(camPos, 1);
         }
     }

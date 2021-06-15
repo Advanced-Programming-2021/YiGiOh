@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
+
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
