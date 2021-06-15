@@ -1,5 +1,8 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,6 +13,8 @@ import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashMap;
 
 public class ProgramController {
 
@@ -53,6 +58,14 @@ public class ProgramController {
         ProgramController.game = game;
         logger.info("initialization started");
         DatabaseManager.init();
+        AssetController.loadAssets();
+        loadCursor();
         MainMenuController.getInstance().showMainMenu();
+    }
+
+    public void loadCursor() {
+        Pixmap pm = new Pixmap(Gdx.files.internal("cursor1.png"));
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
+        pm.dispose();
     }
 }

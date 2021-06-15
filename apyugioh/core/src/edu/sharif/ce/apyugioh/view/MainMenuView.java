@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -9,10 +10,16 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ObjectSet;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
+import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 import edu.sharif.ce.apyugioh.view.model.DeckModelView;
 
@@ -56,6 +63,9 @@ public class MainMenuView extends Menu {
         card = deck.getRandom();
         card.setTranslation(35, 0, -13);
         cards.add(card);
+        createMainWindow();
+
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -91,5 +101,53 @@ public class MainMenuView extends Menu {
     public void dispose() {
         super.dispose();
         stage.dispose();
+    }
+
+    private Dialog createLoginDialog() {
+        TextField usernameField = new TextField("", AssetController.getSkin("first"));
+        TextField passwordField = new TextField("", AssetController.getSkin("first"));
+        Dialog dialog = new Dialog("", AssetController.getSkin("first")) {
+            @Override
+            protected void result(Object object) {
+                if ((Boolean) object) {
+                    UserController.getInstance().loginUser(usernameField.getText(), passwordField.getText());
+                }
+            }
+        };
+//        dialog.setPosition(Gdx.graphics.getHeight() - dialog.getHeight(), Gdx.graphics.getWidth()/2 - dialog.getWidth()/2);
+        dialog.getContentTable().add(new Label("Username : ", AssetController.getSkin("first")));
+        dialog.getContentTable().add(usernameField).width(220).height(40);
+        dialog.getContentTable().row();
+        dialog.getContentTable().add(new Label("Password : ", AssetController.getSkin("first")));
+        dialog.getContentTable().add(passwordField).width(220).height(40);
+        dialog.getTitleTable().pad(5);
+        dialog.getContentTable().pad(5);
+        dialog.getButtonTable().pad(5);
+        dialog.button("OK", true).button("NO", false).key(Input.Keys.ENTER, true);
+        return dialog;
+    }
+
+    private void createMainWindow() {
+        TextButton[] mainMenuButtons = new TextButton[]{new TextButton("Signup", AssetController.getSkin("first")),
+                new TextButton("Login", AssetController.getSkin("first")),
+                new TextButton("Shop", AssetController.getSkin("first"))};
+        Window window = new Window("", AssetController.getSkin("first"));
+        for (TextButton mainMenuButton : mainMenuButtons) {
+            if (mainMenuButton.getText().toString().equals("Login")) {
+                mainMenuButton.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        createLoginDialog().show(stage);
+                    }
+                });
+            }
+            window.add(mainMenuButton).width(350).height(100).spaceBottom(20);
+            window.row();
+        }
+        window.setWidth(542);
+        window.setHeight(940);
+        window.setPosition(Gdx.graphics.getWidth()/2 - 271, Gdx.graphics.getHeight() - 940);
+        window.background(new TextureRegionDrawable(new Texture(Gdx.files.internal("skins/table.png"))));
+        stage.addActor(window);
     }
 }

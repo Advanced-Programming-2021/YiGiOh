@@ -1,0 +1,314 @@
+
+first_skin.png
+size: 2048,2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+GUI_T_Detail_TimeBase01.dds
+  rotate: false
+  xy: 619, 962
+  size: 60, 46
+  orig: 60, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds7
+  rotate: false
+  xy: 619, 962
+  size: 60, 46
+  orig: 60, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase02.dds
+  rotate: false
+  xy: 619, 962
+  size: 60, 46
+  orig: 60, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds1
+  rotate: false
+  xy: 437, 267
+  size: 62, 46
+  orig: 62, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds10
+  rotate: false
+  xy: 767, 1035
+  size: 60, 46
+  orig: 60, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds11
+  rotate: false
+  xy: 1, 145
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds16
+  rotate: false
+  xy: 1, 145
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds18
+  rotate: false
+  xy: 1, 145
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds12
+  rotate: false
+  xy: 363, 267
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds20
+  rotate: false
+  xy: 363, 267
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds13
+  rotate: false
+  xy: 545, 1010
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds14
+  rotate: false
+  xy: 693, 1083
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds15
+  rotate: false
+  xy: 841, 1083
+  size: 60, 46
+  orig: 60, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds17
+  rotate: false
+  xy: 1053, 1261
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds19
+  rotate: false
+  xy: 1, 97
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds2
+  rotate: false
+  xy: 75, 145
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds21
+  rotate: false
+  xy: 363, 219
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds26
+  rotate: false
+  xy: 363, 219
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds22
+  rotate: false
+  xy: 1053, 1165
+  size: 60, 46
+  orig: 60, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds23
+  rotate: false
+  xy: 545, 962
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds24
+  rotate: false
+  xy: 619, 1010
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds25
+  rotate: false
+  xy: 693, 1035
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds28
+  rotate: false
+  xy: 767, 1083
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds3
+  rotate: false
+  xy: 1053, 1213
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds29
+  rotate: false
+  xy: 1053, 1213
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase02.dds1
+  rotate: false
+  xy: 1053, 1213
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds30
+  rotate: false
+  xy: 1, 1
+  size: 60, 46
+  orig: 60, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds4
+  rotate: false
+  xy: 1, 49
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds27
+  rotate: false
+  xy: 1, 49
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds5
+  rotate: false
+  xy: 75, 97
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds6
+  rotate: false
+  xy: 75, 49
+  size: 60, 46
+  orig: 60, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds8
+  rotate: false
+  xy: 545, 914
+  size: 62, 46
+  orig: 62, 46
+  offset: 0, 0
+  index: -1
+GUI_T_Detail_TimeBase01.dds9
+  rotate: false
+  xy: 149, 145
+  size: 72, 46
+  orig: 72, 46
+  offset: 0, 0
+  index: -1
+GUI_T_EventHeaderBase.dds
+  rotate: false
+  xy: 1, 193
+  size: 360, 120
+  orig: 360, 120
+  offset: 0, 0
+  index: -1
+Vanderik
+  rotate: false
+  xy: 1, 315
+  size: 506, 72
+  orig: 506, 72
+  offset: 0, 0
+  index: -1
+checkbox
+  rotate: false
+  xy: 149, 118
+  size: 36, 25
+  orig: 36, 25
+  offset: 0, 0
+  index: -1
+checkbox copy
+  rotate: false
+  xy: 223, 166
+  size: 36, 25
+  orig: 36, 25
+  offset: 0, 0
+  index: -1
+scrollpane
+  rotate: false
+  xy: 545, 821
+  size: 20, 91
+  orig: 20, 91
+  offset: 0, 0
+  index: -1
+scrollpaneV
+  rotate: false
+  xy: 1053, 1309
+  size: 91, 20
+  orig: 91, 20
+  offset: 0, 0
+  index: -1
+slider-horizontal
+  rotate: false
+  xy: 509, 374
+  size: 14, 13
+  orig: 14, 13
+  offset: 0, 0
+  index: -1
+slider-knob
+  rotate: false
+  xy: 1146, 1316
+  size: 13, 13
+  orig: 13, 13
+  offset: 0, 0
+  index: -1
+sugoroku_btn_off.dds
+  rotate: false
+  xy: 545, 1058
+  size: 146, 71
+  orig: 146, 71
+  offset: 0, 0
+  index: -1
+window
+  rotate: false
+  xy: 1, 389
+  size: 542, 940
+  orig: 542, 940
+  offset: 0, 0
+  index: -1
+Vanderick
+  rotate: false
+  xy: 545, 1131
+  size: 506, 198
+  orig: 506, 198
+  offset: 0, 0
+  index: -1
