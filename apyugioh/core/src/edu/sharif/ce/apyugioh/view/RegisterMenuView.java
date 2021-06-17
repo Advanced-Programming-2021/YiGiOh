@@ -9,9 +9,11 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -23,7 +25,9 @@ import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 import edu.sharif.ce.apyugioh.view.model.DeckModelView;
 
-public class MainMenuView extends Menu {
+import java.util.HashMap;
+
+public class RegisterMenuView extends Menu {
 
     public static final int SUCCESS_LOGOUT = 1;
 
@@ -37,8 +41,9 @@ public class MainMenuView extends Menu {
     ObjectSet<CardModelView> cards;
     private DeckModelView deck;
     private Texture backgroundTexture;
+    private HashMap<String, Window> windows;
 
-    public MainMenuView(YuGiOh game) {
+    public RegisterMenuView(YuGiOh game) {
         super(game);
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new PointLight().set(0.8f, 0.8f, 0.8f, 15, 5, 0, 150));
@@ -47,6 +52,7 @@ public class MainMenuView extends Menu {
         batch = new SpriteBatch();
         stage = new Stage();
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
+        windows = new HashMap<>();
     }
 
     @Override
@@ -93,6 +99,7 @@ public class MainMenuView extends Menu {
             card.render(modelBatch, environment);
         }
         modelBatch.end();
+
         stage.act(delta);
         stage.draw();
     }
@@ -111,6 +118,7 @@ public class MainMenuView extends Menu {
             protected void result(Object object) {
                 if ((Boolean) object) {
                     UserController.getInstance().loginUser(usernameField.getText(), passwordField.getText());
+                    game.setScreen(new MainMenuView(game));
                 }
             }
         };
@@ -132,6 +140,11 @@ public class MainMenuView extends Menu {
                 new TextButton("Login", AssetController.getSkin("first")),
                 new TextButton("Shop", AssetController.getSkin("first"))};
         Window window = new Window("", AssetController.getSkin("first"));
+        window.setKeepWithinStage(false);
+        window.setWidth(542);
+        window.setHeight(940);
+        Table table = new Table(AssetController.getSkin("first"));
+        window.setPosition(Gdx.graphics.getWidth()/2 - 271, Gdx.graphics.getHeight() - 940);
         for (TextButton mainMenuButton : mainMenuButtons) {
             if (mainMenuButton.getText().toString().equals("Login")) {
                 mainMenuButton.addListener(new ButtonClickListener() {
@@ -141,13 +154,15 @@ public class MainMenuView extends Menu {
                     }
                 });
             }
-            window.add(mainMenuButton).width(350).height(100).spaceBottom(20);
-            window.row();
+            table.add(mainMenuButton).width(350).height(100).spaceBottom(20);
+            table.row();
         }
-        window.setWidth(542);
-        window.setHeight(940);
-        window.setPosition(Gdx.graphics.getWidth()/2 - 271, Gdx.graphics.getHeight() - 940);
-        window.background(new TextureRegionDrawable(new Texture(Gdx.files.internal("skins/table.png"))));
+        windows.put("main", window);
+        window.add(table);
         stage.addActor(window);
+    }
+
+    private void transformWindow(Window window) {
+
     }
 }
