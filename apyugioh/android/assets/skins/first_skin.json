@@ -1,7 +1,7 @@
 {
 com.badlogic.gdx.graphics.g2d.BitmapFont: {
-	Vanderick-title: {
-		file: Vanderick.fnt
+	Vanderick_title: {
+		file: Vanderick_title.fnt
 	}
 	Vanderik: {
 		file: Vanderik.fnt
@@ -62,8 +62,12 @@ com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
 }
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
-		font: Vanderick-title
-		fontColor: RGBA_58_169_235_255
+		font: Vanderik
+		fontColor: RGBA_58_123_150_255
+	}
+	title: {
+		font: Vanderick_title
+		fontColor: RGBA_126_152_162_255
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
@@ -94,7 +98,9 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: {
 		font: Vanderik
 		fontColor: RGBA_255_0_0_255
-		background: sugoroku_btn_off.dds
+		background: textfield
+		cursor: cursor
+		selection: selection
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
@@ -105,6 +111,16 @@ com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
 com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 	default: {
 		background: window
+		titleFont: Vanderik
+		titleFontColor: RGBA_39_20_20_255
+	}
+	right: {
+		background: window-right
+		titleFont: Vanderik
+		titleFontColor: RGBA_39_20_20_255
+	}
+	left: {
+		background: window-left
 		titleFont: Vanderik
 		titleFontColor: RGBA_39_20_20_255
 	}

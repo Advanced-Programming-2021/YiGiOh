@@ -16,7 +16,7 @@ public class UserController {
 
     static {
         instance = new UserController();
-        view = new UserView();
+        view = new UserView(ProgramController.getGame());
         logger = LogManager.getLogger(UserController.class);
     }
 
@@ -51,7 +51,12 @@ public class UserController {
         }
         MainMenuController.getInstance().setUser(user);
         view.showSuccess(UserView.SUCCESS_USER_LOGIN);
+        ProgramController.setCurrentMenu(MainMenuController.getView());
         ProgramController.setState(MenuState.MAIN);
         logger.info("{} logged in with {} : {}", user.getNickname(), username, password);
+    }
+
+    public void showMenu() {
+        ProgramController.getGame().setScreen(view);
     }
 }

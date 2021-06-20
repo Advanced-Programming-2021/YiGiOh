@@ -16,6 +16,7 @@ public class AssetController {
 
         SKINS.put("first", new Skin(Gdx.files.internal("skins/first_skin.json")));
         SOUNDS.put("click", Gdx.audio.newSound(Gdx.files.internal("sounds/button_click.mp3")));
+        SOUNDS.put("chain", Gdx.audio.newSound(Gdx.files.internal("sounds/chain.mp3")));
     }
 
     public static void addSkin(String name, Skin skin) {
