@@ -1,6 +1,9 @@
 package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -23,6 +26,7 @@ import com.badlogic.gdx.utils.Array;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.MainMenuController;
 import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
@@ -47,6 +51,8 @@ public class ShopMenuView extends Menu {
         errorMessages.put(ERROR_MONEY_NOT_ENOUGH, "not enough money to buy %s.\nyou currently have %s and you need %s more to buy this card");
     }
 
+    private InputMultiplexer inputMultiplexer;
+    private InputProcessor inputProcessor;
     private Stage stage;
     private SpriteBatch batch;
     Array<CardModelView> cards;
@@ -66,6 +72,7 @@ public class ShopMenuView extends Menu {
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new PointLight().set(0.8f, 0.8f, 0.8f, 5, 0, 0, 150));
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
+        inputMultiplexer = new InputMultiplexer();
         batch = new SpriteBatch();
         stage = new Stage();
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
@@ -101,7 +108,10 @@ public class ShopMenuView extends Menu {
                 }
             }
         });
-        Gdx.input.setInputProcessor(stage);
+        inputMultiplexer.addProcessor(stage);
+        createInputProcessor();
+        inputMultiplexer.addProcessor(inputProcessor);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     private void initializeWindow() {
@@ -285,5 +295,67 @@ public class ShopMenuView extends Menu {
         private int calculateIndex(int row, int column) {
             return row * 10 + column;
         }
+    }
+
+    private void createInputProcessor() {
+        inputProcessor = new InputProcessor() {
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode != Input.Keys.ESCAPE) {
+                    return false;
+                }
+                game.setScreen(MainMenuController.getView());
+                return true;
+            }
+
+            @Override
+            public boolean keyUp(int keycode) {
+                return false;
+            }
+
+            @Override
+            public boolean keyTyped(char character) {
+                return false;
+            }
+
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                return false;
+            }
+
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                return false;
+            }
+
+            @Override
+            public boolean touchDragged(int screenX, int screenY, int pointer) {
+                return false;
+            }
+
+            @Override
+            public boolean mouseMoved(int screenX, int screenY) {
+                return false;
+            }
+
+            @Override
+            public boolean scrolled(float amountX, float amountY) {
+                if ((cards.first().getPosition().y < 40) || (cards.get(cards.size - 1).getPosition().y > -40) || !manager.isDone()) {
+                    return false;
+                }
+                float translation = (amountY) * 3;
+                if (translation < 0) {
+                    translation = Math.max(translation, 40 - cards.first().getPosition().y);
+                }
+                if (translation > 0) {
+                    translation = Math.min(translation, -40 - cards.get(cards.size - 1).getPosition().y);
+                }
+                for (CardModelView card : cards) {
+                    card.translate(0, translation, 0);
+                }
+                return true;
+            }
+        };
     }
 }
