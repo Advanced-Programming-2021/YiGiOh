@@ -341,7 +341,7 @@ public class ShopMenuView extends Menu {
 
             @Override
             public boolean scrolled(float amountX, float amountY) {
-                if ((cards.first().getPosition().y < 40) || (cards.get(cards.size - 1).getPosition().y > -40) || !manager.isDone()) {
+                if ((cards.first().getPosition().y < 40) || (cards.get(cards.size - 1).getPosition().y > -40) || !manager.isDone() || poppedUpCard != null) {
                     return false;
                 }
                 float translation = (amountY) * 3;
