@@ -3,7 +3,12 @@ package edu.sharif.ce.apyugioh.view.model;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
+
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
+import edu.sharif.ce.apyugioh.model.card.Card;
 
 public class CardModelView implements Disposable {
 
@@ -47,5 +52,22 @@ public class CardModelView implements Disposable {
     public void rotate(float x, float y, float z, float degrees) {
         cardFront.worldTransform.rotate(x, y, z, degrees);
         cardBack.worldTransform.rotate(x, y, z, degrees);
+    }
+
+    public Vector3 getPosition() {
+        return new Vector3(cardFront.worldTransform.val[Matrix4.M03], cardFront.worldTransform.val[Matrix4.M13], cardFront.worldTransform.val[Matrix4.M23]);
+    }
+
+    public Matrix4 getTransform() {
+        return cardFront.worldTransform.cpy();
+    }
+
+    public void lerp(Matrix4 target, float alpha) {
+        cardFront.worldTransform.lerp(target, alpha);
+        cardBack.worldTransform.lerp(target, alpha);
+    }
+
+    public Card getCard() {
+        return DatabaseManager.getCards().getCardByName(cardName);
     }
 }

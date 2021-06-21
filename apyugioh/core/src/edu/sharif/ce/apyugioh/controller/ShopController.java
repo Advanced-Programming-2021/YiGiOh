@@ -1,25 +1,27 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.model.card.Card;
 import edu.sharif.ce.apyugioh.view.ShopView;
+import edu.sharif.ce.apyugioh.view.menu.ShopMenuView;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class ShopController {
 
     @Getter
     private static ShopController instance;
-    private static ShopView view;
+    private static ShopMenuView view;
     private static Logger logger;
 
     static {
         instance = new ShopController();
-        view = new ShopView();
+        view = new ShopMenuView(ProgramController.getGame());
         logger = LogManager.getLogger(ShopController.class);
     }
 
@@ -27,6 +29,7 @@ public class ShopController {
     }
 
     @Setter
+    @Getter
     private User user;
 
     public void buyCard(String cardName) {
@@ -49,16 +52,20 @@ public class ShopController {
     }
 
     public void showAllCards() {
-        view.showAllCards(DatabaseManager.getCards());
+        //view.showAllCards(DatabaseManager.getCards());
     }
 
     public void showCard(String cardName) {
         Card card = DatabaseManager.getCards().getAllCards().stream().filter(e -> e.getName().equalsIgnoreCase(cardName))
                 .findAny().orElse(null);
         if (card != null) {
-            view.showCard(card);
+            //view.showCard(card);
         } else {
             view.showError(ShopView.ERROR_CARD_NAME_INVALID);
         }
+    }
+
+    public void showShop() {
+        ProgramController.getGame().setScreen(view);
     }
 }

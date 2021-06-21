@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import java.util.HashMap;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
+import lombok.Getter;
+import lombok.Setter;
 
 public class YuGiOh extends Game {
 

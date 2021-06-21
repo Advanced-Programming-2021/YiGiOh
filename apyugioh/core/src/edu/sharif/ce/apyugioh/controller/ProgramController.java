@@ -3,6 +3,7 @@ package edu.sharif.ce.apyugioh.controller;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import edu.sharif.ce.apyugioh.view.menu.Menu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,6 +28,8 @@ public class ProgramController {
     @Getter
     @Setter
     private static MenuState state;
+    @Getter
+    private static Menu currentMenu;
     @Getter
     @Setter
     private static int gameControllerID;
@@ -62,12 +65,17 @@ public class ProgramController {
         DatabaseManager.init();
         AssetController.loadAssets();
         loadCursor();
-        MainMenuController.getInstance().showMainMenu();
+        UserController.getInstance().showMenu();
     }
 
     public void loadCursor() {
         Pixmap pm = new Pixmap(Gdx.files.internal("cursor1.png"));
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0));
         pm.dispose();
+    }
+
+    public static void setCurrentMenu(Menu menu) {
+        currentMenu = menu;
+        game.setScreen(currentMenu);
     }
 }

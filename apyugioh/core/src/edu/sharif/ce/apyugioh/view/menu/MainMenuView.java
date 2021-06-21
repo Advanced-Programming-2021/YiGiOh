@@ -1,7 +1,7 @@
-package edu.sharif.ce.apyugioh.view;
+package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -9,25 +9,25 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.utils.ObjectSet;
-
-import edu.sharif.ce.apyugioh.YuGiOh;
-import edu.sharif.ce.apyugioh.controller.AssetController;
-import edu.sharif.ce.apyugioh.controller.UserController;
-import edu.sharif.ce.apyugioh.view.model.CardModelView;
-import edu.sharif.ce.apyugioh.view.model.DeckModelView;
 
 import java.util.HashMap;
 
-public class RegisterMenuView extends Menu {
+import edu.sharif.ce.apyugioh.YuGiOh;
+import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.MainMenuController;
+import edu.sharif.ce.apyugioh.controller.ShopController;
+import edu.sharif.ce.apyugioh.view.ButtonClickListener;
+import edu.sharif.ce.apyugioh.view.menu.Menu;
+import edu.sharif.ce.apyugioh.view.model.CardModelView;
+import edu.sharif.ce.apyugioh.view.model.DeckModelView;
+
+public class MainMenuView extends Menu {
+
 
     public static final int SUCCESS_LOGOUT = 1;
 
@@ -43,12 +43,13 @@ public class RegisterMenuView extends Menu {
     private Texture backgroundTexture;
     private HashMap<String, Window> windows;
 
-    public RegisterMenuView(YuGiOh game) {
+
+    public MainMenuView(YuGiOh game) {
         super(game);
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new PointLight().set(0.8f, 0.8f, 0.8f, 15, 5, 0, 150));
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
-        assets.load("3D/yugi/yugi.g3db", Model.class);
+        assets.load("3D/puzzle/puzzle.g3db", Model.class);
         batch = new SpriteBatch();
         stage = new Stage();
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
@@ -70,17 +71,19 @@ public class RegisterMenuView extends Menu {
         card.setTranslation(35, 0, -13);
         cards.add(card);
         createMainWindow();
+
         Gdx.input.setInputProcessor(stage);
     }
 
     @Override
     public void render(float delta) {
         if (!loaded && assets.update()) {
-            Model dragon = assets.get("3D/yugi/yugi.g3db", Model.class);
+            Model dragon = assets.get("3D/puzzle/puzzle.g3db", Model.class);
             ModelInstance instance = new ModelInstance(dragon);
-            instance.transform.scale(0.1f, 0.1f, 0.1f);
+            instance.transform.scale(0.4f, 0.4f, 0.4f);
             instance.transform.setTranslation(18, -8, -14);
             instance.transform.rotate(0, -1, 0, 90);
+            instance.materials.get(0).set(new ColorAttribute(ColorAttribute.Diffuse, Color.GOLD));
             instances.add(instance);
             instances.add(instance.copy());
             instances.get(1).transform.setTranslation(18, -8, 14);
@@ -93,6 +96,8 @@ public class RegisterMenuView extends Menu {
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.end();
+        modelBatch.begin(cam);
+        modelBatch.render(instances, environment);
         for (CardModelView card : cards) {
             card.rotate(0, 1, 0, 200 * Gdx.graphics.getDeltaTime());
             card.render(modelBatch, environment);
@@ -109,59 +114,33 @@ public class RegisterMenuView extends Menu {
         stage.dispose();
     }
 
-    private Dialog createLoginDialog() {
-        TextField usernameField = new TextField("", AssetController.getSkin("first"));
-        TextField passwordField = new TextField("", AssetController.getSkin("first"));
-        Dialog dialog = new Dialog("", AssetController.getSkin("first")) {
-            @Override
-            protected void result(Object object) {
-                if ((Boolean) object) {
-                    UserController.getInstance().loginUser(usernameField.getText(), passwordField.getText());
-                    game.setScreen(new MainMenuView(game));
-                }
-            }
-        };
-//        dialog.setPosition(Gdx.graphics.getHeight() - dialog.getHeight(), Gdx.graphics.getWidth()/2 - dialog.getWidth()/2);
-        dialog.getContentTable().add(new Label("Username : ", AssetController.getSkin("first")));
-        dialog.getContentTable().add(usernameField).width(220).height(40);
-        dialog.getContentTable().row();
-        dialog.getContentTable().add(new Label("Password : ", AssetController.getSkin("first")));
-        dialog.getContentTable().add(passwordField).width(220).height(40);
-        dialog.getTitleTable().pad(5);
-        dialog.getContentTable().pad(5);
-        dialog.getButtonTable().pad(5);
-        dialog.button("OK", true).button("NO", false).key(Input.Keys.ENTER, true);
-        return dialog;
-    }
-
     private void createMainWindow() {
-        TextButton[] mainMenuButtons = new TextButton[]{new TextButton("Signup", AssetController.getSkin("first")),
-                new TextButton("Login", AssetController.getSkin("first")),
-                new TextButton("Shop", AssetController.getSkin("first"))};
+        TextButton[] mainMenuButtons = new TextButton[]{new TextButton("Play", AssetController.getSkin("first")),
+                new TextButton("Deck", AssetController.getSkin("first")),
+                new TextButton("Scoreboard", AssetController.getSkin("first")),
+                new TextButton("Shop", AssetController.getSkin("first")),
+                new TextButton("Setting", AssetController.getSkin("first")),
+                new TextButton("Logout", AssetController.getSkin("first"))};
         Window window = new Window("", AssetController.getSkin("first"));
         window.setKeepWithinStage(false);
         window.setWidth(542);
         window.setHeight(940);
-        Table table = new Table(AssetController.getSkin("first"));
-        window.setPosition(Gdx.graphics.getWidth()/2 - 271, Gdx.graphics.getHeight() - 940);
+        window.setPosition(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940);
         for (TextButton mainMenuButton : mainMenuButtons) {
-            if (mainMenuButton.getText().toString().equals("Login")) {
+            if (mainMenuButton.getText().toString().equals("Shop")) {
                 mainMenuButton.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-                        createLoginDialog().show(stage);
+                        ShopController.getInstance().setUser(MainMenuController.getInstance().getUser());
+                        ShopController.getInstance().showShop();
                     }
                 });
             }
-            table.add(mainMenuButton).width(350).height(100).spaceBottom(20);
-            table.row();
+            window.add(mainMenuButton).width(300).height(80).spaceBottom(10);
+            window.row();
         }
+        window.padTop(150);
         windows.put("main", window);
-        window.add(table);
         stage.addActor(window);
-    }
-
-    private void transformWindow(Window window) {
-
     }
 }

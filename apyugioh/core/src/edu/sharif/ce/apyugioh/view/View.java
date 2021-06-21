@@ -30,4 +30,12 @@ public class View {
         }
     }
 
+    public void showSuccessDialog(int successID, String... values) {
+
+    }
+
+    public void showErrorDialog(int errorID, String... values) {
+
+    }
+
 }
