@@ -5,7 +5,7 @@ import java.util.List;
 
 public class CardActionsManager {
 
-    List<CardAction> actions;
+    private List<CardAction> actions;
 
     public CardActionsManager() {
         actions = new ArrayList<>();
@@ -26,5 +26,9 @@ public class CardActionsManager {
 
     public boolean isDone() {
         return actions.isEmpty();
+    }
+
+    public void clear() {
+        actions.clear();
     }
 }

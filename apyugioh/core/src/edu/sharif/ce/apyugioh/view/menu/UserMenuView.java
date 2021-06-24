@@ -2,7 +2,6 @@ package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -171,7 +170,7 @@ public class UserMenuView extends Menu {
                     @Override
                     public void clickAction() {
                         window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), 3));
-                        AssetController.getSound("chain").play();
+                        AssetController.playSound("chain");
                         windows.get("signup").addAction(Actions.moveTo(Gdx.graphics.getWidth() - 940, Gdx.graphics.getHeight() / 2 - 542 / 2, 3));
                     }
                 });
@@ -180,7 +179,7 @@ public class UserMenuView extends Menu {
                     @Override
                     public void clickAction() {
                         window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), 3));
-                        AssetController.getSound("chain").play();
+                        AssetController.playSound("chain");
                         windows.get("login").addAction(Actions.moveTo(0, Gdx.graphics.getHeight() / 2 - 542 / 2, 3));
                     }
                 });
@@ -244,7 +243,7 @@ public class UserMenuView extends Menu {
                         passwordField.setText("");
                         confirmPasswordField.setText("");
                         window.addAction(Actions.moveTo(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, 3));
-                        AssetController.getSound("chain").play();
+                        AssetController.playSound("chain");
                         windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, 3));
                     }
                 });
@@ -300,7 +299,7 @@ public class UserMenuView extends Menu {
                         usernameField.setText("");
                         passwordField.setText("");
                         window.addAction(Actions.moveTo(-window.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, 3));
-                        AssetController.getSound("chain").play();
+                        AssetController.playSound("chain");
                         windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, 3));
                     }
                 });

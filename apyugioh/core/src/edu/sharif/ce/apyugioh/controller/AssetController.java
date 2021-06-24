@@ -5,14 +5,17 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class AssetController {
     private static HashMap<String, Skin> SKINS;
     private static HashMap<String, Sound> SOUNDS;
+    private static HashMap<Long, Sound> currentlyPlayingSounds;
 
     public static void loadAssets() {
         SKINS = new HashMap<>();
         SOUNDS = new HashMap<>();
+        currentlyPlayingSounds = new HashMap<>();
 
         SKINS.put("first", new Skin(Gdx.files.internal("skins/first_skin.json")));
         SOUNDS.put("click", Gdx.audio.newSound(Gdx.files.internal("sounds/button_click.mp3")));
@@ -35,5 +38,18 @@ public class AssetController {
 
     public static Sound getSound(String name) {
         return SOUNDS.get(name);
+    }
+
+    public static void playSound(String name) {
+        if (getSound(name) != null) {
+            currentlyPlayingSounds.put(getSound(name).play(), getSound(name));
+        }
+    }
+
+    public static void stopSound() {
+        for (Map.Entry<Long, Sound> sound : currentlyPlayingSounds.entrySet()) {
+            sound.getValue().stop(sound.getKey());
+        }
+        currentlyPlayingSounds.clear();
     }
 }

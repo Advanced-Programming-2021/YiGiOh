@@ -32,6 +32,7 @@ import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardAction;
 import edu.sharif.ce.apyugioh.view.model.CardActionsManager;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
@@ -60,7 +61,7 @@ public class ShopMenuView extends Menu {
     private Texture backgroundTexture;
     private CardActionsManager manager;
     private ScrollPane scroll;
-    private int animationSpeed = 1;
+    private int animationSpeed;
     private Window buyWindow;
     private Label nameLabel, cardInventoryCountLabel, cardPriceLabel, currentMoney;
     private TextButton buyButton;
@@ -73,8 +74,6 @@ public class ShopMenuView extends Menu {
         environment.add(new PointLight().set(0.8f, 0.8f, 0.8f, 5, 0, 0, 150));
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
         inputMultiplexer = new InputMultiplexer();
-        batch = new SpriteBatch();
-        stage = new Stage();
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
         moveCamera = false;
         manager = new CardActionsManager();
@@ -83,6 +82,9 @@ public class ShopMenuView extends Menu {
     @Override
     public void show() {
         super.show();
+        batch = new SpriteBatch();
+        stage = new Stage();
+        animationSpeed = 1;
         initializeCards();
         scroll = new ScrollPane(null, AssetController.getSkin("first"));
         scroll.setSize(1448, 1080);
@@ -94,10 +96,9 @@ public class ShopMenuView extends Menu {
         currentMoney.setPosition(1525, 1000);
         stage.addActor(currentMoney);
         initializeWindow();
-        buyButton.addListener(new ClickListener() {
+        buyButton.addListener(new ButtonClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
+            public void clickAction() {
                 if (poppedUpCard != null) {
                     ShopController.getInstance().buyCard(poppedUpCard.getName());
                     currentMoney.setText("Money: " + userInventory.getMoney());
@@ -123,7 +124,8 @@ public class ShopMenuView extends Menu {
         buyWindow.setPosition(Gdx.graphics.getWidth() - buyWindow.getWidth() - 15, Gdx.graphics.getHeight());
         Table content = new Table(AssetController.getSkin("first"));
         nameLabel = new Label("", AssetController.getSkin("first"), "title");
-        content.add(nameLabel);
+        nameLabel.setWidth(buyWindow.getWidth());
+        content.add(nameLabel).colspan(2);
         content.row();
         Label priceLabel = new Label("Price: ", AssetController.getSkin("first"), "title");
         cardPriceLabel = new Label("", AssetController.getSkin("first"), "title");
@@ -154,7 +156,7 @@ public class ShopMenuView extends Menu {
                 card.rotate(0, 1, 0, 90);
                 CardAction action = new CardAction(card, new Vector3(45, 0, 0), 180, 2) {
                     public void onDone() {
-                        AssetController.getSound("deal").play();
+                        AssetController.playSound("deal");
                     }
                 };
                 manager.addAction(action);
@@ -184,6 +186,13 @@ public class ShopMenuView extends Menu {
         modelBatch.end();
         stage.act(delta);
         stage.draw();
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        batch.dispose();
+        stage.dispose();
     }
 
     class CustomListener extends ClickListener {
@@ -247,14 +256,14 @@ public class ShopMenuView extends Menu {
                     CardModelView selectedCard = cards.get(selectedCardIndex);
                     CardAction action = new CardAction(selectedCard, new Vector3(45, 0, 0), 180, 0.012f) {
                         public void onStart() {
-                            AssetController.getSound("flip").play();
+                            AssetController.playSound("flip");
                         }
                     };
                     manager.addAction(action);
                     CardAction action2 = new CardAction(selectedCard, new Vector3(15, 0, 0), 0, 0.012f);
                     manager.addAction(action2);
                     buyWindow.addAction(Actions.moveBy(0, -buyWindow.getHeight(), 3));
-                    AssetController.getSound("chain").play();
+                    AssetController.playSound("chain");
                     poppedUpCard = selectedCard.getCard();
                     nameLabel.setText(poppedUpCard.getName());
                     int price = DatabaseManager.getCards().getCardPrice(poppedUpCard.getName());
@@ -271,7 +280,7 @@ public class ShopMenuView extends Menu {
                         CardModelView card = cards.get(selectedCardIndex);
                         CardAction action = new CardAction(card, new Vector3(45, 0, 0), 180, 0.012f) {
                             public void onStart() {
-                                AssetController.getSound("flip").play();
+                                AssetController.playSound("flip");
                             }
 
                             public void onDone() {
@@ -286,7 +295,7 @@ public class ShopMenuView extends Menu {
                         CardAction action2 = new CardAction(card, new Vector3(75, cards.first().getPosition().y - 18 * rowCounter, cards.first().getPosition().z + 13 * columnCounter), 0, 0.012f);
                         manager.addAction(action2);
                         buyWindow.addAction(Actions.moveBy(0, buyWindow.getHeight(), 3));
-                        AssetController.getSound("chain").play();
+                        AssetController.playSound("chain");
                     }
                 }
             }
@@ -302,10 +311,16 @@ public class ShopMenuView extends Menu {
 
             @Override
             public boolean keyDown(int keycode) {
-                if (keycode != Input.Keys.ESCAPE) {
+                if (keycode != Input.Keys.ESCAPE && keycode != Input.Keys.BACK) {
                     return false;
                 }
+                if (poppedUpCard != null) {
+                    poppedUpCard = null;
+                }
+                manager.clear();
+                AssetController.stopSound();
                 game.setScreen(MainMenuController.getView());
+                dispose();
                 return true;
             }
 
