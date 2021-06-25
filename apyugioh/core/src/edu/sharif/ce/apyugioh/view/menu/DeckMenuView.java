@@ -22,13 +22,18 @@ import org.apache.commons.text.TextStringBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.DeckMenuController;
+import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.model.Deck;
+import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
+import edu.sharif.ce.apyugioh.view.model.CardActor;
 
 public class DeckMenuView extends Menu {
 
@@ -56,9 +61,13 @@ public class DeckMenuView extends Menu {
     private Window currentDeckWindow;
 
     private SpriteBatch batch;
-    private Card selectedCard;
+    private CardActor selectedCard;
+    private CardActor draggingCard;
     private Deck selectedDeck;
+    private Inventory userInventory;
+    private ArrayList<CardActor> inventoryCards;
     private ArrayList<Deck> userDecks;
+
 
 
     public DeckMenuView(YuGiOh game) {
@@ -77,6 +86,7 @@ public class DeckMenuView extends Menu {
         super.show();
         initialize();
         loadUserDecks();
+        loadUserInventory();
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -88,6 +98,18 @@ public class DeckMenuView extends Menu {
         batch.end();
         stage.act();
         stage.draw();
+        if (!Gdx.input.isButtonPressed(Input.Buttons.LEFT) && draggingCard != null) {
+            cardDragged();
+            draggingCard = null;
+        }
+        if (draggingCard != null){
+            draggingCard.setPosition(Gdx.input.getX(),Gdx.graphics.getHeight()-Gdx.input.getY());
+            stage.getBatch().begin();
+            draggingCard.draw(stage.getBatch(),1);
+            stage.getBatch().end();
+        }
+        lastX = Gdx.input.getX();
+        lastY = Gdx.input.getY();
     }
 
     @Override
@@ -97,6 +119,8 @@ public class DeckMenuView extends Menu {
     }
 
     private void initialize(){
+        selectedCard = new CardActor();
+        inventoryCards = new ArrayList<>();
         userDecks = new ArrayList<>();
         inventoryWindow = new Window("Inventory", AssetController.getSkin("first"));
         inventoryCardTable = new Table();
@@ -139,8 +163,12 @@ public class DeckMenuView extends Menu {
         cardPreviewWindow.setBounds(inventoryWindow.getX() + inventoryWindow.getWidth() + horizontalPad,
                 sideDeckWindow.getY()+sideDeckWindow.getHeight()+verticalPad,
                 300,height*4/9f);
+        selectedCard.setWidth(cardPreviewWindow.getWidth()*0.9f);
+        selectedCard.setHeight(cardPreviewWindow.getHeight()*0.9f);
+        cardPreviewWindow.add(selectedCard).fill().center();
         ScrollPane scrollPane = new ScrollPane(inventoryCardTable,AssetController.getSkin("first"));
         scrollPane.setFillParent(true);
+        scrollPane.setFlickScroll(false);
         inventoryWindow.add(scrollPane).fill().padRight(10).padLeft(10).center();
         sideDeckWindow.add(new ScrollPane(sideDeckCardsTable,AssetController.getSkin("first"))).fill();
         mainDeckWindow.add(new ScrollPane(mainDeckCardsTable,AssetController.getSkin("first"))).fill();
@@ -152,18 +180,50 @@ public class DeckMenuView extends Menu {
         decksListWindow.add(selectAsMainDeckButton).colspan(1).fillX().height(60);
     }
 
-    private void selectCard(Card card){
+    private void selectCard(CardActor cardActor){
+        selectedCard.getCardSprite().setTexture(cardActor.getCardSprite().getTexture());
+    }
 
+    private void loadUserInventory(){
+        userInventory = Inventory.getInventoryByUserID(DeckMenuController.getInstance().getUser().getId());
+        Map<String,Integer> inventoryMonsters = userInventory.getMonsters();
+        for(String cardName:inventoryMonsters.keySet()) {
+            inventoryCards.add(new CardActor(cardName, CardType.MONSTER, 200,
+                    340,inventoryMonsters.get(cardName)));
+        }
+        Map<String,Integer> inventorySpells = userInventory.getSpells();
+        for(String cardName:inventorySpells.keySet()) {
+            inventoryCards.add(new CardActor(cardName, CardType.SPELL, 200,
+                    340,inventorySpells.get(cardName)));
+        }
+        Map<String,Integer> inventoryTraps = userInventory.getTraps();
+        for(String cardName:inventoryTraps.keySet()) {
+            inventoryCards.add(new CardActor(cardName, CardType.TRAP, 200,
+                    340,inventoryTraps.get(cardName)));
+        }
+        for(int i = 0;i<inventoryCards.size();++i){
+            CardActor cardActor = inventoryCards.get(i);
+            cardActor.addListener(new ClickListener(){
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    selectCard(cardActor);
+                    draggingCard = CardActor.clone(cardActor);
+                    return super.touchDown(event,x,y,pointer,button);
+                }
+            });
+            if (i%5==0 && i>0)
+                inventoryCardTable.row();
+            if (i%5==0)
+                inventoryCardTable.add(cardActor).padLeft(50).padRight(50).expandX().padTop(20);
+            else if ((i+1)%5==0)
+                inventoryCardTable.add(cardActor).padRight(50).expandX().padTop(20);
+            else
+                inventoryCardTable.add(cardActor).padRight(50).expandX().padTop(20);
+        }
     }
 
     private void loadUserDecks(){
-        for(int i = 1;i<=10;++i) {
-            for (int j = 1; j <= 10; ++j) {
-                TextButton button = new TextButton("Razi" + i + j, AssetController.getSkin("first"));
-                inventoryCardTable.add(button).height(200).width(150).padRight(50);
-            }
-            inventoryCardTable.row();
-        }
+
         if (userDecks.size()>0)
             selectDeck(userDecks.get(0));
     }
@@ -191,12 +251,18 @@ public class DeckMenuView extends Menu {
 
     }
 
+    private void cardDragged(){
+
+    }
+
     private void addListeners(){
         stage.addListener(new InputListener(){
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ESCAPE)
                     DeckMenuController.getInstance().back();
+                if (keycode == Input.Keys.ENTER)
+                    draggingCard = null;
                 return super.keyDown(event,keycode);
             }
         });
