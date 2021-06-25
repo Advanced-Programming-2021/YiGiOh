@@ -38,4 +38,9 @@ public class MainMenuController {
         ProgramController.setState(MenuState.LOGIN);
     }
 
+    public void showMainMenu(){
+        ProgramController.setCurrentMenu(MainMenuController.getView());
+        ProgramController.setState(MenuState.MAIN);
+    }
+
 }

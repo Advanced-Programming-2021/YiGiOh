@@ -51,6 +51,7 @@ public class UserMenuView extends Menu {
 
 
     private boolean loaded;
+    private final float transitionSpeed = 1;
     private Stage stage;
     private SpriteBatch batch;
     ObjectSet<CardModelView> cards;
@@ -169,18 +170,18 @@ public class UserMenuView extends Menu {
                 mainWindowButton.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), 3));
+                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), transitionSpeed));
                         AssetController.playSound("chain");
-                        windows.get("signup").addAction(Actions.moveTo(Gdx.graphics.getWidth() - 940, Gdx.graphics.getHeight() / 2 - 542 / 2, 3));
+                        windows.get("signup").addAction(Actions.moveTo(Gdx.graphics.getWidth() - 940, Gdx.graphics.getHeight() / 2 - 542 / 2, transitionSpeed));
                     }
                 });
             } else if (mainWindowButton.getText().toString().equals("Login")) {
                 mainWindowButton.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), 3));
+                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), transitionSpeed));
                         AssetController.playSound("chain");
-                        windows.get("login").addAction(Actions.moveTo(0, Gdx.graphics.getHeight() / 2 - 542 / 2, 3));
+                        windows.get("login").addAction(Actions.moveTo(0, Gdx.graphics.getHeight() / 2 - 542 / 2, transitionSpeed));
                     }
                 });
             } else if (mainWindowButton.getText().toString().equals("Exit")) {
@@ -242,16 +243,17 @@ public class UserMenuView extends Menu {
                         usernameField.setText("");
                         passwordField.setText("");
                         confirmPasswordField.setText("");
-                        window.addAction(Actions.moveTo(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, 3));
+                        window.addAction(Actions.moveTo(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, transitionSpeed));
                         AssetController.playSound("chain");
-                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, 3));
+                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, transitionSpeed));
                     }
                 });
-            } else if (signupWindowButton.getText().toString().equals("signup")) {
+            } else if (signupWindowButton.getText().toString().equals("Signup")) {
                 signupWindowButton.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
                         UserController.getInstance().registerUser(usernameField.getText(), passwordField.getText(), usernameField.getText());
+                        //Back to login view + show a success dialog
                     }
                 });
             }
@@ -298,9 +300,9 @@ public class UserMenuView extends Menu {
                     public void clickAction() {
                         usernameField.setText("");
                         passwordField.setText("");
-                        window.addAction(Actions.moveTo(-window.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, 3));
+                        window.addAction(Actions.moveTo(-window.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, transitionSpeed));
                         AssetController.playSound("chain");
-                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, 3));
+                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, transitionSpeed));
                     }
                 });
             } else if (loginWindowButton.getText().toString().equals("Login")) {

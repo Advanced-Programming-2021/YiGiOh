@@ -59,6 +59,10 @@ public class User implements Comparable<User> {
         DatabaseManager.updateUsersToDB();
     }
 
+    public String getPassword() {
+        return password;
+    }
+
     public void setUsername(String username) {
         this.username = username;
         DatabaseManager.updateUsersToDB();
