@@ -25,7 +25,7 @@ public class Menu extends View implements Screen {
     protected Array<ModelInstance> instances = new Array<>();
     protected Environment environment;
     protected Viewport viewport;
-    private int lastX, lastY;
+    protected int lastX, lastY;
     private Vector3 camPos;
     protected boolean moveCamera = true;
 
