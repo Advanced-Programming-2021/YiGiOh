@@ -51,12 +51,22 @@ public class UserController {
         }
         MainMenuController.getInstance().setUser(user);
         view.showSuccess(UserMenuView.SUCCESS_USER_LOGIN);
-        ProgramController.setCurrentMenu(MainMenuController.getView());
-        ProgramController.setState(MenuState.MAIN);
+        MainMenuController.getInstance().showMainMenu();
         logger.info("{} logged in with {} : {}", user.getNickname(), username, password);
     }
 
+    public void logoutUser(){
+        User user = MainMenuController.getInstance().getUser();
+        logger.info("{} logged in with {} : {}", user.getNickname(),
+                user.getUsername(), user.getPassword());
+        showMenu();
+    }
+
     public void showMenu() {
+        if (view != null)
+            view.dispose();
+        view = new UserMenuView(ProgramController.getGame());
+        ProgramController.setState(MenuState.LOGIN);
         ProgramController.getGame().setScreen(view);
     }
 }

@@ -19,8 +19,11 @@ import java.util.HashMap;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.DeckController;
+import edu.sharif.ce.apyugioh.controller.DeckMenuController;
 import edu.sharif.ce.apyugioh.controller.MainMenuController;
 import edu.sharif.ce.apyugioh.controller.ShopController;
+import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.menu.Menu;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
@@ -71,7 +74,6 @@ public class MainMenuView extends Menu {
         card.setTranslation(35, 0, -13);
         cards.add(card);
         createMainWindow();
-
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -133,6 +135,23 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         ShopController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         ShopController.getInstance().showShop();
+                    }
+                });
+            }
+            if (mainMenuButton.getText().toString().equals("Deck")) {
+                mainMenuButton.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        DeckMenuController.getInstance().setUser(MainMenuController.getInstance().getUser());
+                        DeckMenuController.getInstance().showDeckMenu();
+                    }
+                });
+            }
+            if (mainMenuButton.getText().toString().equals("Logout")) {
+                mainMenuButton.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        UserController.getInstance().logoutUser();
                     }
                 });
             }

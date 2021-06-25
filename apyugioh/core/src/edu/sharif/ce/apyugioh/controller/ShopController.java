@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Inventory;
+import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.model.card.Card;
 import edu.sharif.ce.apyugioh.view.ShopView;
@@ -66,6 +67,7 @@ public class ShopController {
     }
 
     public void showShop() {
-        ProgramController.getGame().setScreen(view);
+        ProgramController.setState(MenuState.SHOP);
+        ProgramController.setCurrentMenu(view);
     }
 }
