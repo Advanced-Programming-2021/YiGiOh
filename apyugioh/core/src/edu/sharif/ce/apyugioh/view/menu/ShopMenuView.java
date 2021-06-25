@@ -19,10 +19,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+
+import java.util.Arrays;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
@@ -67,6 +70,7 @@ public class ShopMenuView extends Menu {
     private TextButton buyButton;
     private Inventory userInventory;
     private Card poppedUpCard;
+    private TextField searchBox;
 
     public ShopMenuView(YuGiOh game) {
         super(game);
@@ -77,6 +81,7 @@ public class ShopMenuView extends Menu {
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
         moveCamera = false;
         manager = new CardActionsManager();
+        searchBox = new TextField("", AssetController.getSkin("first"));
     }
 
     @Override
@@ -85,6 +90,23 @@ public class ShopMenuView extends Menu {
         batch = new SpriteBatch();
         stage = new Stage();
         animationSpeed = 1;
+        searchBox.setMessageText("Card Name");
+        searchBox.setTextFieldListener(new TextField.TextFieldListener() {
+            @Override
+            public void keyTyped(TextField textField, char c) {
+                if (manager.isDone() && poppedUpCard == null) {
+                    searchCards(textField.getText());
+                    if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.BACK)) {
+                        stage.setKeyboardFocus(null);
+                        System.out.println("Pressed Escape");
+                    } else {
+                        System.out.println("Typed: " + (int) c);
+                    }
+                }
+            }
+        });
+        searchBox.setPosition(1480, 50);
+        searchBox.setSize(250, 45);
         initializeCards();
         scroll = new ScrollPane(null, AssetController.getSkin("first"));
         scroll.setSize(1448, 1080);
@@ -96,6 +118,7 @@ public class ShopMenuView extends Menu {
         currentMoney.setPosition(1525, 1000);
         stage.addActor(currentMoney);
         initializeWindow();
+        stage.addActor(searchBox);
         buyButton.addListener(new ButtonClickListener() {
             @Override
             public void clickAction() {
@@ -164,6 +187,27 @@ public class ShopMenuView extends Menu {
                 manager.addAction(action2);
                 cards.add(card);
                 columnCounter++;
+                if (columnCounter == 10) {
+                    columnCounter = 0;
+                    rowCounter++;
+                }
+            }
+        }
+    }
+
+    private void searchCards(String cardName) {
+        for (CardModelView card : cards) {
+            card.setTranslation(-1, -1, -1);
+        }
+        cards.clear();
+        int rowCounter = 0, columnCounter = 0;
+        String[] foundCards = Arrays.stream(DatabaseManager.getCards().getAllCardNames()).filter(e -> e.matches("(?i).*" + cardName + ".*")).sorted().toArray(String[]::new);
+        for (String foundCardName : foundCards) {
+            CardModelView card = deck.getCard(foundCardName);
+            if (card != null) {
+                card.setTranslation(75, 40 - 18 * rowCounter, -80 + 13 * columnCounter);
+                columnCounter++;
+                cards.add(card);
                 if (columnCounter == 10) {
                     columnCounter = 0;
                     rowCounter++;
@@ -317,6 +361,7 @@ public class ShopMenuView extends Menu {
                 if (poppedUpCard != null) {
                     poppedUpCard = null;
                 }
+                searchBox.setText("");
                 manager.clear();
                 AssetController.stopSound();
                 game.setScreen(MainMenuController.getView());
