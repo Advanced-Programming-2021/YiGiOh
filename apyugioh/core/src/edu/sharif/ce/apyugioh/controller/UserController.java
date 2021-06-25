@@ -63,6 +63,9 @@ public class UserController {
     }
 
     public void showMenu() {
+        if (view != null)
+            view.dispose();
+        view = new UserMenuView(ProgramController.getGame());
         ProgramController.setState(MenuState.LOGIN);
         ProgramController.getGame().setScreen(view);
     }

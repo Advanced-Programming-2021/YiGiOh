@@ -37,6 +37,8 @@ public class DeckMenuController {
     }
 
     public void back(){
+        view.dispose();
+        view = null;
         MainMenuController.getInstance().showMainMenu();
     }
 
