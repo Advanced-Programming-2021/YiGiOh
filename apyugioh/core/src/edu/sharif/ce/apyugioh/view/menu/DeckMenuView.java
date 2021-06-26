@@ -96,7 +96,7 @@ public class DeckMenuView extends Menu {
         stage.act();
         stage.draw();
         if (!Gdx.input.isButtonPressed(Input.Buttons.LEFT) && draggingCard != null)
-            dragCard();
+            dragCard(Gdx.input.getX(),Gdx.graphics.getHeight()-Gdx.input.getY());
         if (draggingCard != null){
             draggingCard.setPosition(Gdx.input.getX(),Gdx.graphics.getHeight()-Gdx.input.getY());
             stage.getBatch().begin();
@@ -145,7 +145,7 @@ public class DeckMenuView extends Menu {
         selectedCard.setWidth(cardPreviewWindow.getWidth()*0.9f);
         selectedCard.setHeight(cardPreviewWindow.getHeight()*0.9f);
         cardPreviewWindow.add(selectedCard).fill().center();
-        ScrollPane inventoryScrollPane = new ScrollPane(inventoryCards.getCardsTable(),AssetController.getSkin("first"),"vertical");
+        ScrollPane inventoryScrollPane = new ScrollPane(inventoryCards.getCardsTable(),AssetController.getSkin("first"));
         inventoryScrollPane.setFillParent(true);
         inventoryScrollPane.setFlickScroll(false);
         inventoryWindow.add(inventoryScrollPane).fill().padRight(10).padLeft(10).center();
@@ -154,7 +154,7 @@ public class DeckMenuView extends Menu {
         sideDeckScrollPane.setFlickScroll(false);
         sideDeckScrollPane.setScrollbarsVisible(false);
         sideDeckWindow.add(sideDeckScrollPane).fill().left();
-        ScrollPane mainDeckScrollPane = new ScrollPane(mainDeckCards.getCardsTable(),AssetController.getSkin("first"),"vertical");
+        ScrollPane mainDeckScrollPane = new ScrollPane(mainDeckCards.getCardsTable(),AssetController.getSkin("first"));
         mainDeckScrollPane.setFillParent(true);
         mainDeckScrollPane.setFlickScroll(false);
         mainDeckWindow.add(mainDeckScrollPane).fill().left();
@@ -208,8 +208,21 @@ public class DeckMenuView extends Menu {
 
     private void selectDeck(Deck deck){
         selectedDeck = deck;
-        updateSelectedDeck(deck);
         loadDeck(deck);
+    }
+
+    private void newDeck(){
+        String deckName = "DeckName ali";
+        //getDeckName
+
+    }
+
+    private void deleteDeck(){
+
+    }
+
+    private void selectAsMainDeck(){
+
     }
 
     private void loadDeck(Deck deck){
@@ -231,13 +244,7 @@ public class DeckMenuView extends Menu {
         sideDeckCards.setCards(sideDeckMonsters,sideDeckSpells,sideDeckTraps);
     }
 
-    private void updateSelectedDeck(Deck deck){
-
-    }
-
-    private void dragCard(){
-        float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.graphics.getHeight()-Gdx.input.getY();
+    private void dragCard(float mouseX,float mouseY){
         //dragged to Inventory
         if (isInsideWindow(inventoryWindow,mouseX,mouseY)){
             if (draggingCardContainer != inventoryCards){
@@ -276,8 +283,6 @@ public class DeckMenuView extends Menu {
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ESCAPE)
                     DeckMenuController.getInstance().back();
-                if (keycode == Input.Keys.ENTER)
-                    draggingCard = null;
                 return super.keyDown(event,keycode);
             }
         });
@@ -287,6 +292,24 @@ public class DeckMenuView extends Menu {
                 DeckMenuController.getInstance().back();
             }
         });
+        newDeckButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                newDeck();
+            }
+        });
+        deleteDeckButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                deleteDeck();
+            }
+        });
+        selectAsMainDeckButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                selectAsMainDeck();
+            }
+        })
     }
 
 }
@@ -399,7 +422,7 @@ class CardsContainer {
             cardActor.setSize(cardWidth,cardHeight);
             if (i%rowCardsCount==0 && i>0)
                 cardsTable.row();
-            cardsTable.add(cardActor).padRight(pad).padTop(pad);
+            cardsTable.add(cardActor).padRight(pad).padTop(pad).center();
         }
     }
 
