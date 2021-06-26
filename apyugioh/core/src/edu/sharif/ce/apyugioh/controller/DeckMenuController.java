@@ -28,6 +28,10 @@ public class DeckMenuController {
     private DeckMenuController(){
     }
 
+    public DeckMenuView getView() {
+        return view;
+    }
+
     public void showDeckMenu(){
         if (view != null)
             view.dispose();

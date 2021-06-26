@@ -23,9 +23,13 @@ public class CardActor extends Actor {
     @Setter
     private int amount;
     private Sprite cardSprite;
+    private String cardName;
+    private CardType cardType;
 
     public CardActor(String cardName,CardType cardType,float width,float height,int amount){
         super();
+        this.cardName = cardName;
+        this.cardType = cardType;
         cardSprite = new Sprite(new Texture(Gdx.files.local("assets/cards/" +
                 (cardType.equals(CardType.MONSTER) ? "monster" : "spell_trap") + "/" +
                 Utils.firstUpperOnly(cardName.replaceAll("\\s+", "") + ".jpg"))));
@@ -36,7 +40,28 @@ public class CardActor extends Actor {
 
     public CardActor(){
         super();
+        amount = 1;
         cardSprite = new Sprite(new Texture(Gdx.files.local("assets/cards/monster/Unknown.jpg")));
+    }
+
+    public CardType getCardType() {
+        return cardType;
+    }
+
+    public void setCardType(CardType cardType) {
+        this.cardType = cardType;
+    }
+
+    public String getCardName() {
+        return cardName;
+    }
+
+    public void setCardName(String cardName) {
+        this.cardName = cardName;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
     public static CardActor clone(CardActor cardActor){
@@ -44,7 +69,20 @@ public class CardActor extends Actor {
         cloneCard.getCardSprite().setTexture(cardActor.getCardSprite().getTexture());
         cloneCard.setWidth(cardActor.getWidth());
         cloneCard.setHeight(cardActor.getHeight());
+        cloneCard.setCardType(cardActor.getCardType());
+        cloneCard.setCardName(cardActor.getCardName());
+        cloneCard.setAmount(1);
         return cloneCard;
+    }
+
+    public Sprite getCardSprite() {
+        return cardSprite;
+    }
+
+    public void changeAmount(int delta){
+        amount += delta;
+        if (amount<0)
+            amount = 0;
     }
 
     @Override
@@ -52,16 +90,12 @@ public class CardActor extends Actor {
         cardSprite.setBounds(getX(),getY(),getWidth(),getHeight());
         super.draw(batch, parentAlpha);
         cardSprite.draw(batch, parentAlpha);
-        if (amount>1){
+        if (amount!=1){
             Label amountLabel = new Label(""+amount, AssetController.getSkin("first"),"title");
             amountLabel.getStyle().fontColor = Color.BLACK;
             amountLabel.setPosition(cardSprite.getX()+cardSprite.getWidth()/2f, cardSprite.getY()+20);
             amountLabel.draw(batch,parentAlpha);
         }
-    }
-
-    public Sprite getCardSprite() {
-        return cardSprite;
     }
 
 }
