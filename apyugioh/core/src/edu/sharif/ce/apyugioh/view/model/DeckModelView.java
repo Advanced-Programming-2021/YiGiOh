@@ -14,17 +14,20 @@ import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.card.Card;
 import edu.sharif.ce.apyugioh.model.card.CardType;
+import lombok.Getter;
 
 public class DeckModelView {
 
     private HashMap<String, CardModelView> cardViews;
     private List<String> cardsToGive;
+    @Getter
+    private TextureAtlas atlas;
 
     public DeckModelView() {
         List<Card> cards = DatabaseManager.getCards().getAllCards();
         cardViews = new HashMap<>();
         Texture backTexture = new Texture(Gdx.files.local("assets/cards/monster/Unknown.jpg"));
-        TextureAtlas atlas = new TextureAtlas();
+        atlas = new TextureAtlas();
         atlas.addRegion("Unknown", backTexture, 0, 0, 354, 508);
         for (Card card : cards) {
             try {

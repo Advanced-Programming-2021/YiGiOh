@@ -1,13 +1,22 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.stream.Collectors;
+
 import edu.sharif.ce.apyugioh.controller.ProgramController;
+import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.card.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
+import edu.sharif.ce.apyugioh.model.card.CardType;
+import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Monster;
 
 public class AIPlayerController extends PlayerController {
 
@@ -16,19 +25,29 @@ public class AIPlayerController extends PlayerController {
     }
 
     public void startRoundAction() {
+        GameController.getUIView().update();
         getGameController().nextPhaseAI();
+        GameController.getUIView().update();
         getGameController().nextPhaseAI();
+        GameController.getUIView().update();
         int roundCount = getGameController().getRoundResults().size();
         if (setOrSummon(roundCount)) return;
+        GameController.getUIView().update();
         getGameController().nextPhaseAI();
+        GameController.getUIView().update();
         if (getGameController().getPassedTurns() > 1) {
             if (attackEachCard(roundCount)) return;
         }
+        GameController.getUIView().update();
         if (!isRoundEnded(roundCount)) {
             getGameController().nextPhaseAI();
+            GameController.getUIView().update();
             getGameController().nextPhaseAI();
+            GameController.getUIView().update();
             getGameController().nextPhase();
+            GameController.getUIView().update();
         }
+
     }
 
     private boolean attackEachCard(int roundCount) {
@@ -44,15 +63,18 @@ public class AIPlayerController extends PlayerController {
                 int position = selectLowestAttackMonster(getRivalPlayer().getField().getMonsterZone());
                 if (position == -1) {
                     directAttack();
+                    GameController.getUIView().update();
                 } else {
                     GameCard monsterToGetAttacked = getRivalPlayer().getField().getMonsterZone()[position];
                     if (monsterToGetAttacked.isFaceDown()) {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentDefense()) {
                             attack(position + 1);
+                            GameController.getUIView().update();
                         }
                     } else {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentAttack()) {
                             attack(position + 1);
+                            GameController.getUIView().update();
                         }
                     }
                 }
@@ -85,7 +107,7 @@ public class AIPlayerController extends PlayerController {
             if (!player.getField().isSpellZoneFull()) {
                 set();
             }
-            if (isRoundEnded(roundCount)) return true;
+            return isRoundEnded(roundCount);
         }
         return false;
     }

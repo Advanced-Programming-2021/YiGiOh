@@ -19,15 +19,15 @@ import java.util.HashMap;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
-import edu.sharif.ce.apyugioh.controller.DeckController;
 import edu.sharif.ce.apyugioh.controller.DeckMenuController;
+import edu.sharif.ce.apyugioh.controller.DuelController;
 import edu.sharif.ce.apyugioh.controller.MainMenuController;
 import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.controller.UserController;
+import edu.sharif.ce.apyugioh.controller.game.GameController;
+import edu.sharif.ce.apyugioh.model.AILevel;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
-import edu.sharif.ce.apyugioh.view.menu.Menu;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
-import edu.sharif.ce.apyugioh.view.model.DeckModelView;
 
 public class MainMenuView extends Menu {
 
@@ -42,7 +42,6 @@ public class MainMenuView extends Menu {
     private Stage stage;
     private SpriteBatch batch;
     ObjectSet<CardModelView> cards;
-    private DeckModelView deck;
     private Texture backgroundTexture;
     private HashMap<String, Window> windows;
 
@@ -63,14 +62,13 @@ public class MainMenuView extends Menu {
     public void show() {
         super.show();
         cards = new ObjectSet<>();
-        deck = new DeckModelView();
-        CardModelView card = deck.getRandom();
+        CardModelView card = AssetController.getDeck().getRandom();
         card.setTranslation(35, 0, 0);
         cards.add(card);
-        card = deck.getRandom();
+        card = AssetController.getDeck().getRandom();
         card.setTranslation(35, 0, 13);
         cards.add(card);
-        card = deck.getRandom();
+        card = AssetController.getDeck().getRandom();
         card.setTranslation(35, 0, -13);
         cards.add(card);
         createMainWindow();
@@ -135,6 +133,15 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         ShopController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         ShopController.getInstance().showShop();
+                    }
+                });
+            }
+            if (mainMenuButton.getText().toString().equals("Play")) {
+                mainMenuButton.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        DuelController.getInstance().startNoPlayerDuel(AILevel.EASY, AILevel.MEDIOCRE, 1);
+                        GameController.showGame();
                     }
                 });
             }

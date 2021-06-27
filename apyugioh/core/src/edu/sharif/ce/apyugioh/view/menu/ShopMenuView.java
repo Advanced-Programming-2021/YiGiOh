@@ -59,7 +59,7 @@ public class ShopMenuView extends Menu {
     private InputProcessor inputProcessor;
     private Stage stage;
     private SpriteBatch batch;
-    Array<CardModelView> cards;
+    private Array<CardModelView> cards;
     private DeckModelView deck;
     private Texture backgroundTexture;
     private CardActionsManager manager;
@@ -281,7 +281,7 @@ public class ShopMenuView extends Menu {
             lastX = 0;
             lastY = 0;
             if (Math.abs(x - startingX) < 10 && Math.abs(y - startingY) < 10 && manager.isDone()) {
-                if (x > 7 && x < 1447 && !cardShown) {
+                if (x > 7 && x < 1447 && !cardShown && !cards.isEmpty()) {
                     float shiftUp = cards.first().getPosition().y - 40;
                     int firstRow = (int) shiftUp / 18;
                     float firstRowAppeared = 18 - shiftUp % 18;

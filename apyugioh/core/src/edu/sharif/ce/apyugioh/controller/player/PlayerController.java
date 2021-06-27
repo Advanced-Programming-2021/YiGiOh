@@ -1,17 +1,30 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
+
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.game.SelectionController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.card.*;
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
+import edu.sharif.ce.apyugioh.model.card.CardType;
+import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.model.card.MonsterEffect;
+import edu.sharif.ce.apyugioh.model.card.MonsterType;
+import edu.sharif.ce.apyugioh.model.card.Spell;
+import edu.sharif.ce.apyugioh.model.card.SpellProperty;
 import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 public abstract class PlayerController {
@@ -26,8 +39,10 @@ public abstract class PlayerController {
     }
 
     public void select(CardLocation location) {
-        if (isZoneSelected(location, location.isFromMonsterZone(), player.getField().getMonsterZone())) return;
-        if (isZoneSelected(location, location.isFromSpellZone(), player.getField().getSpellZone())) return;
+        if (isZoneSelected(location, location.isFromMonsterZone(), player.getField().getMonsterZone()))
+            return;
+        if (isZoneSelected(location, location.isFromSpellZone(), player.getField().getSpellZone()))
+            return;
         if (isFieldZoneSelected(location)) return;
         if (isHandSelected(location)) return;
     }
