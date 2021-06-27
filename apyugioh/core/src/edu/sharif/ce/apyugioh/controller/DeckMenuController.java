@@ -3,6 +3,10 @@ package edu.sharif.ce.apyugioh.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+
+import edu.sharif.ce.apyugioh.model.Deck;
+import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.view.menu.DeckMenuView;
@@ -24,12 +28,20 @@ public class DeckMenuController {
     @Setter
     private User user;
     private DeckMenuView view;
+    private Deck selectedDeck;
+    private Inventory userInventory;
+    private ArrayList<Deck> userDecks;
 
     private DeckMenuController(){
     }
 
     public DeckMenuView getView() {
         return view;
+    }
+
+    public void preset(){
+        userDecks = new ArrayList<>();
+
     }
 
     public void showDeckMenu(){

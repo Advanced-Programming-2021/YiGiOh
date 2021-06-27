@@ -23,16 +23,14 @@ public class CardActor extends Actor {
     @Setter
     private int amount;
     private Sprite cardSprite;
-    private String cardName;
-    private CardType cardType;
+    private Card card;
 
-    public CardActor(String cardName,CardType cardType,float width,float height,int amount){
+    public CardActor(Card card,float width,float height,int amount){
         super();
-        this.cardName = cardName;
-        this.cardType = cardType;
+        this.card = card;
         cardSprite = new Sprite(new Texture(Gdx.files.local("assets/cards/" +
-                (cardType.equals(CardType.MONSTER) ? "monster" : "spell_trap") + "/" +
-                Utils.firstUpperOnly(cardName.replaceAll("\\s+", "") + ".jpg"))));
+                (card.getCardType().equals(CardType.MONSTER) ? "monster" : "spell_trap") + "/" +
+                Utils.firstUpperOnly(card.getName().replaceAll("\\s+", "") + ".jpg"))));
         setWidth(width);
         setHeight(height);
         this.amount = amount;
@@ -44,35 +42,26 @@ public class CardActor extends Actor {
         cardSprite = new Sprite(new Texture(Gdx.files.local("assets/cards/monster/Unknown.jpg")));
     }
 
-    public CardType getCardType() {
-        return cardType;
-    }
-
-    public void setCardType(CardType cardType) {
-        this.cardType = cardType;
-    }
-
-    public String getCardName() {
-        return cardName;
-    }
-
-    public void setCardName(String cardName) {
-        this.cardName = cardName;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
     public static CardActor clone(CardActor cardActor){
         CardActor cloneCard = new CardActor();
         cloneCard.getCardSprite().setTexture(cardActor.getCardSprite().getTexture());
         cloneCard.setWidth(cardActor.getWidth());
         cloneCard.setHeight(cardActor.getHeight());
-        cloneCard.setCardType(cardActor.getCardType());
-        cloneCard.setCardName(cardActor.getCardName());
+        cloneCard.setCard(cardActor.getCard());
         cloneCard.setAmount(1);
         return cloneCard;
+    }
+
+    public void setCard(Card card) {
+        this.card = card;
+    }
+
+    public Card getCard() {
+        return card;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
     public Sprite getCardSprite() {

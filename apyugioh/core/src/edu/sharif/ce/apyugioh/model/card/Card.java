@@ -18,4 +18,5 @@ public class Card {
     protected CardType cardType;
     @Setter
     protected List<Effects> cardEffects;
+
 }
