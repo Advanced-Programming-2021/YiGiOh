@@ -110,6 +110,7 @@ public class GameTurnController {
 
     public void firstMainPhase() {
         phase = Phase.MAIN1;
+        getGameController().applyEffect(Trigger.MAIN);
     }
 
     public void battlePhase() {
@@ -118,6 +119,7 @@ public class GameTurnController {
 
     public void secondMainPhase() {
         phase = Phase.MAIN2;
+        getGameController().applyEffect(Trigger.MAIN);
     }
 
     public void endPhase() {

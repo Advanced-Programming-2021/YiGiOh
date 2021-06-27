@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.model;
 
+import edu.sharif.ce.apyugioh.controller.DuelController;
 import edu.sharif.ce.apyugioh.model.card.Card;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import lombok.Getter;
