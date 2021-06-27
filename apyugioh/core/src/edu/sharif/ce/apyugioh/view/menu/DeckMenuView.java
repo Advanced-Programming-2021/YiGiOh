@@ -73,7 +73,6 @@ public class DeckMenuView extends Menu {
     private SpriteBatch batch;
     private CardActor selectedCard;
     private CardActor draggingCard;
-    private DeckListElement selectedDeckElement;
     private CardsContainer draggingCardContainer;
 
     public DeckMenuView(YuGiOh game) {
@@ -250,13 +249,13 @@ public class DeckMenuView extends Menu {
         selectedCard.getCardSprite().setTexture(cardActor.getCardSprite().getTexture());
     }
 
-    private void updateCardContainers(){
+    public void updateCardContainers(){
         loadUserInventory();
         loadSideDeckCards(DeckMenuController.getInstance().getSelectedDeck());
         loadMainDeckCards(DeckMenuController.getInstance().getSelectedDeck());
     }
 
-    private void updateDeckList(){
+    public void updateDeckList(){
         DeckMenuController.getInstance().loadUserDecks();
         activeDeckPreview.setIsSelectable(false);
         activeDeckPreview.setDeck(DeckMenuController.getInstance().getUserActiveDeck());
@@ -277,7 +276,7 @@ public class DeckMenuView extends Menu {
         }
     }
 
-    private void loadUserInventory() {
+    public void loadUserInventory() {
         DeckMenuController.getInstance().loadUserInventory();
         Inventory userInventory = DeckMenuController.getInstance().getUserInventory();
         Map<String, Integer> inventoryMonsters = userInventory.getMonsters();
@@ -292,12 +291,9 @@ public class DeckMenuView extends Menu {
     }
 
     private void deleteDeck() {
-        if (selectedDeckElement == null)
-            return;
         DeckMenuController.getInstance().deleteDeck();
         updateDeckList();
         updateCardContainers();
-        selectedDeckElement = null;
     }
 
     private void activateDeck() {
@@ -309,7 +305,6 @@ public class DeckMenuView extends Menu {
         DeckMenuController.getInstance().selectDeck(selectedDeck.getDeck());
         loadDeck(selectedDeck.getDeck());
         updateDeckList();
-        selectedDeckElement = selectedDeck;
     }
 
     private void loadDeck(Deck deck) {
@@ -318,8 +313,10 @@ public class DeckMenuView extends Menu {
     }
 
     private void loadMainDeckCards(Deck deck) {
-        if (deck == null)
+        if (deck == null) {
+            mainDeckCards.updateCards(null, null, null);
             return;
+        }
         Map<String, Integer> mainDeckMonsters = deck.getMonsters(false);
         Map<String, Integer> mainDeckSpells = deck.getSpells(false);
         Map<String, Integer> mainDeckTraps = deck.getTraps(false);
@@ -327,8 +324,10 @@ public class DeckMenuView extends Menu {
     }
 
     private void loadSideDeckCards(Deck deck) {
-        if (deck == null)
+        if (deck == null) {
+            sideDeckCards.updateCards(null, null, null);
             return;
+        }
         Map<String, Integer> sideDeckMonsters = deck.getMonsters(true);
         Map<String, Integer> sideDeckSpells = deck.getSpells(true);
         Map<String, Integer> sideDeckTraps = deck.getTraps(true);

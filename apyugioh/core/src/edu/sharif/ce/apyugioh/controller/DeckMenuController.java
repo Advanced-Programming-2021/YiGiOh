@@ -77,6 +77,7 @@ public class DeckMenuController {
             user.setMainDeckID(-1);
         DatabaseManager.updateUsersToDB();
         selectDeck(null);
+        view.updateCardContainers();
     }
 
     public void activateDeck() {
