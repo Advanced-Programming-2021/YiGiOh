@@ -1,34 +1,77 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.stream.Collectors;
+
 import edu.sharif.ce.apyugioh.controller.ProgramController;
+import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.controller.game.CheatController;
+import edu.sharif.ce.apyugioh.model.Cheats;
+import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.card.*;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
+import edu.sharif.ce.apyugioh.model.card.CardType;
+import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Monster;
 
 public class AIPlayerController extends PlayerController {
+
+    private GameCard cardHolderForMain2;
 
     public AIPlayerController(Player player) {
         super(player);
     }
 
     public void startRoundAction() {
+        GameController.getUIView().update();
         getGameController().nextPhaseAI();
+        GameController.getUIView().update();
         getGameController().nextPhaseAI();
+        GameController.getUIView().update();
         int roundCount = getGameController().getRoundResults().size();
         if (setOrSummon(roundCount)) return;
+        if (activeSpell(roundCount)) return;
+        GameController.getUIView().update();
         getGameController().nextPhaseAI();
+        GameController.getUIView().update();
         if (getGameController().getPassedTurns() > 1) {
             if (attackEachCard(roundCount)) return;
         }
+        GameController.getUIView().update();
         if (!isRoundEnded(roundCount)) {
             getGameController().nextPhaseAI();
+            if (summonInMain2(roundCount)) return;
+            if (activeSpell(roundCount)) return;
+            GameController.getUIView().update();
             getGameController().nextPhaseAI();
+            GameController.getUIView().update();
             getGameController().nextPhase();
+            GameController.getUIView().update();
         }
+
+    }
+
+    private boolean activeSpell(int roundCount) {
+        List<GameCard> toActiveSpells = Arrays.stream(player.getField().getSpellZone())
+                .filter(Objects::nonNull)
+                .filter(e -> !e.isRevealed())
+                .filter(e -> e.getCard().getCardType().equals(CardType.SPELL))
+                .collect(Collectors.toList());
+        CardLocation location = selectBestSpellFromSpellZone(toActiveSpells);
+        if (location != null) {
+            select(location);
+            toActiveSpells.remove(getSelectionController().getCard());
+            activeEffect();
+            if (isRoundEnded(roundCount)) return true;
+        }
+        return false;
     }
 
     private boolean attackEachCard(int roundCount) {
@@ -44,15 +87,18 @@ public class AIPlayerController extends PlayerController {
                 int position = selectLowestAttackMonster(getRivalPlayer().getField().getMonsterZone());
                 if (position == -1) {
                     directAttack();
+                    GameController.getUIView().update();
                 } else {
                     GameCard monsterToGetAttacked = getRivalPlayer().getField().getMonsterZone()[position];
                     if (monsterToGetAttacked.isFaceDown()) {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentDefense()) {
                             attack(position + 1);
+                            GameController.getUIView().update();
                         }
                     } else {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentAttack()) {
                             attack(position + 1);
+                            GameController.getUIView().update();
                         }
                     }
                 }
@@ -70,11 +116,16 @@ public class AIPlayerController extends PlayerController {
         if (getSelectionController() != null) {
             if ((((Monster) getSelectionController().getCard().getCard()).getLevel() <= 4 && !player.getField().isMonsterZoneFull())
                     || (((Monster) getSelectionController().getCard().getCard()).getLevel() > 4)) {
-                if (getSelectionController().getCard().getCurrentAttack() > 700 &&
-                        getSelectionController().getCard().getCurrentAttack() > getSelectionController().getCard().getCurrentDefense()) {
-                    summon();
+                if (!isContainEffect(Effects.DESTROY_ALL_MONSTERS) || isSummonHelpful(getSelectionController().getCard())) {
+                    if (getSelectionController().getCard().getCurrentAttack() > 700 &&
+                            getSelectionController().getCard().getCurrentAttack() > getSelectionController().getCard().getCurrentDefense()) {
+                        summon();
+                    } else {
+                        set();
+                    }
                 } else {
-                    set();
+                    cardHolderForMain2 = getSelectionController().getCard();
+                    deselect();
                 }
             }
             if (isRoundEnded(roundCount)) return true;
@@ -85,9 +136,86 @@ public class AIPlayerController extends PlayerController {
             if (!player.getField().isSpellZoneFull()) {
                 set();
             }
+            return isRoundEnded(roundCount);
+        }
+
+        activeCheats();
+
+        return false;
+    }
+
+    private boolean summonInMain2(int roundCount) {
+        if (cardHolderForMain2 == null) return false;
+        CardLocation location = new CardLocation();
+        location.setInHand(true);
+        for (int i = 0; i < 5; i++) {
+            if (getPlayer().getField().getMonsterZone()[i] != null &&
+                    getPlayer().getField().getMonsterZone()[i].getId() == cardHolderForMain2.getId()) {
+                location.setPosition(i);
+                break;
+            }
+        }
+        select(location);
+        cardHolderForMain2 = null;
+        if (getSelectionController() != null) {
+            summon();
             if (isRoundEnded(roundCount)) return true;
         }
+
         return false;
+    }
+
+    private void activeCheats() {
+        Random random = new Random(System.currentTimeMillis());
+        //Marshmallon cheat
+        if (random.nextInt(100) < 70 && isRivalContainEffect(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK)) {
+            new CheatController(gameControllerID).cheat(Cheats.SET_SPELL, new String[]{"Raigeki"});
+        }
+        //Man-Eater cheat
+        if (random.nextInt(100) < 50 && isRivalContainEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
+            new CheatController(gameControllerID).cheat(Cheats.SET_SPELL, new String[]{"Raigeki"});
+        }
+    }
+
+    private CardLocation selectBestSpellFromSpellZone(List<GameCard> spells) {
+        CardLocation location = new CardLocation();
+        location.setFromSpellZone(true);
+        GameCard spell = getBestSpell(spells.stream()
+                .filter(Objects::nonNull)
+                .filter(e -> !e.isRevealed())
+                .filter(e -> e.getCard().getCardType().equals(CardType.SPELL))
+                .collect(Collectors.toList()));
+        if (spell == null) {
+            return null;
+        }
+        for (int i = 0; i < 5; i++) {
+            if (player.getField().getSpellZone()[i] != null && player.getField().getSpellZone()[i].getId() == spell.getId()) {
+                location.setPosition(i);
+                return location;
+            }
+        }
+        return null;
+    }
+
+    private GameCard getBestSpell(List<GameCard> cards) {
+        if (cards.size() == 0) {
+            return null;
+        }
+        Effects bestEffect = null;
+        if (isContainEffect(Effects.DESTROY_ALL_MONSTERS)) {
+            bestEffect = Effects.DESTROY_ALL_MONSTERS;
+        }
+        for (GameCard spell : cards) {
+            if (spell == null) continue;
+            if (bestEffect != null && spell.getEffects().contains(bestEffect)) {
+                if (areRivalMonstersStronger()) {
+                    return spell;
+                }
+            } else {
+                return spell;
+            }
+        }
+        return null;
     }
 
     private CardLocation selectSpellFromHand() {
@@ -271,6 +399,75 @@ public class AIPlayerController extends PlayerController {
         }
     }
 
+    private int getNumberOfMonsters(Player player) {
+        return (int) Arrays.stream(player.getField().getMonsterZone()).filter(Objects::nonNull).count();
+    }
+
+    private int getRivalHighestLevelMonster() {
+        int maxLevel = 0;
+        GameCard[] rivalMonsters = getRivalPlayer().getField().getMonsterZone();
+        for (GameCard rivalMonster : rivalMonsters) {
+            if (rivalMonster != null && ((Monster) rivalMonster.getCard()).getLevel() > maxLevel) {
+                maxLevel = ((Monster) rivalMonster.getCard()).getLevel();
+            }
+        }
+        return maxLevel;
+    }
+
+    private int getHighestLevelMonster() {
+        int maxLevel = 0;
+        GameCard[] monsters = getPlayer().getField().getMonsterZone();
+        for (GameCard monster : monsters) {
+            if (monster != null && ((Monster) monster.getCard()).getLevel() > maxLevel) {
+                maxLevel = ((Monster) monster.getCard()).getLevel();
+            }
+        }
+        return maxLevel;
+    }
+
+    private boolean isRivalContainEffect(Effects effect) {
+        return Arrays.stream(getRivalPlayer().getField().getMonsterZone())
+                .filter(Objects::nonNull).anyMatch(e -> e.getEffects().contains(effect));
+    }
+
+    private boolean isContainEffect(Effects effect) {
+        for (int i = 0; i < 5; i++) {
+            if (player.getField().getSpellZone()[i] != null &&
+                    player.getField().getSpellZone()[i].getCard().getCardEffects().contains(effect)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int getHighestMonsterAttack(Player player) {
+        GameCard highestAttackMonster = getHighestAttackMonster(Arrays.stream(player.getField().getMonsterZone())
+                .filter(Objects::nonNull).collect(Collectors.toList()));
+        if (highestAttackMonster == null) return 0;
+        return highestAttackMonster.getCurrentAttack();
+    }
+
+    private int getLowestMonsterAttack(Player player) {
+        GameCard lowestAttackMonster = getLowestAttackMonster(Arrays.stream(player.getField().getMonsterZone())
+                .filter(Objects::nonNull).collect(Collectors.toList()));
+        if (lowestAttackMonster == null) return 0;
+        return lowestAttackMonster.getCurrentAttack();
+    }
+
+    private boolean areRivalMonstersStronger() {
+        return getHighestMonsterAttack(getRivalPlayer()) > getHighestMonsterAttack(getPlayer()) ||
+                getLowestMonsterAttack(getRivalPlayer()) > getLowestMonsterAttack(getPlayer()) ||
+                getRivalHighestLevelMonster() > getHighestLevelMonster() ||
+                getNumberOfMonsters(getRivalPlayer()) > getNumberOfMonsters(getPlayer());
+    }
+
+    private boolean isSummonHelpful(GameCard cardToSummon) {
+        return !(getHighestMonsterAttack(getRivalPlayer()) > Math.max(getHighestMonsterAttack(getPlayer()), cardToSummon.getCurrentAttack()) ||
+                getLowestMonsterAttack(getRivalPlayer()) > Math.min(getLowestMonsterAttack(getPlayer()), cardToSummon.getCurrentAttack()) ||
+                getRivalHighestLevelMonster() > Math.max(getHighestLevelMonster(), ((Monster) cardToSummon.getCard()).getLevel()) ||
+                getNumberOfMonsters(getRivalPlayer()) > getNumberOfMonsters(getPlayer()) + 1);
+    }
+
     //special Cases
 
     //TributeMonsterForSummon
@@ -387,8 +584,8 @@ public class AIPlayerController extends PlayerController {
 
     //Select card from both graveyards
     @Override
-    public GameCard selectCardFromAllGraveyards() {
-        super.selectCardFromAllGraveyards();
+    public GameCard selectMonsterFromAllGraveyards() {
+        super.selectMonsterFromAllGraveyards();
         return getBestMonster(availableCards);
     }
 

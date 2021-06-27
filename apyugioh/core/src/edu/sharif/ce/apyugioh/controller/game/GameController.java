@@ -1,14 +1,5 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
-import edu.sharif.ce.apyugioh.controller.ProgramController;
-import edu.sharif.ce.apyugioh.controller.Utils;
-import edu.sharif.ce.apyugioh.controller.player.AIPlayerController;
-import edu.sharif.ce.apyugioh.controller.player.PlayerController;
-import edu.sharif.ce.apyugioh.model.*;
-import edu.sharif.ce.apyugioh.model.card.*;
-import edu.sharif.ce.apyugioh.view.GameView;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,6 +7,31 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import edu.sharif.ce.apyugioh.controller.ProgramController;
+import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.controller.player.AIPlayerController;
+import edu.sharif.ce.apyugioh.controller.player.PlayerController;
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
+import edu.sharif.ce.apyugioh.model.EffectResponse;
+import edu.sharif.ce.apyugioh.model.Effects;
+import edu.sharif.ce.apyugioh.model.Inventory;
+import edu.sharif.ce.apyugioh.model.Phase;
+import edu.sharif.ce.apyugioh.model.Player;
+import edu.sharif.ce.apyugioh.model.RoundResult;
+import edu.sharif.ce.apyugioh.model.Trigger;
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
+import edu.sharif.ce.apyugioh.model.card.CardType;
+import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Spell;
+import edu.sharif.ce.apyugioh.model.card.SpellProperty;
+import edu.sharif.ce.apyugioh.view.GameView;
+import edu.sharif.ce.apyugioh.view.menu.GameMenuView;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -23,12 +39,15 @@ public class GameController {
     private static List<GameController> gameControllers;
     @Getter
     private static GameView view;
+    @Getter
+    private static GameMenuView UIView;
     private static Logger logger;
 
     //initialize block
     static {
         gameControllers = new ArrayList<>();
         view = new GameView();
+        UIView = new GameMenuView(ProgramController.getGame());
         logger = LogManager.getLogger(GameController.class);
     }
 
@@ -71,12 +90,14 @@ public class GameController {
     }
 
     public void play() {
+        UIView.initializePlayers(firstPlayer, secondPlayer);
         for (int i = 0; i < 3; i++) {
             logger.info("in game with id {}: {} drew {} from deck", id, firstPlayer.getPlayer().getUser()
                     .getNickname(), firstPlayer.getPlayer().getField().drawCard().getCard().getName());
             logger.info("in game with id {}: {} drew {} from deck", id, secondPlayer.getPlayer().getUser()
                     .getNickname(), secondPlayer.getPlayer().getField().drawCard().getCard().getName());
         }
+        showBoard();
         startRound();
     }
 
@@ -231,11 +252,13 @@ public class GameController {
                 cardPlayer.getField().removeFromSpellZone(card);
                 cardPlayer.getField().putInGraveyard(card);
             } else if (((Spell) card.getCard()).getProperty().equals(SpellProperty.FIELD)) {
-                if (cardPlayer.getField().isInHand(card)) cardPlayer.getField().removeFromHand(card);
+                if (cardPlayer.getField().isInHand(card))
+                    cardPlayer.getField().removeFromHand(card);
                 else cardPlayer.getField().removeFromFieldZone(card);
                 cardPlayer.getField().putInGraveyard(card);
             } else {
-                if (cardPlayer.getField().isInHand(card)) cardPlayer.getField().removeFromHand(card);
+                if (cardPlayer.getField().isInHand(card))
+                    cardPlayer.getField().removeFromHand(card);
                 else cardPlayer.getField().removeFromSpellZone(card);
                 cardPlayer.getField().putInGraveyard(card);
             }
@@ -354,6 +377,12 @@ public class GameController {
                 if (cardEffect.equals(Effects.MAGNUM_SHIELD)) {
                     effectController.magnumShield();
                 }
+                if (cardEffect.equals(Effects.TWIN_TWISTERS)) {
+                    effectController.twinTwisters();
+                }
+                if (cardEffect.equals(Effects.DESTROY_SPELL_OR_TRAP)) {
+                    effectController.destroySpellTrap();
+                }
                 if (cardEffect.equals(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
                     getCurrentPlayerEffectControllers().add(effectController);
                 }
@@ -383,25 +412,23 @@ public class GameController {
     public boolean canActiveTrap(EffectController effectController) {
         if (getRivalPlayerEffectControllers().contains(effectController)) {
             activeTrapInRivalTurn();
-            if (getRivalPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
+            if (getPlayerControllerByCard(effectController.getEffectCard()).confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
+                effectController.getEffectCard().setRevealed(true);
                 EffectResponse response = applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
                 if (response == null) return true;
                 if (response.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
                     removeSpellTrapCard(effectController.getEffectCard());
                     return false;
-                }
-                else return true;
+                } else return true;
             }
-        }
-        else if (getCurrentPlayerEffectControllers().contains(effectController)) {
+        } else if (getCurrentPlayerEffectControllers().contains(effectController)) {
             if (getCurrentPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
                 EffectResponse response = applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
                 if (response == null) return true;
                 if (response.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
                     removeSpellTrapCard(effectController.getEffectCard());
                     return false;
-                }
-                else return true;
+                } else return true;
             }
         }
         return false;
@@ -459,6 +486,11 @@ public class GameController {
                 if (effectController.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
                     effectController.scanDestroyedRivalMonster();
                     effectController.disposableEffect();
+                }
+            } else if (trigger.equals(Trigger.MAIN)) {
+                //Call of the Haunted
+                if (effectController.containEffect(Effects.CALL_OF_THE_HAUNTED) && canActiveTrap(effectController)) {
+                    effectController.callOfTheHaunted();
                 }
             } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
                 //Man-Eater Bug
@@ -561,6 +593,11 @@ public class GameController {
                 //Mind Crush
                 if (effectController.containEffect(Effects.MIND_CRUSH) && canActiveTrap(effectController)) {
                     effectController.mindCrush();
+                }
+            } else if (trigger.equals(Trigger.MAIN)) {
+                //Call of the Haunted
+                if (effectController.containEffect(Effects.CALL_OF_THE_HAUNTED) && canActiveTrap(effectController)) {
+                    effectController.callOfTheHaunted();
                 }
             } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
                 //Mirror Force
@@ -868,5 +905,13 @@ public class GameController {
 
     public Player getRivalPlayer() {
         return getRivalPlayerController().getPlayer();
+    }
+
+    public static void showGame() {
+        ProgramController.getGame().setScreen(UIView);
+    }
+
+    public PlayerController getPlayerControllerByCard(GameCard card) {
+        return getPlayerControllerByPlayer(getPlayerByCard(card));
     }
 }

@@ -91,8 +91,8 @@ public class NormalPlayerController extends PlayerController {
     }
 
     //Select card from both graveyards
-    public GameCard selectCardFromAllGraveyards() {
-        super.selectCardFromAllGraveyards();
+    public GameCard selectMonsterFromAllGraveyards() {
+        super.selectMonsterFromAllGraveyards();
         return getGameCard(availableCards);
     }
 

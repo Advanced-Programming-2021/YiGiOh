@@ -1,17 +1,30 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
+
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.game.SelectionController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.card.*;
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
+import edu.sharif.ce.apyugioh.model.card.CardType;
+import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.model.card.MonsterEffect;
+import edu.sharif.ce.apyugioh.model.card.MonsterType;
+import edu.sharif.ce.apyugioh.model.card.Spell;
+import edu.sharif.ce.apyugioh.model.card.SpellProperty;
 import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 public abstract class PlayerController {
@@ -26,8 +39,10 @@ public abstract class PlayerController {
     }
 
     public void select(CardLocation location) {
-        if (isZoneSelected(location, location.isFromMonsterZone(), player.getField().getMonsterZone())) return;
-        if (isZoneSelected(location, location.isFromSpellZone(), player.getField().getSpellZone())) return;
+        if (isZoneSelected(location, location.isFromMonsterZone(), player.getField().getMonsterZone()))
+            return;
+        if (isZoneSelected(location, location.isFromSpellZone(), player.getField().getSpellZone()))
+            return;
         if (isFieldZoneSelected(location)) return;
         if (isHandSelected(location)) return;
     }
@@ -255,9 +270,13 @@ public abstract class PlayerController {
     }
 
     //Select card from both graveyards
-    public GameCard selectCardFromAllGraveyards() {
-        availableCards = new ArrayList<>(player.getField().getGraveyard());
-        availableCards.addAll(getRivalPlayer().getField().getGraveyard());
+    public GameCard selectMonsterFromAllGraveyards() {
+        availableCards = new ArrayList<>(player.getField().getGraveyard().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .collect(Collectors.toList()));
+        availableCards.addAll(getRivalPlayer().getField().getGraveyard().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .collect(Collectors.toList()));
         return null;
     }
 
@@ -297,6 +316,10 @@ public abstract class PlayerController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         availableCards.add(player.getField().getFieldZone());
+        availableCards = Arrays.stream(getRivalPlayer().getField().getSpellZone())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        availableCards.add(getRivalPlayer().getField().getFieldZone());
         return null;
     }
 

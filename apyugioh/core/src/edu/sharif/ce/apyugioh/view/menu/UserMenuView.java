@@ -27,7 +27,6 @@ import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
-import edu.sharif.ce.apyugioh.view.model.DeckModelView;
 
 public class UserMenuView extends Menu {
 
@@ -51,11 +50,10 @@ public class UserMenuView extends Menu {
 
 
     private boolean loaded;
-    private final float transitionSpeed = 1;
+    private final float transitionSpeed = 3;
     private Stage stage;
     private SpriteBatch batch;
     ObjectSet<CardModelView> cards;
-    private DeckModelView deck;
     private Texture backgroundTexture;
     private HashMap<String, Window> windows;
 
@@ -75,14 +73,14 @@ public class UserMenuView extends Menu {
     public void show() {
         super.show();
         cards = new ObjectSet<>();
-        deck = new DeckModelView();
-        CardModelView card = deck.getRandom();
+        AssetController.loadDeck();
+        CardModelView card = AssetController.getDeck().getRandom();
         card.setTranslation(35, 0, 0);
         cards.add(card);
-        card = deck.getRandom();
+        card = AssetController.getDeck().getRandom();
         card.setTranslation(35, 0, 13);
         cards.add(card);
-        card = deck.getRandom();
+        card = AssetController.getDeck().getRandom();
         card.setTranslation(35, 0, -13);
         cards.add(card);
         createWindows();

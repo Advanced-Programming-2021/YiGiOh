@@ -7,10 +7,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.sharif.ce.apyugioh.view.model.DeckModelView;
+import lombok.Getter;
+
 public class AssetController {
     private static HashMap<String, Skin> SKINS;
     private static HashMap<String, Sound> SOUNDS;
     private static HashMap<Long, Sound> currentlyPlayingSounds;
+    @Getter
+    private static DeckModelView deck;
 
     public static void loadAssets() {
         SKINS = new HashMap<>();
@@ -22,6 +27,10 @@ public class AssetController {
         SOUNDS.put("chain", Gdx.audio.newSound(Gdx.files.internal("sounds/chain.mp3")));
         SOUNDS.put("deal", Gdx.audio.newSound(Gdx.files.internal("sounds/card_deal.mp3")));
         SOUNDS.put("flip", Gdx.audio.newSound(Gdx.files.internal("sounds/card_flip.mp3")));
+    }
+
+    public static void loadDeck() {
+        deck = new DeckModelView();
     }
 
     public static void addSkin(String name, Skin skin) {

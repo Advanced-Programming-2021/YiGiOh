@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 
@@ -30,6 +31,7 @@ public class CardModelView implements Disposable {
     public void render(ModelBatch batch, Environment environment) {
         cardFront.environment = environment;
         cardBack.environment = environment;
+        cardFront.worldTransform.getRotation(new Quaternion());
         batch.render(cardFront);
         batch.render(cardBack);
     }
@@ -65,6 +67,11 @@ public class CardModelView implements Disposable {
     public void lerp(Matrix4 target, float alpha) {
         cardFront.worldTransform.lerp(target, alpha);
         cardBack.worldTransform.lerp(target, alpha);
+    }
+
+    public void scale(float x, float y, float z) {
+        cardBack.worldTransform.scale(x, y, z);
+        cardFront.worldTransform.scale(x, y, z);
     }
 
     public Card getCard() {

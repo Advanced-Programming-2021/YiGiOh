@@ -1,7 +1,17 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.sharif.ce.apyugioh.controller.Utils;
-import edu.sharif.ce.apyugioh.model.*;
+import edu.sharif.ce.apyugioh.model.EffectResponse;
+import edu.sharif.ce.apyugioh.model.Field;
+import edu.sharif.ce.apyugioh.model.Phase;
+import edu.sharif.ce.apyugioh.model.Player;
+import edu.sharif.ce.apyugioh.model.Trigger;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.model.card.Monster;
@@ -9,11 +19,6 @@ import edu.sharif.ce.apyugioh.model.card.MonsterSummon;
 import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -83,7 +88,8 @@ public class GameTurnController {
             return;
         }
         GameCard drawnCard = getCurrentPlayerField().drawCard();
-        if (drawnCard == null) getGameController().endRound(!getGameController().isFirstPlayerTurn());
+        if (drawnCard == null)
+            getGameController().endRound(!getGameController().isFirstPlayerTurn());
         logger.info("in game with id {}: {} drew {} from deck", gameControllerID, getCurrentPlayer().getUser()
                 .getNickname(), drawnCard.getCard().getName());
         while (getCurrentPlayerField().getHand().size() > 6) {
@@ -104,6 +110,7 @@ public class GameTurnController {
 
     public void firstMainPhase() {
         phase = Phase.MAIN1;
+        getGameController().applyEffect(Trigger.MAIN);
     }
 
     public void battlePhase() {
@@ -112,6 +119,7 @@ public class GameTurnController {
 
     public void secondMainPhase() {
         phase = Phase.MAIN2;
+        getGameController().applyEffect(Trigger.MAIN);
     }
 
     public void endPhase() {

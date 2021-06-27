@@ -68,4 +68,12 @@ public class Utils {
         }
     }
 
+    public static boolean almostEqual(float a, float b) {
+        return Math.abs(a - b) < 0.1f;
+    }
+
+    public static boolean almostEqual(float a, float b, float precision) {
+        return Math.abs(a - b) < precision;
+    }
+
 }
