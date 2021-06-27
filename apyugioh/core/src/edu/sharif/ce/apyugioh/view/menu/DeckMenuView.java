@@ -2,38 +2,43 @@ package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
-import edu.sharif.ce.apyugioh.controller.DeckController;
 import edu.sharif.ce.apyugioh.controller.DeckMenuController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Deck;
 import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.card.Card;
-import edu.sharif.ce.apyugioh.model.card.CardType;
-import edu.sharif.ce.apyugioh.model.card.Spell;
-import edu.sharif.ce.apyugioh.model.card.SpellLimit;
-import edu.sharif.ce.apyugioh.model.card.Trap;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardActor;
 import lombok.Getter;
@@ -62,11 +67,13 @@ public class DeckMenuView extends Menu {
     private TextButton deleteDeckButton;
     private TextButton newDeckButton;
 
-    private Window currentDeckWindow;
+    private Window activeDeckWindow;
+    private DeckListElement activeDeckPreview;
 
     private SpriteBatch batch;
     private CardActor selectedCard;
     private CardActor draggingCard;
+    private DeckListElement selectedDeckElement;
     private CardsContainer draggingCardContainer;
 
     public DeckMenuView(YuGiOh game) {
@@ -84,8 +91,8 @@ public class DeckMenuView extends Menu {
     public void show() {
         super.show();
         initialize();
-        loadUserDecks();
-        loadUserInventory();
+        updateCardContainers();
+        updateDeckList();
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -116,17 +123,17 @@ public class DeckMenuView extends Menu {
     }
 
     private void initialize() {
-        inventoryCards = new CardsContainer(5, 200, 340, 50);
+        inventoryCards = new CardsContainer(5, 230, 340, 30);
         sideDeckCards = new CardsContainer(3, 170, 170 * 1.6f, 20);
         mainDeckCards = new CardsContainer(5, 170, 170 * 1.6f, 20);
         selectedCard = new CardActor();
-        inventoryWindow = new Window("Inventory", AssetController.getSkin("first"));
-        cardPreviewWindow = new Window("Preview", AssetController.getSkin("first"));
-        sideDeckWindow = new Window("Side Deck", AssetController.getSkin("first"));
-        mainDeckWindow = new Window("Main Deck", AssetController.getSkin("first"));
-        decksListWindow = new Window("Your Decks", AssetController.getSkin("first"));
+        inventoryWindow = new Window("", AssetController.getSkin("first"));
+        cardPreviewWindow = new Window("", AssetController.getSkin("first"));
+        sideDeckWindow = new Window("", AssetController.getSkin("first"));
+        mainDeckWindow = new Window("", AssetController.getSkin("first"));
+        decksListWindow = new Window("", AssetController.getSkin("first"));
         decksListTable = new Table();
-        currentDeckWindow = new Window("current Deck", AssetController.getSkin("first"));
+        activeDeckWindow = new Window("current Deck", AssetController.getSkin("first"));
         backButton = new TextButton("Back", AssetController.getSkin("first"));
         activateButton = new TextButton("Activate", AssetController.getSkin("first"));
         newDeckButton = new TextButton("New Deck...", AssetController.getSkin("first"));
@@ -136,15 +143,15 @@ public class DeckMenuView extends Menu {
         stage.addActor(sideDeckWindow);
         stage.addActor(mainDeckWindow);
         stage.addActor(decksListWindow);
-        stage.addActor(currentDeckWindow);
+        stage.addActor(activeDeckWindow);
         arrangeWidgets();
         addListeners();
     }
 
     private void arrangeWidgets() {
         arrangeWindows();
-        selectedCard.setWidth(cardPreviewWindow.getWidth() * 0.9f);
-        selectedCard.setHeight(cardPreviewWindow.getHeight() * 0.9f);
+        selectedCard.setWidth(cardPreviewWindow.getWidth() * 0.8f);
+        selectedCard.setHeight(cardPreviewWindow.getHeight() * 0.8f);
         cardPreviewWindow.add(selectedCard).fill().center();
         ScrollPane inventoryScrollPane = new ScrollPane(inventoryCards.getCardsTable(), AssetController.getSkin("first"));
         inventoryScrollPane.setFillParent(true);
@@ -159,13 +166,28 @@ public class DeckMenuView extends Menu {
         mainDeckScrollPane.setFillParent(true);
         mainDeckScrollPane.setFlickScroll(false);
         mainDeckWindow.add(mainDeckScrollPane).fill().left();
-        ScrollPane decksListScrollPane = new ScrollPane(decksListTable, AssetController.getSkin("first"));
-        decksListWindow.add(decksListScrollPane).expandX().colspan(4);
-        decksListWindow.row();
-        decksListWindow.add(backButton).colspan(1).fillX().height(60);
-        decksListWindow.add(newDeckButton).colspan(1).fillX().height(60);
-        decksListWindow.add(deleteDeckButton).colspan(1).fillX().height(60);
-        decksListWindow.add(activateButton).colspan(1).fillX().height(60);
+        ScrollPane deckScrollPane = new ScrollPane(decksListTable,AssetController.getSkin("first"),"horizontal");
+        deckScrollPane.setSize(decksListWindow.getWidth()*0.9f,decksListWindow.getHeight()*0.8f);
+        deckScrollPane.setPosition(decksListWindow.getX() + 20,decksListWindow.getY()+60);
+        stage.addActor(deckScrollPane);
+        backButton.setSize(decksListWindow.getWidth()*0.2f,60);
+        newDeckButton.setSize(decksListWindow.getWidth()*0.2f,60);
+        deleteDeckButton.setSize(decksListWindow.getWidth()*0.2f,60);
+        activateButton.setSize(decksListWindow.getWidth()*0.2f,60);
+
+        backButton.setPosition(decksListWindow.getX()+110,decksListWindow.getY()+10);
+        newDeckButton.setPosition(backButton.getX() +backButton.getWidth() +20,decksListWindow.getY()+10);
+        deleteDeckButton.setPosition(newDeckButton.getX() + newDeckButton.getWidth() +20,decksListWindow.getY()+10);
+        activateButton.setPosition(deleteDeckButton.getX()+ deleteDeckButton.getWidth() + 20,decksListWindow.getY()+10);
+        decksListWindow.setTouchable(Touchable.disabled);
+        stage.addActor(backButton);
+        stage.addActor(newDeckButton);
+        stage.addActor(deleteDeckButton);
+        stage.addActor(activateButton);
+        //stage.addActor(decksListTable);
+        activeDeckPreview = new DeckListElement("----",DeckMenuController.getInstance().getUser().getId(),
+                activeDeckWindow.getWidth()*0.5f,activeDeckWindow.getHeight()*0.85f,12);
+        activeDeckWindow.add(activeDeckPreview).expand().fill();
     }
 
     private void arrangeWindows() {
@@ -173,7 +195,7 @@ public class DeckMenuView extends Menu {
         float verticalPad = 20;
         float height = Gdx.graphics.getHeight() - verticalPad * 2 - 80;
         decksListWindow.setBounds(60, 40, 1500, height * 2 / 9f);
-        currentDeckWindow.setBounds(decksListWindow.getX() + decksListWindow.getWidth() + horizontalPad,
+        activeDeckWindow.setBounds(decksListWindow.getX() + decksListWindow.getWidth() + horizontalPad,
                 40, 240, height * 2 / 9f);
         sideDeckWindow.setBounds(60, decksListWindow.getY() + decksListWindow.getHeight() + verticalPad,
                 650, height * 3 / 9f);
@@ -185,151 +207,6 @@ public class DeckMenuView extends Menu {
         cardPreviewWindow.setBounds(inventoryWindow.getX() + inventoryWindow.getWidth() + horizontalPad,
                 sideDeckWindow.getY() + sideDeckWindow.getHeight() + verticalPad,
                 300, height * 4 / 9f);
-    }
-
-    public void selectCard(CardActor cardActor, CardsContainer container) {
-        draggingCardContainer = container;
-        draggingCard = CardActor.clone(cardActor);
-        selectedCard.getCardSprite().setTexture(cardActor.getCardSprite().getTexture());
-    }
-
-    private void loadUserInventory() {
-        userInventory = Inventory.getInventoryByUserID(DeckMenuController.getInstance().getUser().getId());
-        Map<String, Integer> inventoryMonsters = userInventory.getMonsters();
-        Map<String, Integer> inventorySpells = userInventory.getSpells();
-        Map<String, Integer> inventoryTraps = userInventory.getTraps();
-        inventoryCards.setCards(inventoryMonsters, inventorySpells, inventoryTraps);
-    }
-
-    private void loadUserDecks() {
-
-        if (userDecks.size() > 0)
-            selectDeck(userDecks.get(0));
-    }
-
-    private void selectDeck(Deck deck) {
-        selectedDeck = deck;
-        loadDeck(deck);
-    }
-
-    private void newDeck() {
-        String deckName = "DeckName ali";
-        //getDeckName
-
-    }
-
-    private void deleteDeck() {
-
-    }
-
-    private void activateDeck() {
-        DeckController.getInstance().getUser().setMainDeckID(selectedDeck.getId());
-        DatabaseManager.updateUsersToDB();
-        //
-    }
-
-    private void loadDeck(Deck deck) {
-        loadMainDeckCards(deck);
-        loadSideDeckCards(deck);
-    }
-
-    private void loadMainDeckCards(Deck deck) {
-        Map<String, Integer> mainDeckMonsters = (Map) deck.getMonsters(false);
-        Map<String, Integer> mainDeckSpells = (Map) deck.getSpells(false);
-        Map<String, Integer> mainDeckTraps = (Map) deck.getTraps(false);
-        mainDeckCards.setCards(mainDeckMonsters, mainDeckSpells, mainDeckTraps);
-    }
-
-    private void loadSideDeckCards(Deck deck) {
-        Map<String, Integer> sideDeckMonsters = (Map) deck.getMonsters(true);
-        Map<String, Integer> sideDeckSpells = (Map) deck.getSpells(true);
-        Map<String, Integer> sideDeckTraps = (Map) deck.getTraps(true);
-        sideDeckCards.setCards(sideDeckMonsters, sideDeckSpells, sideDeckTraps);
-    }
-
-    private void dragCard(float mouseX, float mouseY) {
-        //dragged to Inventory
-        if (isInsideWindow(inventoryWindow, mouseX, mouseY)) {
-            if (draggingCardContainer != inventoryCards)
-                draggingCardContainer.removeCard(draggingCard);
-        }
-        //dragged to sideDeck
-        if (isInsideWindow(sideDeckWindow, mouseX, mouseY))
-            addCardToSideDeck();
-        //dragged to mainDeck
-        if (isInsideWindow(mainDeckWindow, mouseX, mouseY))
-            addCardToMainDeck();
-        draggingCard = null;
-        draggingCardContainer = null;
-    }
-
-    private void addCardToMainDeck() {
-        if (selectedDeck == null)
-            return;
-        if (draggingCardContainer != mainDeckCards) {
-            if (!isCardAddLimited(draggingCard.getCard(), selectedDeck)) {
-                draggingCardContainer.removeCard(draggingCard);
-                mainDeckCards.addCard(draggingCard);
-            } else
-                showErrorDialog("You can't add this card to your deck anymore!");
-        }
-    }
-
-    private void removeCardFromMainDeck(){
-
-    }
-
-    private void
-
-    private void addCardToSideDeck() {
-        if (selectedDeck != null) {
-            if (draggingCardContainer != sideDeckCards) {
-                if (!isCardAddLimited(draggingCard.getCard(), selectedDeck)) {
-                    draggingCardContainer.removeCard(draggingCard);
-                    sideDeckCards.addCard(draggingCard);
-                } else
-                    showErrorDialog("You can't add this card to your deck anymore!");
-            }
-        }
-    }
-
-    private void showErrorDialog(String errorMessage) {
-
-    }
-
-    private boolean isCardAddLimited(Card card, Deck deck) {
-        if (card.getCardType().equals(CardType.MONSTER)) {
-            if (deck.getCardTotalCount(card.getName()) >= 3)
-                return true;
-        } else if (card.getCardType().equals(CardType.SPELL)) {
-            return isSpellTrapLimitReached(card, deck, ((Spell) card).getLimit());
-        } else {
-            return isSpellTrapLimitReached(card, deck, ((Trap) card).getLimit());
-        }
-        return false;
-    }
-
-    private boolean isSpellTrapLimitReached(Card card, Deck deck, SpellLimit limit) {
-        if (limit.equals(SpellLimit.LIMITED)) {
-            if (deck.getCardTotalCount(card.getName()) >= 1)
-                return true;
-        } else {
-            if (deck.getCardTotalCount(card.getName()) >= 3)
-                return true;
-        }
-        return false;
-    }
-
-    static Card getCardByName(String cardName) {
-        Card card = DatabaseManager.getCards().getCardByName(cardName);
-        return card;
-    }
-
-    private boolean isInsideWindow(Window window, float x, float y) {
-        if (window.getX() < x && window.getX() + window.getWidth() > x
-                && window.getY() < y && window.getY() + window.getHeight() > y)
-            return true;
-        return false;
     }
 
     private void addListeners() {
@@ -350,7 +227,7 @@ public class DeckMenuView extends Menu {
         newDeckButton.addListener(new ButtonClickListener() {
             @Override
             public void clickAction() {
-                newDeck();
+                showDeckNameAskDialog();
             }
         });
         deleteDeckButton.addListener(new ButtonClickListener() {
@@ -365,6 +242,203 @@ public class DeckMenuView extends Menu {
                 activateDeck();
             }
         });
+    }
+
+    public void selectCard(CardActor cardActor, CardsContainer container) {
+        draggingCardContainer = container;
+        draggingCard = CardActor.clone(cardActor);
+        selectedCard.getCardSprite().setTexture(cardActor.getCardSprite().getTexture());
+    }
+
+    private void updateCardContainers(){
+        loadUserInventory();
+        loadSideDeckCards(DeckMenuController.getInstance().getSelectedDeck());
+        loadMainDeckCards(DeckMenuController.getInstance().getSelectedDeck());
+    }
+
+    private void updateDeckList(){
+        DeckMenuController.getInstance().loadUserDecks();
+        activeDeckPreview.setIsSelectable(false);
+        activeDeckPreview.setDeck(DeckMenuController.getInstance().getUserActiveDeck());
+        List<DeckListElement> deckElements = new ArrayList<>();
+        for(Deck deck:DeckMenuController.getInstance().getUserDecks()){
+            deckElements.add(new DeckListElement(deck.getName(),DeckMenuController.getInstance().getUser().getId(),
+                    100,160,9));
+        }
+        decksListTable.clearChildren();
+        for(DeckListElement deckListElement: deckElements){
+            decksListTable.add(deckListElement).padRight(20).padLeft(20);
+            deckListElement.addListener(new ClickListener(){
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    selectDeck(deckListElement);
+                }
+            });
+        }
+    }
+
+    private void loadUserInventory() {
+        DeckMenuController.getInstance().loadUserInventory();
+        Inventory userInventory = DeckMenuController.getInstance().getUserInventory();
+        Map<String, Integer> inventoryMonsters = userInventory.getMonsters();
+        Map<String, Integer> inventorySpells = userInventory.getSpells();
+        Map<String, Integer> inventoryTraps = userInventory.getTraps();
+        inventoryCards.updateCards(inventoryMonsters, inventorySpells, inventoryTraps);
+    }
+
+    private void newDeck(String deckName) {
+        DeckMenuController.getInstance().createDeck(deckName);
+        updateDeckList();
+    }
+
+    private void deleteDeck() {
+        if (selectedDeckElement == null)
+            return;
+        DeckMenuController.getInstance().deleteDeck();
+        updateDeckList();
+        updateCardContainers();
+        selectedDeckElement = null;
+    }
+
+    private void activateDeck() {
+        DeckMenuController.getInstance().activateDeck();
+        updateDeckList();
+    }
+
+    public void selectDeck(DeckListElement selectedDeck) {
+        DeckMenuController.getInstance().selectDeck(selectedDeck.getDeck());
+        loadDeck(selectedDeck.getDeck());
+        updateDeckList();
+        selectedDeckElement = selectedDeck;
+    }
+
+    private void loadDeck(Deck deck) {
+        loadMainDeckCards(deck);
+        loadSideDeckCards(deck);
+    }
+
+    private void loadMainDeckCards(Deck deck) {
+        if (deck == null)
+            return;
+        Map<String, Integer> mainDeckMonsters = deck.getMonsters(false);
+        Map<String, Integer> mainDeckSpells = deck.getSpells(false);
+        Map<String, Integer> mainDeckTraps = deck.getTraps(false);
+        mainDeckCards.updateCards(mainDeckMonsters, mainDeckSpells, mainDeckTraps);
+    }
+
+    private void loadSideDeckCards(Deck deck) {
+        if (deck == null)
+            return;
+        Map<String, Integer> sideDeckMonsters = deck.getMonsters(true);
+        Map<String, Integer> sideDeckSpells = deck.getSpells(true);
+        Map<String, Integer> sideDeckTraps = deck.getTraps(true);
+        sideDeckCards.updateCards(sideDeckMonsters, sideDeckSpells, sideDeckTraps);
+    }
+
+    private void dragCard(float mouseX, float mouseY) {
+        //dragged to Inventory
+        if (isInsideWindow(inventoryWindow, mouseX, mouseY)) {
+            if (draggingCardContainer != inventoryCards) {
+                if (draggingCardContainer == mainDeckCards)
+                    removeCardFromMainDeck(draggingCard.getCard());
+                if (draggingCardContainer == sideDeckCards)
+                    removeCardFromSideDeck(draggingCard.getCard());
+            }
+        }
+        //dragged to sideDeck
+        if (isInsideWindow(sideDeckWindow, mouseX, mouseY))
+            addCardToSideDeck(draggingCard.getCard());
+        //dragged to mainDeck
+        if (isInsideWindow(mainDeckWindow, mouseX, mouseY))
+            addCardToMainDeck(draggingCard.getCard());
+        draggingCard = null;
+        draggingCardContainer = null;
+        updateCardContainers();
+    }
+
+    private void addCardToMainDeck(Card card) {
+        if (draggingCardContainer == mainDeckCards)
+            return;
+        if (draggingCardContainer == sideDeckCards)
+            removeCardFromSideDeck(card);
+        DeckMenuController.getInstance().addCardToMainDeck(card);
+    }
+
+    private void addCardToSideDeck(Card card) {
+        if (draggingCardContainer == sideDeckCards)
+            return;
+        if (draggingCardContainer == mainDeckCards)
+            removeCardFromMainDeck(card);
+        DeckMenuController.getInstance().addCardToSideDeck(card);
+    }
+
+    private void removeCardFromMainDeck(Card card){
+        DeckMenuController.getInstance().removeCardFromMainDeck(card);
+    }
+
+    private void removeCardFromSideDeck(Card card){
+        DeckMenuController.getInstance().removeCardFromSideDeck(card);
+    }
+
+    private void showDeckNameAskDialog(){
+        Dialog dialog = new Dialog("Enter New Deck's Name:",AssetController.getSkin("first"));
+        TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
+        TextButton cancelButton = new TextButton("Cancel",AssetController.getSkin("first"));
+        TextField deckNameField = new TextField("",AssetController.getSkin("first"));
+        deckNameField.setMessageText("New Deck's Name...");
+        deckNameField.setAlignment(3);
+        dialog.setSize(300,200);
+        dialog.setModal(true);
+        dialog.setMovable(false);
+        dialog.setResizable(false);
+        okButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                newDeck(deckNameField.getText());
+                dialog.hide();
+                dialog.cancel();
+                dialog.remove();
+            }
+        });
+        cancelButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                dialog.hide();
+                dialog.cancel();
+                dialog.remove();
+            }
+        });
+        dialog.getContentTable().add(deckNameField).fill().expandX().padLeft(50).padRight(50).height(70).colspan(2);
+        dialog.getButtonTable().add(cancelButton).fill().expand().colspan(1).height(110);
+        dialog.getButtonTable().add(okButton).fill().expand().colspan(1).height(110);
+        dialog.show(stage);
+    }
+
+    public void showErrorDialog(String errorMessage) {
+        Dialog dialog = new Dialog("Enter New Deck's Name:",AssetController.getSkin("first"));
+        TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
+        Label errorMessageLabel = new Label(errorMessage,AssetController.getSkin("first"),"title");
+        dialog.setModal(true);
+        dialog.setMovable(false);
+        dialog.setResizable(false);
+        okButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                dialog.hide();
+                dialog.cancel();
+                dialog.remove();
+            }
+        });
+        dialog.getContentTable().add(errorMessageLabel).fill().expandX().padLeft(10).padRight(10);
+        dialog.getButtonTable().add(okButton).fill().expand().height(110);
+        dialog.show(stage);
+    }
+
+    private boolean isInsideWindow(Window window, float x, float y) {
+        if (window.getX() < x && window.getX() + window.getWidth() > x
+                && window.getY() < y && window.getY() + window.getHeight() > y)
+            return true;
+        return false;
     }
 
 }
@@ -392,12 +466,16 @@ class CardsContainer {
         trapCards = new HashMap<>();
     }
 
+    private Card getCardByName(String cardName) {
+        return DatabaseManager.getCards().getCardByName(cardName);
+    }
+
     public Table getCardsTable() {
         return cardsTable;
     }
 
-    public void setCards(Map<String, Integer> monsterCards, Map<String, Integer> spellCards,
-                         Map<String, Integer> trapCards) {
+    public void updateCards(Map<String, Integer> monsterCards, Map<String, Integer> spellCards,
+                            Map<String, Integer> trapCards) {
         this.monsterCards = monsterCards;
         this.spellCards = spellCards;
         this.trapCards = trapCards;
@@ -408,69 +486,27 @@ class CardsContainer {
         this.pad = pad;
     }
 
-    public void addCard(CardActor card) {
-        if (card.getCard().getCardType().equals(CardType.MONSTER)) {
-            if (monsterCards.containsKey(card.getCard().getName()))
-                monsterCards.merge(card.getCard().getName(), 1, Integer::sum);
-            else
-                monsterCards.put(card.getCard().getName(), 1);
-        }
-        if (card.getCard().getCardType().equals(CardType.SPELL)) {
-            if (spellCards.containsKey(card.getCard().getName()))
-                spellCards.merge(card.getCard().getName(), 1, Integer::sum);
-            else
-                spellCards.put(card.getCard().getName(), 1);
-        }
-        if (card.getCard().getCardType().equals(CardType.TRAP)) {
-            if (trapCards.containsKey(card.getCard().getName()))
-                trapCards.merge(card.getCard().getName(), 1, Integer::sum);
-            else
-                trapCards.put(card.getCard().getName(), 1);
-        }
-        loadCards();
-    }
-
-    public void removeCard(CardActor card) {
-        if (card.getCard().getCardType().equals(CardType.MONSTER)) {
-            monsterCards.merge(card.getCard().getName(), -1, Integer::sum);
-            if (monsterCards.get(card.getCard().getName()) == 0)
-                monsterCards.remove(card.getCard().getName(), 0);
-        }
-        if (card.getCard().getCardType().equals(CardType.SPELL)) {
-            spellCards.merge(card.getCard().getName(), -1, Integer::sum);
-            if (spellCards.get(card.getCard().getName()) == 0)
-                spellCards.remove(card.getCard().getName(), 0);
-        }
-        if (card.getCard().getCardType().equals(CardType.TRAP)) {
-            trapCards.merge(card.getCard().getName(), -1, Integer::sum);
-            if (trapCards.get(card.getCard().getName()) == 0)
-                trapCards.remove(card.getCard().getName(), 0);
-        }
-        loadCards();
-    }
-
     public void loadCards() {
         cardsTable.clearChildren();
         ArrayList<CardActor> cardActors = new ArrayList<>();
         if (monsterCards != null) {
             for (String cardName : monsterCards.keySet()) {
-                cardActors.add(new CardActor(DeckMenuView.getCardByName(cardName), 200,
+                cardActors.add(new CardActor(getCardByName(cardName), 200,
                         340, monsterCards.get(cardName)));
             }
         }
         if (spellCards != null) {
             for (String cardName : spellCards.keySet()) {
-                cardActors.add(new CardActor(DeckMenuView.getCardByName(cardName), 200,
+                cardActors.add(new CardActor(getCardByName(cardName), 200,
                         340, spellCards.get(cardName)));
             }
         }
         if (trapCards != null) {
             for (String cardName : trapCards.keySet()) {
-                cardActors.add(new CardActor(DeckMenuView.getCardByName(cardName), 200,
+                cardActors.add(new CardActor(getCardByName(cardName), 200,
                         340, trapCards.get(cardName)));
             }
         }
-        System.out.println(cardActors.size());
         for (int i = 0; i < cardActors.size(); ++i) {
             CardActor cardActor = cardActors.get(i);
             makeCardDraggable(cardActor);
@@ -492,4 +528,70 @@ class CardsContainer {
         });
     }
 
+}
+
+class DeckListElement extends Actor {
+
+    @Getter
+    @Setter
+    private Sprite topCardSprite;
+    @Getter
+    @Setter
+    private Deck deck;
+    private Label deckNameLabel;
+    private int titleLimit;
+    private boolean isSelectable;
+    private final float nameLabelHeight = 40f;
+
+    public DeckListElement(String deckName,int userId,float width,float height,int titleLimit){
+        super();
+        isSelectable = true;
+        setWidth(width);
+        setHeight(height);
+        this.titleLimit = titleLimit;
+        deckNameLabel = new Label(deckName,AssetController.getSkin("first"),"title");
+        topCardSprite = new Sprite();
+        topCardSprite.setSize(width,height-nameLabelHeight);
+        loadTopMostCard();
+        setDeck(Deck.getDeckByName(userId,deckName));
+    }
+
+    public void loadTopMostCard(){
+        topCardSprite = new Sprite(new Texture(Gdx.files.local("assets/cards/monster/Unknown.jpg")));
+    }
+
+    public void setDeck(Deck deck) {
+        this.deck = deck;
+        if (deck==null)
+            return;
+        deckNameLabel.setText(deck.getName());
+        if (deckNameLabel.getText().length > titleLimit){
+            StringBuilder newTitle = new StringBuilder(deckNameLabel.getText());
+            newTitle.delete(titleLimit-3,deckNameLabel.getText().length);
+            newTitle.append("...");
+            deckNameLabel.setText(newTitle.toString());
+        }
+    }
+
+    public void setIsSelectable(boolean isSelectable) {
+        this.isSelectable = isSelectable;
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        if (deck == null)
+            return;
+        if (isSelectable) {
+            if (deck != null && DeckMenuController.getInstance().getSelectedDeck() != null &&
+                    DeckMenuController.getInstance().getSelectedDeck().getId() == deck.getId())
+                deckNameLabel.getStyle().fontColor = Color.YELLOW;
+            else
+                deckNameLabel.getStyle().fontColor = Color.WHITE;
+        }
+        deckNameLabel.setPosition(getX() + (getWidth()-deckNameLabel.getWidth())/2f,getY());
+        topCardSprite.setBounds(getX(),getY()+nameLabelHeight,getWidth(),getHeight()-nameLabelHeight);
+        super.draw(batch, parentAlpha);
+        topCardSprite.draw(batch,parentAlpha);
+        deckNameLabel.draw(batch,parentAlpha);
+    }
 }

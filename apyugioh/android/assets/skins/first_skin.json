@@ -78,6 +78,9 @@ com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	vertical: {
 		vScroll: scrollpaneV
 	}
+	horizontal: {
+	
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
 	default-horizontal: {
