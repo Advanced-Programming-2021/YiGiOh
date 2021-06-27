@@ -4,6 +4,7 @@ import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.*;
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.view.View;
@@ -76,7 +77,17 @@ public class CheatController {
         card.setId(++fakeID);
         card.setFaceDown(true);
         card.setEffects(card.getCard().getCardEffects());
-        getCurrentPlayer().getField().getSpellZone()[getCurrentPlayer().getField().getFirstFreeSpellZoneIndex()] = card;
+        int spellLocation = getCurrentPlayer().getField().getFirstFreeSpellZoneIndex();
+        getCurrentPlayer().getField().getSpellZone()[spellLocation] = card;
+        forceActiveSpell(spellLocation);
+    }
+
+    private void forceActiveSpell(int spellLocation) {
+        CardLocation location = new CardLocation();
+        location.setFromSpellZone(true);
+        location.setPosition(spellLocation);
+        getGameController().setSelectionController(new SelectionController(gameControllerID, location));
+        getGameController().activeEffect();
     }
 
     private void forceSummon(String option, boolean isSet) {

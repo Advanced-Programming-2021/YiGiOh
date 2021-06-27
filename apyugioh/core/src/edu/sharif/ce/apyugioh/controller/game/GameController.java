@@ -354,6 +354,12 @@ public class GameController {
                 if (cardEffect.equals(Effects.MAGNUM_SHIELD)) {
                     effectController.magnumShield();
                 }
+                if (cardEffect.equals(Effects.TWIN_TWISTERS)) {
+                    effectController.twinTwisters();
+                }
+                if (cardEffect.equals(Effects.DESTROY_SPELL_OR_TRAP)) {
+                    effectController.destroySpellTrap();
+                }
                 if (cardEffect.equals(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
                     getCurrentPlayerEffectControllers().add(effectController);
                 }
@@ -383,7 +389,8 @@ public class GameController {
     public boolean canActiveTrap(EffectController effectController) {
         if (getRivalPlayerEffectControllers().contains(effectController)) {
             activeTrapInRivalTurn();
-            if (getRivalPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
+            if (getPlayerControllerByCard(effectController.getEffectCard()).confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
+                effectController.getEffectCard().setRevealed(true);
                 EffectResponse response = applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
                 if (response == null) return true;
                 if (response.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
@@ -459,6 +466,11 @@ public class GameController {
                 if (effectController.containEffect(Effects.SCAN_A_DESTROYED_MONSTER)) {
                     effectController.scanDestroyedRivalMonster();
                     effectController.disposableEffect();
+                }
+            } else if (trigger.equals(Trigger.MAIN)) {
+                //Call of the Haunted
+                if (effectController.containEffect(Effects.CALL_OF_THE_HAUNTED) && canActiveTrap(effectController)) {
+                    effectController.callOfTheHaunted();
                 }
             } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
                 //Man-Eater Bug
@@ -561,6 +573,11 @@ public class GameController {
                 //Mind Crush
                 if (effectController.containEffect(Effects.MIND_CRUSH) && canActiveTrap(effectController)) {
                     effectController.mindCrush();
+                }
+            } else if (trigger.equals(Trigger.MAIN)) {
+                //Call of the Haunted
+                if (effectController.containEffect(Effects.CALL_OF_THE_HAUNTED) && canActiveTrap(effectController)) {
+                    effectController.callOfTheHaunted();
                 }
             } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
                 //Mirror Force
@@ -868,5 +885,9 @@ public class GameController {
 
     public Player getRivalPlayer() {
         return getRivalPlayerController().getPlayer();
+    }
+
+    public PlayerController getPlayerControllerByCard(GameCard card) {
+        return getPlayerControllerByPlayer(getPlayerByCard(card));
     }
 }

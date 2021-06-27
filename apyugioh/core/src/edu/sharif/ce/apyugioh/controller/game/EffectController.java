@@ -7,9 +7,7 @@ import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import edu.sharif.ce.apyugioh.view.View;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,14 +43,15 @@ public class EffectController {
     }
 
     public void specialSummonFromGraveyard() {
-        GameCard cardFromGraveyard = getCurrentPlayerController().selectCardFromAllGraveyards();
+        GameCard cardFromGraveyard = Objects.requireNonNull(getPlayerControllerByCard(effectCard)).selectMonsterFromAllGraveyards();
         if (cardFromGraveyard == null) {
             getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
         } else if (!(getCurrentPlayerField().isInGraveyard(cardFromGraveyard) ||
                 getRivalPlayerField().isInGraveyard(cardFromGraveyard))) {
             getGameControllerView().showError(GameView.ERROR_NOT_FROM_PLACE, "graveyard");
         } else {
-            new SummonController(gameControllerID, cardFromGraveyard).specialSummon();
+            new SummonController(gameControllerID, cardFromGraveyard, Objects.requireNonNull(getPlayerControllerByCard(effectCard)).getPlayer())
+                    .specialSummon();
         }
     }
 
@@ -142,11 +141,7 @@ public class EffectController {
             GameCard[] spellTraps = getCurrentPlayerController().selectSpellTrapsFromField(2);
             if (spellTraps == null) return;
             for (GameCard spellTrap : spellTraps) {
-                if (getCurrentPlayerField().isInSpellZone(spellTrap)) {
-                    getGameController().removeSpellTrapCard(spellTrap);
-                } else {
-                    getGameController().removeSpellTrapCard(spellTrap);
-                }
+                getGameController().removeSpellTrapCard(spellTrap);
             }
         }
     }
@@ -501,13 +496,7 @@ public class EffectController {
             gameCard.addAttackModifier(amount, effectCard, false);
         }
     }
-
-    public void changeDefence(int amount) {
-        for (GameCard gameCard : cardsAffected) {
-            gameCard.addDefenceModifier(amount, effectCard, false);
-        }
-    }
-
+    
     public void combineLevelsOfFaceUpCards() {
         int result = 0;
         ArrayList<Modifier> newModifiers = new ArrayList<>();
@@ -631,7 +620,10 @@ public class EffectController {
 
     public void callOfTheHaunted() {
         GameCard monsterToSummon = Objects.requireNonNull(getPlayerControllerByCard(effectCard)).selectCardFromGraveyard();
-        if (monsterToSummon == null || !monsterToSummon.getCard().getCardType().equals(CardType.MONSTER)) {
+        if (monsterToSummon == null) {
+            return;
+        }
+        if (!monsterToSummon.getCard().getCardType().equals(CardType.MONSTER)) {
             Utils.printError("trap activation failed");
             return;
         }

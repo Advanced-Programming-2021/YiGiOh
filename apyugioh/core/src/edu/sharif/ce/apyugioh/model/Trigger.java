@@ -20,5 +20,6 @@ public enum Trigger {
     AFTER_ACTIVE_SPELL,
     BEFORE_ACTIVE_TRAP,
     AFTER_ACTIVE_TRAP,
-    ALWAYS
+    ALWAYS,
+    MAIN;
 }

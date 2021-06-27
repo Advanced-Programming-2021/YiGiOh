@@ -255,9 +255,13 @@ public abstract class PlayerController {
     }
 
     //Select card from both graveyards
-    public GameCard selectCardFromAllGraveyards() {
-        availableCards = new ArrayList<>(player.getField().getGraveyard());
-        availableCards.addAll(getRivalPlayer().getField().getGraveyard());
+    public GameCard selectMonsterFromAllGraveyards() {
+        availableCards = new ArrayList<>(player.getField().getGraveyard().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .collect(Collectors.toList()));
+        availableCards.addAll(getRivalPlayer().getField().getGraveyard().stream()
+                .filter(e -> e.getCard().getCardType().equals(CardType.MONSTER))
+                .collect(Collectors.toList()));
         return null;
     }
 
@@ -297,6 +301,10 @@ public abstract class PlayerController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         availableCards.add(player.getField().getFieldZone());
+        availableCards = Arrays.stream(getRivalPlayer().getField().getSpellZone())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        availableCards.add(getRivalPlayer().getField().getFieldZone());
         return null;
     }
 

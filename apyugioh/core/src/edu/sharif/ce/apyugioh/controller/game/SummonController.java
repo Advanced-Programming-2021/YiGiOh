@@ -31,6 +31,12 @@ public class SummonController {
     private GameCard card;
     private int gameControllerID;
 
+    public SummonController(int gameControllerID, GameCard card, Player summoningPlayer) {
+        this.gameControllerID = gameControllerID;
+        this.card = card;
+        this.summoningPlayer = summoningPlayer;
+    }
+
     public SummonController(int gameControllerID, GameCard card) {
         this.gameControllerID = gameControllerID;
         this.card = card;
