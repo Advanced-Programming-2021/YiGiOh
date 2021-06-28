@@ -80,7 +80,6 @@ public class DeckMenuView extends Menu {
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new PointLight().set(0.8f, 0.8f, 0.8f, 15, 5, 0, 150));
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
-        assets.load("3D/puzzle/puzzle.g3db", Model.class);
         batch = new SpriteBatch();
         stage = new Stage();
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
