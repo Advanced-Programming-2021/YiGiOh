@@ -5,8 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.spi.CalendarDataProvider;
 
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Deck;
@@ -18,8 +16,7 @@ import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.Spell;
 import edu.sharif.ce.apyugioh.model.card.SpellLimit;
 import edu.sharif.ce.apyugioh.model.card.Trap;
-import edu.sharif.ce.apyugioh.view.DeckView;
-import edu.sharif.ce.apyugioh.view.menu.DeckMenuView;
+import edu.sharif.ce.apyugioh.view.menu.deckmenu.DeckMenuView;
 import lombok.Getter;
 import lombok.Setter;
 

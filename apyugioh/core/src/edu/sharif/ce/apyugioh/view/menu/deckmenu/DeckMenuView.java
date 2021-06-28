@@ -1,11 +1,10 @@
-package edu.sharif.ce.apyugioh.view.menu;
+package edu.sharif.ce.apyugioh.view.menu.deckmenu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -40,6 +39,7 @@ import edu.sharif.ce.apyugioh.model.Deck;
 import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.card.Card;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
+import edu.sharif.ce.apyugioh.view.menu.Menu;
 import edu.sharif.ce.apyugioh.view.model.CardActor;
 import lombok.Getter;
 import lombok.Setter;
@@ -147,48 +147,6 @@ public class DeckMenuView extends Menu {
         addListeners();
     }
 
-    private void arrangeWidgets() {
-        arrangeWindows();
-        selectedCard.setWidth(cardPreviewWindow.getWidth() * 0.8f);
-        selectedCard.setHeight(cardPreviewWindow.getHeight() * 0.8f);
-        cardPreviewWindow.add(selectedCard).fill().center();
-        ScrollPane inventoryScrollPane = new ScrollPane(inventoryCards.getCardsTable(), AssetController.getSkin("first"));
-        inventoryScrollPane.setFillParent(true);
-        inventoryScrollPane.setFlickScroll(false);
-        inventoryWindow.add(inventoryScrollPane).fill().padRight(10).padLeft(10).center();
-        ScrollPane sideDeckScrollPane = new ScrollPane(sideDeckCards.getCardsTable(), AssetController.getSkin("first"), "vertical");
-        sideDeckScrollPane.setFillParent(true);
-        sideDeckScrollPane.setFlickScroll(false);
-        sideDeckScrollPane.setScrollbarsVisible(false);
-        sideDeckWindow.add(sideDeckScrollPane).fill().left();
-        ScrollPane mainDeckScrollPane = new ScrollPane(mainDeckCards.getCardsTable(), AssetController.getSkin("first"));
-        mainDeckScrollPane.setFillParent(true);
-        mainDeckScrollPane.setFlickScroll(false);
-        mainDeckWindow.add(mainDeckScrollPane).fill().left();
-        ScrollPane deckScrollPane = new ScrollPane(decksListTable,AssetController.getSkin("first"),"horizontal");
-        deckScrollPane.setSize(decksListWindow.getWidth()*0.9f,decksListWindow.getHeight()*0.8f);
-        deckScrollPane.setPosition(decksListWindow.getX() + 20,decksListWindow.getY()+60);
-        stage.addActor(deckScrollPane);
-        backButton.setSize(decksListWindow.getWidth()*0.2f,60);
-        newDeckButton.setSize(decksListWindow.getWidth()*0.2f,60);
-        deleteDeckButton.setSize(decksListWindow.getWidth()*0.2f,60);
-        activateButton.setSize(decksListWindow.getWidth()*0.2f,60);
-
-        backButton.setPosition(decksListWindow.getX()+110,decksListWindow.getY()+10);
-        newDeckButton.setPosition(backButton.getX() +backButton.getWidth() +20,decksListWindow.getY()+10);
-        deleteDeckButton.setPosition(newDeckButton.getX() + newDeckButton.getWidth() +20,decksListWindow.getY()+10);
-        activateButton.setPosition(deleteDeckButton.getX()+ deleteDeckButton.getWidth() + 20,decksListWindow.getY()+10);
-        decksListWindow.setTouchable(Touchable.disabled);
-        stage.addActor(backButton);
-        stage.addActor(newDeckButton);
-        stage.addActor(deleteDeckButton);
-        stage.addActor(activateButton);
-        //stage.addActor(decksListTable);
-        activeDeckPreview = new DeckListElement("----",DeckMenuController.getInstance().getUser().getId(),
-                activeDeckWindow.getWidth()*0.5f,activeDeckWindow.getHeight()*0.85f,12);
-        activeDeckWindow.add(activeDeckPreview).expand().fill();
-    }
-
     private void arrangeWindows() {
         float horizontalPad = 20;
         float verticalPad = 20;
@@ -206,6 +164,54 @@ public class DeckMenuView extends Menu {
         cardPreviewWindow.setBounds(inventoryWindow.getX() + inventoryWindow.getWidth() + horizontalPad,
                 sideDeckWindow.getY() + sideDeckWindow.getHeight() + verticalPad,
                 300, height * 4 / 9f);
+    }
+
+    private void arrangeWidgets() {
+        arrangeWindows();
+        selectedCard.setWidth(cardPreviewWindow.getWidth() * 0.8f);
+        selectedCard.setHeight(cardPreviewWindow.getHeight() * 0.8f);
+        cardPreviewWindow.add(selectedCard).fill().center();
+        ScrollPane inventoryScrollPane = new ScrollPane(inventoryCards.getCardsTable(), AssetController.getSkin("first"));
+        inventoryScrollPane.setFillParent(true);
+        inventoryScrollPane.setFlickScroll(false);
+        inventoryScrollPane.setSmoothScrolling(true);
+        inventoryWindow.add(inventoryScrollPane).fill().padRight(10).padLeft(10).center();
+        ScrollPane sideDeckScrollPane = new ScrollPane(sideDeckCards.getCardsTable(), AssetController.getSkin("first"), "vertical");
+        sideDeckScrollPane.setFillParent(true);
+        sideDeckScrollPane.setFlickScroll(false);
+        sideDeckScrollPane.setSmoothScrolling(true);
+        sideDeckWindow.add(sideDeckScrollPane).fill().left();
+        ScrollPane mainDeckScrollPane = new ScrollPane(mainDeckCards.getCardsTable(), AssetController.getSkin("first"));
+        mainDeckScrollPane.setFillParent(true);
+        mainDeckScrollPane.setFlickScroll(false);
+        mainDeckScrollPane.setSmoothScrolling(true);
+        mainDeckWindow.add(mainDeckScrollPane).fill().left();
+        arrangeDeckListWidgets();
+    }
+
+    private void arrangeDeckListWidgets(){
+        ScrollPane deckScrollPane = new ScrollPane(decksListTable,AssetController.getSkin("first"),"horizontal");
+        deckScrollPane.setSize(decksListWindow.getWidth()*0.9f,decksListWindow.getHeight()*0.8f);
+        deckScrollPane.setPosition(decksListWindow.getX() + 20,decksListWindow.getY()+60);
+        deckScrollPane.setSmoothScrolling(true);
+        stage.addActor(deckScrollPane);
+        backButton.setSize(decksListWindow.getWidth()*0.2f,60);
+        newDeckButton.setSize(decksListWindow.getWidth()*0.2f,60);
+        deleteDeckButton.setSize(decksListWindow.getWidth()*0.2f,60);
+        activateButton.setSize(decksListWindow.getWidth()*0.2f,60);
+
+        backButton.setPosition(decksListWindow.getX()+110,decksListWindow.getY()+10);
+        newDeckButton.setPosition(backButton.getX() +backButton.getWidth() +20,decksListWindow.getY()+10);
+        deleteDeckButton.setPosition(newDeckButton.getX() + newDeckButton.getWidth() +20,decksListWindow.getY()+10);
+        activateButton.setPosition(deleteDeckButton.getX()+ deleteDeckButton.getWidth() + 20,decksListWindow.getY()+10);
+        decksListWindow.setTouchable(Touchable.disabled);
+        stage.addActor(backButton);
+        stage.addActor(newDeckButton);
+        stage.addActor(deleteDeckButton);
+        stage.addActor(activateButton);
+        activeDeckPreview = new DeckListElement("----",DeckMenuController.getInstance().getUser().getId(),
+                activeDeckWindow.getWidth()*0.5f,activeDeckWindow.getHeight()*0.85f,12);
+        activeDeckWindow.add(activeDeckPreview).expand().fill();
     }
 
     private void addListeners() {
@@ -417,6 +423,7 @@ public class DeckMenuView extends Menu {
         Dialog dialog = new Dialog("Enter New Deck's Name:",AssetController.getSkin("first"));
         TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
         Label errorMessageLabel = new Label(errorMessage,AssetController.getSkin("first"),"title");
+        errorMessageLabel.getStyle().fontColor = Color.WHITE;
         dialog.setModal(true);
         dialog.setMovable(false);
         dialog.setResizable(false);
@@ -442,155 +449,3 @@ public class DeckMenuView extends Menu {
 
 }
 
-class CardsContainer {
-    @Getter
-    @Setter
-    private Table cardsTable;
-    private Map<String, Integer> monsterCards;
-    private Map<String, Integer> spellCards;
-    private Map<String, Integer> trapCards;
-    private int rowCardsCount;
-    private float pad = 20;
-    private float cardWidth;
-    private float cardHeight;
-
-    public CardsContainer(int rowCardsCount, float cardWidth, float cardHeight, float pad) {
-        this.rowCardsCount = rowCardsCount;
-        this.cardWidth = cardWidth;
-        this.cardHeight = cardHeight;
-        this.pad = pad;
-        cardsTable = new Table();
-        monsterCards = new HashMap<>();
-        spellCards = new HashMap<>();
-        trapCards = new HashMap<>();
-    }
-
-    private Card getCardByName(String cardName) {
-        return DatabaseManager.getCards().getCardByName(cardName);
-    }
-
-    public Table getCardsTable() {
-        return cardsTable;
-    }
-
-    public void updateCards(Map<String, Integer> monsterCards, Map<String, Integer> spellCards,
-                            Map<String, Integer> trapCards) {
-        this.monsterCards = monsterCards;
-        this.spellCards = spellCards;
-        this.trapCards = trapCards;
-        loadCards();
-    }
-
-    public void setPad(float pad) {
-        this.pad = pad;
-    }
-
-    public void loadCards() {
-        cardsTable.clearChildren();
-        ArrayList<CardActor> cardActors = new ArrayList<>();
-        if (monsterCards != null) {
-            for (String cardName : monsterCards.keySet()) {
-                cardActors.add(new CardActor(getCardByName(cardName), 200,
-                        340, monsterCards.get(cardName)));
-            }
-        }
-        if (spellCards != null) {
-            for (String cardName : spellCards.keySet()) {
-                cardActors.add(new CardActor(getCardByName(cardName), 200,
-                        340, spellCards.get(cardName)));
-            }
-        }
-        if (trapCards != null) {
-            for (String cardName : trapCards.keySet()) {
-                cardActors.add(new CardActor(getCardByName(cardName), 200,
-                        340, trapCards.get(cardName)));
-            }
-        }
-        for (int i = 0; i < cardActors.size(); ++i) {
-            CardActor cardActor = cardActors.get(i);
-            makeCardDraggable(cardActor);
-            cardActor.setSize(cardWidth, cardHeight);
-            if (i % rowCardsCount == 0 && i > 0)
-                cardsTable.row();
-            cardsTable.add(cardActor).padRight(pad).padTop(pad).center();
-        }
-    }
-
-    private void makeCardDraggable(CardActor cardActor) {
-        CardsContainer thisContainer = this;
-        cardActor.addListener(new ClickListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                DeckMenuController.getInstance().getView().selectCard(cardActor, thisContainer);
-                return super.touchDown(event, x, y, pointer, button);
-            }
-        });
-    }
-
-}
-
-class DeckListElement extends Actor {
-
-    @Getter
-    @Setter
-    private Sprite topCardSprite;
-    @Getter
-    @Setter
-    private Deck deck;
-    private Label deckNameLabel;
-    private int titleLimit;
-    private boolean isSelectable;
-    private final float nameLabelHeight = 40f;
-
-    public DeckListElement(String deckName,int userId,float width,float height,int titleLimit){
-        super();
-        isSelectable = true;
-        setWidth(width);
-        setHeight(height);
-        this.titleLimit = titleLimit;
-        deckNameLabel = new Label(deckName,AssetController.getSkin("first"),"title");
-        topCardSprite = new Sprite();
-        topCardSprite.setSize(width,height-nameLabelHeight);
-        loadTopMostCard();
-        setDeck(Deck.getDeckByName(userId,deckName));
-    }
-
-    public void loadTopMostCard(){
-        topCardSprite = new Sprite(new Texture(Gdx.files.local("assets/cards/monster/Unknown.jpg")));
-    }
-
-    public void setDeck(Deck deck) {
-        this.deck = deck;
-        if (deck==null)
-            return;
-        deckNameLabel.setText(deck.getName());
-        if (deckNameLabel.getText().length > titleLimit){
-            StringBuilder newTitle = new StringBuilder(deckNameLabel.getText());
-            newTitle.delete(titleLimit-3,deckNameLabel.getText().length);
-            newTitle.append("...");
-            deckNameLabel.setText(newTitle.toString());
-        }
-    }
-
-    public void setIsSelectable(boolean isSelectable) {
-        this.isSelectable = isSelectable;
-    }
-
-    @Override
-    public void draw(Batch batch, float parentAlpha) {
-        if (deck == null)
-            return;
-        if (isSelectable) {
-            if (deck != null && DeckMenuController.getInstance().getSelectedDeck() != null &&
-                    DeckMenuController.getInstance().getSelectedDeck().getId() == deck.getId())
-                deckNameLabel.getStyle().fontColor = Color.YELLOW;
-            else
-                deckNameLabel.getStyle().fontColor = Color.WHITE;
-        }
-        deckNameLabel.setPosition(getX() + (getWidth()-deckNameLabel.getWidth())/2f,getY());
-        topCardSprite.setBounds(getX(),getY()+nameLabelHeight,getWidth(),getHeight()-nameLabelHeight);
-        super.draw(batch, parentAlpha);
-        topCardSprite.draw(batch,parentAlpha);
-        deckNameLabel.draw(batch,parentAlpha);
-    }
-}
