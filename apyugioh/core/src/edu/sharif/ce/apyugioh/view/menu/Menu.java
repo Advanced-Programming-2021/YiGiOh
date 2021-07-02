@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
+import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.view.View;
 
 public class Menu extends View implements Screen {
@@ -21,7 +22,6 @@ public class Menu extends View implements Screen {
     protected final YuGiOh game;
     protected PerspectiveCamera cam;
     protected ModelBatch modelBatch;
-    protected AssetManager assets;
     protected Array<ModelInstance> instances = new Array<>();
     protected Environment environment;
     protected Viewport viewport;
@@ -40,7 +40,6 @@ public class Menu extends View implements Screen {
         cam.near = 1f;
         cam.far = 300f;
         cam.update();
-        assets = new AssetManager();
         lastX = Gdx.graphics.getWidth() / 2;
         lastY = Gdx.graphics.getHeight() / 2;
         camPos = Vector3.Zero;
@@ -90,7 +89,7 @@ public class Menu extends View implements Screen {
     public void dispose() {
         modelBatch.dispose();
         instances.clear();
-        assets.dispose();
+//        AssetController.getAssets().dispose();
     }
 
     private void changeCameraLocation(float deltaX, float deltaY) {

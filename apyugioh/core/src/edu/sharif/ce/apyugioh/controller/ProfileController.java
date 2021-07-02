@@ -1,7 +1,9 @@
 package edu.sharif.ce.apyugioh.controller;
 
+import edu.sharif.ce.apyugioh.model.MenuState;
 import edu.sharif.ce.apyugioh.model.User;
 import edu.sharif.ce.apyugioh.view.ProfileView;
+import edu.sharif.ce.apyugioh.view.menu.ProfileMenuView;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -11,12 +13,12 @@ public class ProfileController {
 
     @Getter
     private static ProfileController instance;
-    private static ProfileView view;
+    private static ProfileMenuView view;
     private static Logger logger;
 
     static {
         instance = new ProfileController();
-        view = new ProfileView();
+        view = new ProfileMenuView(ProgramController.getGame());
         logger = LogManager.getLogger(ProfileController.class);
     }
 
@@ -58,5 +60,10 @@ public class ProfileController {
         logger.info("{} changed username to {}", user.getUsername(), username);
         user.setUsername(username);
         view.showSuccess(ProfileView.SUCCESS_CHANGE_NICKNAME);
+    }
+
+    public void showProfile() {
+        ProgramController.setState(MenuState.PROFILE);
+        ProgramController.setCurrentMenu(view);
     }
 }

@@ -1,8 +1,11 @@
 package edu.sharif.ce.apyugioh.controller;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +17,8 @@ public class AssetController {
     private static HashMap<String, Skin> SKINS;
     private static HashMap<String, Sound> SOUNDS;
     private static HashMap<Long, Sound> currentlyPlayingSounds;
+    @Getter
+    private static AssetManager assets;
     @Getter
     private static DeckModelView deck;
 
@@ -60,5 +65,13 @@ public class AssetController {
             sound.getValue().stop(sound.getKey());
         }
         currentlyPlayingSounds.clear();
+    }
+
+    public static void load3DAssets() {
+        assets = new AssetManager();
+
+        assets.load("3D/puzzle/puzzle.g3db", Model.class);
+        assets.load("3D/yugi/yugi.g3db", Model.class);
+        System.out.println("Loading ... ");
     }
 }

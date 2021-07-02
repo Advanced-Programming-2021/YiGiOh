@@ -64,6 +64,7 @@ public class ProgramController {
         logger.info("initialization started");
         DatabaseManager.init();
         AssetController.loadAssets();
+        AssetController.load3DAssets();
         loadCursor();
         UserController.getInstance().showMenu();
     }

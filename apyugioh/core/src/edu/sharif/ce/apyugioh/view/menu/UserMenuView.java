@@ -48,9 +48,9 @@ public class UserMenuView extends Menu {
         errorMessages.put(ERROR_USER_NICKNAME_ALREADY_TAKEN, "user with nickname %s already exists");
     }
 
+    private final float TRANSITION_SPEED = 1;
 
     private boolean loaded;
-    private final float transitionSpeed = 3;
     private Stage stage;
     private SpriteBatch batch;
     ObjectSet<CardModelView> cards;
@@ -62,7 +62,6 @@ public class UserMenuView extends Menu {
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new PointLight().set(0.8f, 0.8f, 0.8f, 15, 5, 0, 150));
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
-        assets.load("3D/yugi/yugi.g3db", Model.class);
         batch = new SpriteBatch();
         stage = new Stage();
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
@@ -90,8 +89,8 @@ public class UserMenuView extends Menu {
 
     @Override
     public void render(float delta) {
-        if (!loaded && assets.update()) {
-            Model dragon = assets.get("3D/yugi/yugi.g3db", Model.class);
+        if (!loaded && AssetController.getAssets().update()) {
+            Model dragon = AssetController.getAssets().get("3D/yugi/yugi.g3db", Model.class);
             ModelInstance instance = new ModelInstance(dragon);
             instance.transform.scale(0.1f, 0.1f, 0.1f);
             instance.transform.setTranslation(18, -8, -14);
@@ -168,18 +167,18 @@ public class UserMenuView extends Menu {
                 mainWindowButton.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), transitionSpeed));
+                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), TRANSITION_SPEED));
                         AssetController.playSound("chain");
-                        windows.get("signup").addAction(Actions.moveTo(Gdx.graphics.getWidth() - 940, Gdx.graphics.getHeight() / 2 - 542 / 2, transitionSpeed));
+                        windows.get("signup").addAction(Actions.moveTo(Gdx.graphics.getWidth() - 940, Gdx.graphics.getHeight() / 2 - 542 / 2, TRANSITION_SPEED));
                     }
                 });
             } else if (mainWindowButton.getText().toString().equals("Login")) {
                 mainWindowButton.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), transitionSpeed));
+                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), TRANSITION_SPEED));
                         AssetController.playSound("chain");
-                        windows.get("login").addAction(Actions.moveTo(0, Gdx.graphics.getHeight() / 2 - 542 / 2, transitionSpeed));
+                        windows.get("login").addAction(Actions.moveTo(0, Gdx.graphics.getHeight() / 2 - 542 / 2, TRANSITION_SPEED));
                     }
                 });
             } else if (mainWindowButton.getText().toString().equals("Exit")) {
@@ -241,9 +240,9 @@ public class UserMenuView extends Menu {
                         usernameField.setText("");
                         passwordField.setText("");
                         confirmPasswordField.setText("");
-                        window.addAction(Actions.moveTo(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, transitionSpeed));
+                        window.addAction(Actions.moveTo(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, TRANSITION_SPEED));
                         AssetController.playSound("chain");
-                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, transitionSpeed));
+                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, TRANSITION_SPEED));
                     }
                 });
             } else if (signupWindowButton.getText().toString().equals("Signup")) {
@@ -298,9 +297,9 @@ public class UserMenuView extends Menu {
                     public void clickAction() {
                         usernameField.setText("");
                         passwordField.setText("");
-                        window.addAction(Actions.moveTo(-window.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, transitionSpeed));
+                        window.addAction(Actions.moveTo(-window.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, TRANSITION_SPEED));
                         AssetController.playSound("chain");
-                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, transitionSpeed));
+                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, TRANSITION_SPEED));
                     }
                 });
             } else if (loginWindowButton.getText().toString().equals("Login")) {
