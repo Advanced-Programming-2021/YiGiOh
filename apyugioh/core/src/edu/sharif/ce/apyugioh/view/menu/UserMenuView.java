@@ -48,7 +48,7 @@ public class UserMenuView extends Menu {
         errorMessages.put(ERROR_USER_NICKNAME_ALREADY_TAKEN, "user with nickname %s already exists");
     }
 
-    private final float TRANSITION_SPEED = 1;
+    private final float TRANSITION_SPEED = 3;
 
     private boolean loaded;
     private Stage stage;

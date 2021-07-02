@@ -18,7 +18,13 @@ import com.badlogic.gdx.utils.ObjectSet;
 import java.util.HashMap;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
-import edu.sharif.ce.apyugioh.controller.*;
+import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.DeckMenuController;
+import edu.sharif.ce.apyugioh.controller.DuelController;
+import edu.sharif.ce.apyugioh.controller.MainMenuController;
+import edu.sharif.ce.apyugioh.controller.ProfileController;
+import edu.sharif.ce.apyugioh.controller.ShopController;
+import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.AILevel;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
@@ -135,7 +141,8 @@ public class MainMenuView extends Menu {
                 mainMenuButton.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-                        DuelController.getInstance().startNoPlayerDuel(AILevel.EASY, AILevel.MEDIOCRE, 1);
+                        //DuelController.getInstance().startNoPlayerDuel(AILevel.HARD, AILevel.MEDIOCRE, 1);
+                        DuelController.getInstance().startSinglePlayerDuel(MainMenuController.getInstance().getUser().getUsername(), AILevel.MEDIOCRE, 1);
                         GameController.showGame();
                     }
                 });

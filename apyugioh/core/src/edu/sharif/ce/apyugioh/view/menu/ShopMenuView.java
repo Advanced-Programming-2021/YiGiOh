@@ -37,7 +37,7 @@ import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.card.Card;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardAction;
-import edu.sharif.ce.apyugioh.view.model.CardActionsManager;
+import edu.sharif.ce.apyugioh.view.model.GameActionsManager;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 import edu.sharif.ce.apyugioh.view.model.DeckModelView;
 
@@ -62,7 +62,7 @@ public class ShopMenuView extends Menu {
     private Array<CardModelView> cards;
     private DeckModelView deck;
     private Texture backgroundTexture;
-    private CardActionsManager manager;
+    private GameActionsManager manager;
     private ScrollPane scroll;
     private int animationSpeed;
     private Window buyWindow;
@@ -80,7 +80,7 @@ public class ShopMenuView extends Menu {
         inputMultiplexer = new InputMultiplexer();
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
         moveCamera = false;
-        manager = new CardActionsManager();
+        manager = new GameActionsManager();
         searchBox = new TextField("", AssetController.getSkin("first"));
     }
 

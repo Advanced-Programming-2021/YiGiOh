@@ -74,6 +74,11 @@ public class CardModelView implements Disposable {
         cardFront.worldTransform.scale(x, y, z);
     }
 
+    public void set(Matrix4 transform) {
+        cardFront.worldTransform.set(transform);
+        cardBack.worldTransform.set(transform);
+    }
+
     public Card getCard() {
         return DatabaseManager.getCards().getCardByName(cardName);
     }

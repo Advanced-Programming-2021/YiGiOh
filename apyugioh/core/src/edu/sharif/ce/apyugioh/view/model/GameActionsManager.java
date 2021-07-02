@@ -5,15 +5,15 @@ import java.util.List;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
 
-public class CardActionsManager {
+public class GameActionsManager {
 
-    private List<CardAction> actions;
+    private final List<GameAction> actions;
 
-    public CardActionsManager() {
+    public GameActionsManager() {
         actions = new ArrayList<>();
     }
 
-    public void addAction(CardAction action) {
+    public void addAction(GameAction action) {
         actions.add(action);
     }
 
@@ -21,11 +21,9 @@ public class CardActionsManager {
         if (!actions.isEmpty()) {
             float baseAlpha = actions.get(0).getAlpha();
             actions.get(0).update(delta);
-            if (Utils.almostEqual(actions.get(0).getAlpha(), 0.99f)) {
+            if (Utils.almostEqual(actions.get(0).getAlpha(), 1, 0.01f)) {
                 actions.remove(0);
-                if (Utils.almostEqual(baseAlpha, delta, 0.01f)) {
-                    update(delta);
-                }
+                update(delta);
             }
         }
     }

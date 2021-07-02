@@ -9,18 +9,25 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.view.model.CameraAction;
 import edu.sharif.ce.apyugioh.view.model.CardAction;
-import edu.sharif.ce.apyugioh.view.model.CardActionsManager;
 import edu.sharif.ce.apyugioh.view.model.CardFrontView;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 import edu.sharif.ce.apyugioh.view.model.DeckModelView;
+import edu.sharif.ce.apyugioh.view.model.GameActionsManager;
 import edu.sharif.ce.apyugioh.view.model.GameDeckModelView;
 
 public class GameMenuView extends Menu {
@@ -30,10 +37,11 @@ public class GameMenuView extends Menu {
     private SpriteBatch batch;
     private Array<CardModelView> cards;
     private DeckModelView deck;
-    private CardActionsManager manager;
+    private GameActionsManager manager;
     private CardFrontView board;
     private PlayerController firstPlayerController, secondPlayerController;
     private GameDeckModelView cardViews;
+    private List<Polygon> cardPolygons;
 
     public GameMenuView(YuGiOh game) {
         super(game);
@@ -41,9 +49,10 @@ public class GameMenuView extends Menu {
         environment.add(new PointLight().set(0.8f, 0.8f, 0.8f, 5, 0, 0, 150));
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
         moveCamera = false;
-        manager = new CardActionsManager();
+        manager = new GameActionsManager();
         stage = new Stage();
         batch = new SpriteBatch();
+        cardPolygons = new ArrayList<>();
     }
 
     @Override
@@ -54,9 +63,42 @@ public class GameMenuView extends Menu {
         board.worldTransform.setToRotation(0, 1, 0, 270);
         board.worldTransform.scale(8f, 8f, 8f);
         board.worldTransform.setTranslation(75, 0, 0);
-        cam.position.lerp(new Vector3(0, -70, 0), 1);
+        cam.position.set(0, -70, 0);
         cam.lookAt(75, -25, 0);
+        cam.update();
+        addFirstPlayerMonsterZonePolygons();
         Gdx.input.setInputProcessor(stage);
+        stage.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                System.out.println(x + " : " + y + " clicked!");
+                for (int i = 0; i < cardPolygons.size(); i++) {
+                    if (cardPolygons.get(i).contains(x, y)) {
+                        System.out.println("Mioo " + i);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    private void addFirstPlayerMonsterZonePolygons() {
+        Polygon polygon = new Polygon(new float[]{32, 153, 136, 153, 115, 0, 0, 0});
+        polygon.translate(649, 515);
+        cardPolygons.add(polygon);
+        polygon = new Polygon(new float[]{19, 153, 123, 153, 115, 0, 0, 0});
+        polygon.translate(775, 515);
+        cardPolygons.add(polygon);
+        polygon = new Polygon(new float[]{6, 153, 110, 153, 115, 0, 0, 0});
+        polygon.translate(901, 515);
+        cardPolygons.add(polygon);
+        polygon = new Polygon(new float[]{0, 153, 104, 153, 123, 0, 8, 0});
+        polygon.translate(1017, 515);
+        cardPolygons.add(polygon);
+        polygon = new Polygon(new float[]{0, 153, 104, 153, 136, 0, 21, 0});
+        polygon.translate(1134, 515);
+        cardPolygons.add(polygon);
     }
 
     @Override
@@ -82,27 +124,45 @@ public class GameMenuView extends Menu {
         this.secondPlayerController = secondPlayerController;
         cardViews = new GameDeckModelView(firstPlayerController.getPlayer().getField(), secondPlayerController.getPlayer().getField());
         for (CardModelView card : cardViews.getAllCards()) {
-            card.scale(0.65f, 0.65f, 0.65f);
+            card.scale(0.5f, 0.5f, 0.5f);
         }
-        update();
+        update(true);
     }
 
-    public void update() {
+    public void registerGameCard(GameCard card) {
+        cardViews.addCard(card);
+    }
+
+    public void update(boolean isFirstPlayerTurn) {
+        updateCamera(isFirstPlayerTurn);
         updateGraveyard();
-        updateMonsterZone();
+        updateSpellZone(isFirstPlayerTurn);
+        updateMonsterZone(isFirstPlayerTurn);
         updateDeck();
         updateHand();
     }
 
-    private void updateMonsterZone() {
+    public void updateCamera(boolean isFirstPlayerTurn) {
+        Vector3 target = cam.position.cpy();
+        target.set(0, isFirstPlayerTurn ? -70 : 70, 0);
+        CameraAction action = new CameraAction(cam, target, new Vector3(75, isFirstPlayerTurn ? -25 : 25, 0), 1);
+        manager.addAction(action);
+    }
+
+    private void updateMonsterZone(boolean isFirstPlayerTurn) {
         int counter;
         counter = 0;
         for (GameCard card : firstPlayerController.getPlayer().getField().getMonsterZone()) {
             if (card != null) {
                 CardModelView cardView = cardViews.getCard(card.getId());
                 Matrix4 target = cardView.getTransform();
-                cardView.setToRotation(0, 1, 0, card.isFaceDown() ? 90 : -90);
-                target.setTranslation(74, -18, -25f + (counter) * 13f);
+                if (isFirstPlayerTurn) {
+                    target.setToRotation(0, 1, 0, -90);
+                } else {
+                    target.setToRotation(0, 1, 0, card.isRevealed() ? -90 : 90);
+                }
+                target.rotate(0, 0, 1, card.isFaceDown() ? -90 : 0);
+                target.setTranslation(74, -18.5f, (counter % 2 == 0 ? -1 : 1) * ((counter + 1) / 2) * 13f);
                 CardAction action = new CardAction(cardView, target, 1);
                 manager.addAction(action);
             }
@@ -113,9 +173,51 @@ public class GameMenuView extends Menu {
             if (card != null) {
                 CardModelView cardView = cardViews.getCard(card.getId());
                 Matrix4 target = cardView.getTransform();
-                cardView.setToRotation(0, 1, 0, card.isFaceDown() ? 90 : -90);
-                target.rotate(0, 0, 1, 180);
-                target.setTranslation(74, 18, 25f - (counter) * 13f);
+                if (!isFirstPlayerTurn) {
+                    target.setToRotation(0, 1, 0, -90);
+                } else {
+                    target.setToRotation(0, 1, 0, card.isRevealed() ? -90 : 90);
+                }
+                target.rotate(0, 0, 1, 180 + (card.isFaceDown() ? -90 : 0));
+                target.setTranslation(74, 18.5f, (counter % 2 == 0 ? 1 : -1) * ((counter + 1) / 2) * 13f);
+                CardAction action = new CardAction(cardView, target, 1);
+                manager.addAction(action);
+            }
+            counter++;
+        }
+    }
+
+    private void updateSpellZone(boolean isFirstPlayerTurn) {
+        int counter;
+        counter = 0;
+        for (GameCard card : firstPlayerController.getPlayer().getField().getSpellZone()) {
+            if (card != null) {
+                CardModelView cardView = cardViews.getCard(card.getId());
+                Matrix4 target = cardView.getTransform();
+                if (!isFirstPlayerTurn) {
+                    target.setToRotation(0, 1, 0, -90);
+                } else {
+                    target.setToRotation(0, 1, 0, card.isRevealed() ? -90 : 90);
+                }
+                target.rotate(0, 0, 1, card.isFaceDown() ? -90 : 0);
+                target.setTranslation(74, -33.5f, (counter % 2 == 0 ? -1 : 1) * ((counter + 1) / 2) * 13f);
+                CardAction action = new CardAction(cardView, target, 1);
+                manager.addAction(action);
+            }
+            counter++;
+        }
+        counter = 0;
+        for (GameCard card : secondPlayerController.getPlayer().getField().getSpellZone()) {
+            if (card != null) {
+                CardModelView cardView = cardViews.getCard(card.getId());
+                Matrix4 target = cardView.getTransform();
+                if (!isFirstPlayerTurn) {
+                    target.setToRotation(0, 1, 0, -90);
+                } else {
+                    target.setToRotation(0, 1, 0, card.isRevealed() ? -90 : 90);
+                }
+                target.rotate(0, 0, 1, 180 + (card.isFaceDown() ? -90 : 0));
+                target.setTranslation(74, 33.5f, (counter % 2 == 0 ? 1 : -1) * ((counter + 1) / 2) * 13f);
                 CardAction action = new CardAction(cardView, target, 1);
                 manager.addAction(action);
             }

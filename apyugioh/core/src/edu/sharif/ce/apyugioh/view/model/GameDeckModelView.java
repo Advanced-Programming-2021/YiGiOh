@@ -25,16 +25,10 @@ public class GameDeckModelView {
 
     private void addFieldToMap(Field playerField) {
         for (GameCard card : playerField.getDeck()) {
-            CardModelView cardView = new CardModelView(Utils.firstUpperOnly(card.getCard().getName()),
-                    AssetController.getDeck().getAtlas().createSprite(Utils.firstUpperOnly(card.getCard().getName()).replaceAll("\\s+", "")),
-                    AssetController.getDeck().getAtlas().createSprite("Unknown"));
-            cardMap.put(card.getId(), cardView);
+            addCard(card);
         }
         for (GameCard card : playerField.getHand()) {
-            CardModelView cardView = new CardModelView(Utils.firstUpperOnly(card.getCard().getName()),
-                    AssetController.getDeck().getAtlas().createSprite(Utils.firstUpperOnly(card.getCard().getName()).replaceAll("\\s+", "")),
-                    AssetController.getDeck().getAtlas().createSprite("Unknown"));
-            cardMap.put(card.getId(), cardView);
+            addCard(card);
         }
     }
 
@@ -44,5 +38,12 @@ public class GameDeckModelView {
 
     public List<CardModelView> getAllCards() {
         return cardMap.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+    }
+
+    public void addCard(GameCard card) {
+        CardModelView cardView = new CardModelView(Utils.firstUpperOnly(card.getCard().getName()),
+                AssetController.getDeck().getAtlas().createSprite(Utils.firstUpperOnly(card.getCard().getName()).replaceAll("\\s+", "")),
+                AssetController.getDeck().getAtlas().createSprite("Unknown"));
+        cardMap.put(card.getId(), cardView);
     }
 }

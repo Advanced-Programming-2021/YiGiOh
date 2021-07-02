@@ -8,10 +8,9 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
-import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.game.CheatController;
-import edu.sharif.ce.apyugioh.model.Cheats;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
+import edu.sharif.ce.apyugioh.model.Cheats;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Player;
@@ -30,32 +29,36 @@ public class AIPlayerController extends PlayerController {
     }
 
     public void startRoundAction() {
-        GameController.getUIView().update();
+        updateView();
         getGameController().nextPhaseAI();
-        GameController.getUIView().update();
+        updateView();
         getGameController().nextPhaseAI();
-        GameController.getUIView().update();
+        updateView();
         int roundCount = getGameController().getRoundResults().size();
         if (setOrSummon(roundCount)) return;
         if (activeSpell(roundCount)) return;
-        GameController.getUIView().update();
+        updateView();
         getGameController().nextPhaseAI();
-        GameController.getUIView().update();
+        updateView();
         if (getGameController().getPassedTurns() > 1) {
             if (attackEachCard(roundCount)) return;
         }
-        GameController.getUIView().update();
+        updateView();
         if (!isRoundEnded(roundCount)) {
             getGameController().nextPhaseAI();
             if (summonInMain2(roundCount)) return;
             if (activeSpell(roundCount)) return;
-            GameController.getUIView().update();
+            updateView();
             getGameController().nextPhaseAI();
-            GameController.getUIView().update();
+            updateView();
             getGameController().nextPhase();
-            GameController.getUIView().update();
+            updateView();
         }
 
+    }
+
+    private void updateView() {
+        GameController.getUIView().update(getGameController().isFirstPlayerTurn());
     }
 
     private boolean activeSpell(int roundCount) {
@@ -87,18 +90,18 @@ public class AIPlayerController extends PlayerController {
                 int position = selectLowestAttackMonster(getRivalPlayer().getField().getMonsterZone());
                 if (position == -1) {
                     directAttack();
-                    GameController.getUIView().update();
+                    updateView();
                 } else {
                     GameCard monsterToGetAttacked = getRivalPlayer().getField().getMonsterZone()[position];
                     if (monsterToGetAttacked.isFaceDown()) {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentDefense()) {
                             attack(position + 1);
-                            GameController.getUIView().update();
+                            updateView();
                         }
                     } else {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentAttack()) {
                             attack(position + 1);
-                            GameController.getUIView().update();
+                            updateView();
                         }
                     }
                 }
@@ -169,11 +172,29 @@ public class AIPlayerController extends PlayerController {
         Random random = new Random(System.currentTimeMillis());
         //Marshmallon cheat
         if (random.nextInt(100) < 70 && isRivalContainEffect(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK)) {
+            int index = player.getField().getFirstFreeSpellZoneIndex();
             new CheatController(gameControllerID).cheat(Cheats.SET_SPELL, new String[]{"Raigeki"});
+            registerRaigeki(index);
         }
         //Man-Eater cheat
         if (random.nextInt(100) < 50 && isRivalContainEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
+            int index = player.getField().getFirstFreeSpellZoneIndex();
             new CheatController(gameControllerID).cheat(Cheats.SET_SPELL, new String[]{"Raigeki"});
+            registerRaigeki(index);
+        }
+    }
+
+    private void registerRaigeki(int index) {
+        if (index != -1) {
+            if (player.getField().getSpellZone()[index] != null && player.getField().getSpellZone()[index].getCard().getName().equals("Raigeki")) {
+                getGameController().getUIView().registerGameCard(player.getField().getSpellZone()[index]);
+            } else {
+                List<GameCard> graveyardRaigeki = player.getField().getGraveyard().stream().filter(e -> e.getCard().getName().equals("Raigeki")).collect(Collectors.toList());
+                if (graveyardRaigeki.size() > 0) {
+                    GameCard raigeki = graveyardRaigeki.get(graveyardRaigeki.size() - 1);
+                    getGameController().getUIView().registerGameCard(raigeki);
+                }
+            }
         }
     }
 
