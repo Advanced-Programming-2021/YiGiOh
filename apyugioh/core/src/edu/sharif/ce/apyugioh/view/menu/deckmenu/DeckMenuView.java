@@ -26,6 +26,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import org.graalvm.compiler.debug.CSVUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,7 +108,8 @@ public class DeckMenuView extends Menu {
         if (!Gdx.input.isButtonPressed(Input.Buttons.LEFT) && draggingCard != null)
             dragCard(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         if (draggingCard != null) {
-            draggingCard.setPosition(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
+            draggingCard.setPosition(Gdx.input.getX() - draggingCard.getWidth()/2f,
+                    Gdx.graphics.getHeight() - Gdx.input.getY() - draggingCard.getHeight()/2f);
             stage.getBatch().begin();
             draggingCard.draw(stage.getBatch(), 1);
             stage.getBatch().end();
@@ -294,6 +297,7 @@ public class DeckMenuView extends Menu {
     private void newDeck(String deckName) {
         DeckMenuController.getInstance().createDeck(deckName);
         updateDeckList();
+        updateCardContainers();
     }
 
     private void deleteDeck() {
@@ -396,21 +400,34 @@ public class DeckMenuView extends Menu {
         dialog.setModal(true);
         dialog.setMovable(false);
         dialog.setResizable(false);
+        Runnable closeAction = () -> {
+            dialog.hide();
+            dialog.cancel();
+            dialog.remove();
+        };
         okButton.addListener(new ButtonClickListener() {
             @Override
             public void clickAction() {
                 newDeck(deckNameField.getText());
-                dialog.hide();
-                dialog.cancel();
-                dialog.remove();
+                closeAction.run();
             }
         });
         cancelButton.addListener(new ButtonClickListener() {
             @Override
             public void clickAction() {
-                dialog.hide();
-                dialog.cancel();
-                dialog.remove();
+                closeAction.run();
+            }
+        });
+        dialog.addListener(new InputListener(){
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ENTER) {
+                    newDeck(deckNameField.getText());
+                    closeAction.run();
+                }
+                if (keycode == Input.Keys.ESCAPE)
+                    closeAction.run();
+                return super.keyDown(event,keycode);
             }
         });
         dialog.getContentTable().add(deckNameField).fill().expandX().padLeft(50).padRight(50).height(70).colspan(2);
@@ -427,12 +444,23 @@ public class DeckMenuView extends Menu {
         dialog.setModal(true);
         dialog.setMovable(false);
         dialog.setResizable(false);
+        Runnable okAction = () -> {
+            dialog.hide();
+            dialog.cancel();
+            dialog.remove();
+        };
         okButton.addListener(new ButtonClickListener() {
             @Override
             public void clickAction() {
-                dialog.hide();
-                dialog.cancel();
-                dialog.remove();
+                okAction.run();
+            }
+        });
+        dialog.addListener(new InputListener(){
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.ENTER)
+                    okAction.run();
+                return super.keyDown(event,keycode);
             }
         });
         dialog.getContentTable().add(errorMessageLabel).fill().expandX().padLeft(10).padRight(10);
