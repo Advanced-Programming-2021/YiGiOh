@@ -7,8 +7,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
@@ -97,6 +95,7 @@ public class GameController {
             logger.info("in game with id {}: {} drew {} from deck", id, secondPlayer.getPlayer().getUser()
                     .getNickname(), secondPlayer.getPlayer().getField().drawCard().getCard().getName());
         }
+        updateView();
         showBoard();
         startRound();
     }
@@ -117,34 +116,40 @@ public class GameController {
 
     public void set() {
         gameTurnController.set();
+        updateView();
         showBoard();
         isRoundEnded();
     }
 
     public void summon() {
         gameTurnController.summon();
+        updateView();
         showBoard();
         isRoundEnded();
     }
 
     public void changePosition(boolean isChangeToAttack) {
         gameTurnController.changePosition(isChangeToAttack);
+        updateView();
         showBoard();
     }
 
     public void flipSummon() {
         gameTurnController.flipSummon();
+        updateView();
         showBoard();
     }
 
     public void attack(int position) {
         gameTurnController.attack(position);
+        updateView();
         showBoard();
         isRoundEnded();
     }
 
     public void directAttack() {
         gameTurnController.directAttack();
+        updateView();
         showBoard();
         isRoundEnded();
     }
@@ -163,6 +168,7 @@ public class GameController {
             return;
         }
         gameTurnController.nextPhase();
+        updateView();
         if (getCurrentPlayerController() instanceof AIPlayerController) {
             ((AIPlayerController) getCurrentPlayerController()).nextPhaseAction();
         }
@@ -172,6 +178,7 @@ public class GameController {
         isTurnTempChanged = true;
         isFirstPlayerTurn = !isFirstPlayerTurn;
         Utils.printInfo("now it will be " + getCurrentPlayer().getUser().getUsername() + "'s turn");
+        updateView();
         showBoard();
     }
 
@@ -196,6 +203,7 @@ public class GameController {
         logger.info("in game with id {}: it's {}'s turn", id, isFirstPlayerTurn ? firstPlayer.getPlayer()
                 .getUser().getNickname() : secondPlayer.getPlayer().getUser().getNickname());
         gameTurnController.drawPhase();
+        updateView();
         getView().showPhase(Phase.DRAW);
         if (getCurrentPlayerController().isAI()) {
             ((AIPlayerController) getCurrentPlayerController()).startRoundAction();
@@ -908,10 +916,15 @@ public class GameController {
     }
 
     public static void showGame() {
+        UIView.setGameControllerID(ProgramController.getGameControllerID());
         ProgramController.getGame().setScreen(UIView);
     }
 
     public PlayerController getPlayerControllerByCard(GameCard card) {
         return getPlayerControllerByPlayer(getPlayerByCard(card));
+    }
+
+    private void updateView() {
+        UIView.update(isFirstPlayerTurn);
     }
 }

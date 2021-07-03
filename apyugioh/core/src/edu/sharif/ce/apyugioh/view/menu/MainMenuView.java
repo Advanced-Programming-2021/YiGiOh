@@ -23,6 +23,7 @@ import edu.sharif.ce.apyugioh.controller.DeckMenuController;
 import edu.sharif.ce.apyugioh.controller.DuelController;
 import edu.sharif.ce.apyugioh.controller.MainMenuController;
 import edu.sharif.ce.apyugioh.controller.ProfileController;
+import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;

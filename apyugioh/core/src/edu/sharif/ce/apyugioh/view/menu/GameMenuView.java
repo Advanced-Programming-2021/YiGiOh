@@ -13,14 +13,19 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
+import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
+import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.view.model.CameraAction;
 import edu.sharif.ce.apyugioh.view.model.CardAction;
@@ -29,9 +34,14 @@ import edu.sharif.ce.apyugioh.view.model.CardModelView;
 import edu.sharif.ce.apyugioh.view.model.DeckModelView;
 import edu.sharif.ce.apyugioh.view.model.GameActionsManager;
 import edu.sharif.ce.apyugioh.view.model.GameDeckModelView;
+import lombok.Getter;
+import lombok.Setter;
 
 public class GameMenuView extends Menu {
 
+    @Setter
+    @Getter
+    private int gameControllerID;
     private InputProcessor inputProcessor;
     private Stage stage;
     private SpriteBatch batch;
@@ -41,7 +51,8 @@ public class GameMenuView extends Menu {
     private CardFrontView board;
     private PlayerController firstPlayerController, secondPlayerController;
     private GameDeckModelView cardViews;
-    private List<Polygon> cardPolygons;
+    private HashMap<CardLocation, Polygon> cardPolygons;
+    private Label phaseLabel, firstPlayerHPLabel, secondPlayerHPLabel;
 
     public GameMenuView(YuGiOh game) {
         super(game);
@@ -52,7 +63,10 @@ public class GameMenuView extends Menu {
         manager = new GameActionsManager();
         stage = new Stage();
         batch = new SpriteBatch();
-        cardPolygons = new ArrayList<>();
+        cardPolygons = new HashMap<>();
+        phaseLabel = new Label("Phase: Draw", AssetController.getSkin("first"), "title");
+        firstPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
+        secondPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
     }
 
     @Override
@@ -66,16 +80,32 @@ public class GameMenuView extends Menu {
         cam.position.set(0, -70, 0);
         cam.lookAt(75, -25, 0);
         cam.update();
+        phaseLabel.setPosition(1450, 700);
+        stage.addActor(phaseLabel);
+        firstPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
+        firstPlayerHPLabel.setPosition(1450, 1000);
+        stage.addActor(firstPlayerHPLabel);
+        secondPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
+        secondPlayerHPLabel.setPosition(1450, 950);
+        stage.addActor(secondPlayerHPLabel);
+        addNextPhaseButton();
+        addSummonButton();
+        addSetButton();
         addFirstPlayerMonsterZonePolygons();
+        addFirstPlayerSpellZonePolygons();
+        addFirstPlayerHandPolygons();
+        addFirstPlayerExtraPolygons();
         Gdx.input.setInputProcessor(stage);
         stage.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
+                if (!manager.isDone()) return;
                 System.out.println(x + " : " + y + " clicked!");
-                for (int i = 0; i < cardPolygons.size(); i++) {
-                    if (cardPolygons.get(i).contains(x, y)) {
-                        System.out.println("Mioo " + i);
+                for (Map.Entry<CardLocation, Polygon> polygon : cardPolygons.entrySet()) {
+                    if (polygon.getValue().contains(x, y)) {
+                        System.out.println("Clicked " + polygon.getKey().toString());
+                        getGameController().select(polygon.getKey());
                         break;
                     }
                 }
@@ -83,22 +113,90 @@ public class GameMenuView extends Menu {
         });
     }
 
+    private void addSetButton() {
+        TextButton summonButton = new TextButton("Set", AssetController.getSkin("first"));
+        summonButton.setPosition(1450, 620);
+        summonButton.setSize(200, 50);
+        summonButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isInHand() && manager.isDone()) {
+                    getGameController().set();
+                }
+            }
+        });
+        stage.addActor(summonButton);
+    }
+
+    private void addSummonButton() {
+        TextButton summonButton = new TextButton("Summon", AssetController.getSkin("first"));
+        summonButton.setPosition(1450, 560);
+        summonButton.setSize(200, 50);
+        summonButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isInHand() && manager.isDone()) {
+                    getGameController().summon();
+                }
+            }
+        });
+        stage.addActor(summonButton);
+    }
+
+    private void addNextPhaseButton() {
+        TextButton nextPhaseButton = new TextButton("Next Phase", AssetController.getSkin("first"));
+        nextPhaseButton.setPosition(1450, 500);
+        nextPhaseButton.setSize(200, 50);
+        nextPhaseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                if (manager.isDone()) {
+                    getGameController().nextPhase();
+                    phaseLabel.setText("Phase: " + getGameController().getGameTurnController().getPhase().toString());
+                }
+            }
+        });
+        stage.addActor(nextPhaseButton);
+    }
+
     private void addFirstPlayerMonsterZonePolygons() {
-        Polygon polygon = new Polygon(new float[]{32, 153, 136, 153, 115, 0, 0, 0});
-        polygon.translate(649, 515);
-        cardPolygons.add(polygon);
-        polygon = new Polygon(new float[]{19, 153, 123, 153, 115, 0, 0, 0});
-        polygon.translate(775, 515);
-        cardPolygons.add(polygon);
-        polygon = new Polygon(new float[]{6, 153, 110, 153, 115, 0, 0, 0});
-        polygon.translate(901, 515);
-        cardPolygons.add(polygon);
-        polygon = new Polygon(new float[]{0, 153, 104, 153, 123, 0, 8, 0});
-        polygon.translate(1017, 515);
-        cardPolygons.add(polygon);
-        polygon = new Polygon(new float[]{0, 153, 104, 153, 136, 0, 21, 0});
-        polygon.translate(1134, 515);
-        cardPolygons.add(polygon);
+        addPolygon(CardLocation.getPositionInMonsterZone(4), new float[]{32, 153, 136, 153, 115, 0, 0, 0}, 649, 515);
+        addPolygon(CardLocation.getPositionInMonsterZone(2), new float[]{19, 153, 123, 153, 115, 0, 0, 0}, 775, 515);
+        addPolygon(CardLocation.getPositionInMonsterZone(0), new float[]{6, 153, 110, 153, 115, 0, 0, 0}, 901, 515);
+        addPolygon(CardLocation.getPositionInMonsterZone(1), new float[]{0, 153, 104, 153, 123, 0, 8, 0}, 1017, 515);
+        addPolygon(CardLocation.getPositionInMonsterZone(3), new float[]{0, 153, 104, 153, 136, 0, 21, 0}, 1134, 515);
+    }
+
+    private void addFirstPlayerSpellZonePolygons() {
+        addPolygon(CardLocation.getPositionInSpellZone(4), new float[]{44, 198, 162, 198, 133, 0, 0, 0}, 600, 302);
+        addPolygon(CardLocation.getPositionInSpellZone(2), new float[]{26, 198, 144, 198, 133, 0, 0, 0}, 746, 302);
+        addPolygon(CardLocation.getPositionInSpellZone(0), new float[]{8, 198, 127, 198, 133, 0, 0, 0}, 892, 302);
+        addPolygon(CardLocation.getPositionInSpellZone(1), new float[]{0, 198, 118, 198, 144, 0, 11, 0}, 1028, 302);
+        addPolygon(CardLocation.getPositionInSpellZone(3), new float[]{0, 198, 118, 198, 162, 0, 29, 0}, 1156, 302);
+    }
+
+    private void addFirstPlayerHandPolygons() {
+        addPolygon(CardLocation.getPositionInHand(0), new float[]{0, 180, 162, 180, 180, 0, 28, 0}, 450, 85);
+        addPolygon(CardLocation.getPositionInHand(1), new float[]{0, 180, 162, 180, 172, 0, 20, 0}, 623, 85);
+        addPolygon(CardLocation.getPositionInHand(2), new float[]{0, 180, 162, 180, 162, 0, 10, 0}, 798, 85);
+        addPolygon(CardLocation.getPositionInHand(3), new float[]{0, 180, 162, 180, 152, 0, 0, 0}, 973, 85);
+        addPolygon(CardLocation.getPositionInHand(4), new float[]{12, 180, 174, 180, 152, 0, 0, 0}, 1137, 85);
+        addPolygon(CardLocation.getPositionInHand(5), new float[]{22, 180, 184, 180, 152, 0, 0, 0}, 1302, 85);
+    }
+
+    private void addFirstPlayerExtraPolygons() {
+        addPolygon(CardLocation.getPositionInFieldZone(), new float[]{46, 152, 127, 152, 90, 0, 0, 0}, 518, 428);
+        addPolygon(CardLocation.getPositionInGraveyard(0), new float[]{0, 122, 75, 122, 114, 0, 32, 0}, 1272, 587);
+        //addPolygon(CardLocation.(5),new float[]{0, 202, 92, 202, 156, 0, 51, 0}, 1356, 200);
+    }
+
+    private void addPolygon(CardLocation location, float[] vertices, float translateX, float translateY) {
+        Polygon polygon = new Polygon(vertices);
+        polygon.translate(translateX, translateY);
+        cardPolygons.put(location, polygon);
     }
 
     @Override
@@ -112,6 +210,8 @@ public class GameMenuView extends Menu {
             card.render(modelBatch, environment);
         }
         modelBatch.end();
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
@@ -140,6 +240,8 @@ public class GameMenuView extends Menu {
         updateMonsterZone(isFirstPlayerTurn);
         updateDeck();
         updateHand();
+        firstPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
+        secondPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
     }
 
     public void updateCamera(boolean isFirstPlayerTurn) {
@@ -296,7 +398,7 @@ public class GameMenuView extends Menu {
         }
     }
 
-    public boolean isDone() {
-        return manager.isDone();
+    private GameController getGameController() {
+        return GameController.getGameControllerById(gameControllerID);
     }
 }

@@ -29,36 +29,23 @@ public class AIPlayerController extends PlayerController {
     }
 
     public void startRoundAction() {
-        updateView();
         getGameController().nextPhaseAI();
-        updateView();
         getGameController().nextPhaseAI();
-        updateView();
         int roundCount = getGameController().getRoundResults().size();
         if (setOrSummon(roundCount)) return;
         if (activeSpell(roundCount)) return;
-        updateView();
         getGameController().nextPhaseAI();
-        updateView();
         if (getGameController().getPassedTurns() > 1) {
             if (attackEachCard(roundCount)) return;
         }
-        updateView();
         if (!isRoundEnded(roundCount)) {
             getGameController().nextPhaseAI();
             if (summonInMain2(roundCount)) return;
             if (activeSpell(roundCount)) return;
-            updateView();
             getGameController().nextPhaseAI();
-            updateView();
             getGameController().nextPhase();
-            updateView();
         }
 
-    }
-
-    private void updateView() {
-        GameController.getUIView().update(getGameController().isFirstPlayerTurn());
     }
 
     private boolean activeSpell(int roundCount) {
@@ -90,18 +77,15 @@ public class AIPlayerController extends PlayerController {
                 int position = selectLowestAttackMonster(getRivalPlayer().getField().getMonsterZone());
                 if (position == -1) {
                     directAttack();
-                    updateView();
                 } else {
                     GameCard monsterToGetAttacked = getRivalPlayer().getField().getMonsterZone()[position];
                     if (monsterToGetAttacked.isFaceDown()) {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentDefense()) {
                             attack(position + 1);
-                            updateView();
                         }
                     } else {
                         if (getSelectionController().getCard().getCurrentAttack() >= monsterToGetAttacked.getCurrentAttack()) {
                             attack(position + 1);
-                            updateView();
                         }
                     }
                 }
