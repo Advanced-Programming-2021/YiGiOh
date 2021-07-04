@@ -1,14 +1,16 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
-import edu.sharif.ce.apyugioh.controller.game.GameController;
-import edu.sharif.ce.apyugioh.model.DatabaseManager;
-import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.card.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
+import java.util.concurrent.ArrayBlockingQueue;
+
+import edu.sharif.ce.apyugioh.controller.game.GameController;
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
+import edu.sharif.ce.apyugioh.model.Player;
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.GameCard;
 
 public class NormalPlayerController extends PlayerController {
 
@@ -153,17 +155,17 @@ public class NormalPlayerController extends PlayerController {
 
     @Override
     public boolean confirm(String message) {
-        return GameController.getView().confirm(message);
+        ArrayBlockingQueue<Boolean> choice = GameController.getUIView().confirm(message);
+        return choice.poll();
     }
 
     @Nullable
     private GameCard getGameCard(List<GameCard> availableMonsters) {
-        String result = GameController.getView().promptChoice(availableMonsters.stream()
-                .map(e -> e.getId() + " " + e.getCard().getName()).collect(Collectors.toList()).toArray(String[]::new));
-        if (result == null) return null;
-        return availableMonsters.stream()
-                .filter(e -> e.getId() == Integer.parseInt(result.split(" ")[0]))
-                .findFirst().orElse(null);
+        ArrayBlockingQueue<GameCard> choice = GameController.getUIView().promptChoice(availableMonsters);
+        if (choice == null || choice.size() == 0) {
+            return null;
+        }
+        return choice.poll();
     }
 
 }

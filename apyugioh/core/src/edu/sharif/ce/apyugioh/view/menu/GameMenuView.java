@@ -13,16 +13,23 @@ import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
@@ -53,6 +60,7 @@ public class GameMenuView extends Menu {
     private GameDeckModelView cardViews;
     private HashMap<CardLocation, Polygon> cardPolygons;
     private Label phaseLabel, firstPlayerHPLabel, secondPlayerHPLabel;
+    private boolean isDialogShown;
 
     public GameMenuView(YuGiOh game) {
         super(game);
@@ -80,7 +88,7 @@ public class GameMenuView extends Menu {
         cam.position.set(0, -70, 0);
         cam.lookAt(75, -25, 0);
         cam.update();
-        phaseLabel.setPosition(1450, 700);
+        phaseLabel.setPosition(1450, 780);
         stage.addActor(phaseLabel);
         firstPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
         firstPlayerHPLabel.setPosition(1450, 1000);
@@ -91,6 +99,7 @@ public class GameMenuView extends Menu {
         addNextPhaseButton();
         addSummonButton();
         addSetButton();
+        addAttackButton();
         addFirstPlayerMonsterZonePolygons();
         addFirstPlayerSpellZonePolygons();
         addFirstPlayerHandPolygons();
@@ -100,11 +109,21 @@ public class GameMenuView extends Menu {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                if (!manager.isDone()) return;
+                if (!manager.isDone() || isDialogShown) return;
                 System.out.println(x + " : " + y + " clicked!");
                 for (Map.Entry<CardLocation, Polygon> polygon : cardPolygons.entrySet()) {
                     if (polygon.getValue().contains(x, y)) {
                         System.out.println("Clicked " + polygon.getKey().toString());
+                        if (polygon.getKey().isFromMonsterZone() && getGameController().getCurrentPlayer().getField().getMonsterZone()[polygon.getKey().getPosition()] == null)
+                            continue;
+                        if (polygon.getKey().isFromSpellZone() && getGameController().getCurrentPlayer().getField().getSpellZone()[polygon.getKey().getPosition()] == null)
+                            continue;
+                        if (polygon.getKey().isInHand() && getGameController().getCurrentPlayer().getField().getHand().size() < polygon.getKey().getPosition())
+                            continue;
+                        if (polygon.getKey().isFromFieldZone() && getGameController().getCurrentPlayer().getField().getFieldZone() == null)
+                            continue;
+                        if (polygon.getKey().isFromGraveyard() && getGameController().getCurrentPlayer().getField().getGraveyard().size() < 1)
+                            continue;
                         getGameController().select(polygon.getKey());
                         break;
                     }
@@ -113,20 +132,99 @@ public class GameMenuView extends Menu {
         });
     }
 
+    private void addAttackButton() {
+        TextButton attackButton = new TextButton("Attack", AssetController.getSkin("first"));
+        attackButton.setPosition(1450, 680);
+        attackButton.setSize(200, 50);
+        attackButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isFromMonsterZone() && manager.isDone()) {
+                    final int[] selectedTarget = {-1};
+                    boolean isEmpty = true;
+                    for (int i = 0; i < getGameController().getRivalPlayer().getField().getMonsterZone().length; i++) {
+                        if (getGameController().getRivalPlayer().getField().getMonsterZone()[i] != null) {
+                            isEmpty = false;
+                            break;
+                        }
+                    }
+                    boolean finalIsEmpty = isEmpty;
+                    Dialog dialog = new Dialog("Attack", AssetController.getSkin("first")) {
+                        @Override
+                        protected void result(Object object) {
+                            super.result(object);
+                            Boolean result = (Boolean) object;
+                            if (result && selectedTarget[0] != -1) {
+                                if (finalIsEmpty) {
+                                    System.out.println("Direct Attack");
+                                    getGameController().getCurrentPlayerController().directAttack();
+                                } else {
+                                    System.out.println("Attack " + selectedTarget[0] + 1);
+                                    getGameController().getCurrentPlayerController().attack(selectedTarget[0] + 1);
+                                }
+                            }
+                            isDialogShown = false;
+                            hide();
+                        }
+                    };
+                    if (isEmpty) {
+                        dialog.button("Attack Direct", true);
+                    } else {
+                        Table table = new Table(AssetController.getSkin("first"));
+                        for (int i = 0; i < getGameController().getRivalPlayer().getField().getMonsterZone().length; i++) {
+                            if (getGameController().getRivalPlayer().getField().getMonsterZone()[i] != null) {
+                                Image image;
+                                if (!getGameController().getRivalPlayer().getField().getMonsterZone()[i].isRevealed() && getGameController().getRivalPlayer().getField().getMonsterZone()[i].isFaceDown()) {
+                                    image = new Image(AssetController.getDeck().getAtlas().findRegion("Unknown"));
+                                } else {
+                                    image = new Image(AssetController.getDeck().getAtlas().findRegion(Utils.firstUpperOnly(getGameController().getRivalPlayer().getField().getMonsterZone()[i].getCard().getName()).replaceAll("\\s+", "")));
+                                }
+                                int finalI = i;
+                                image.addListener(new ClickListener() {
+                                    @Override
+                                    public void clicked(InputEvent event, float x, float y) {
+                                        super.clicked(event, x, y);
+                                        selectedTarget[0] = finalI;
+                                        System.out.println("Selected Target " + finalI + 1);
+                                    }
+                                });
+                                if (getGameController().getRivalPlayer().getField().getMonsterZone()[i].isFaceDown()) {
+                                    table.add(image).width(250).height(150).pad(10);
+                                } else {
+                                    table.add(image).width(150).height(250).pad(10);
+                                }
+                            }
+                        }
+                        table.row();
+                        ScrollPane scroll = new ScrollPane(table, AssetController.getSkin("first"));
+                        dialog.getContentTable().add(scroll).width(500).height(500);
+                        dialog.getContentTable().row();
+                        dialog.button("Attack", true);
+                    }
+                    dialog.button("Cancel", false);
+                    isDialogShown = true;
+                    dialog.show(stage);
+                }
+            }
+        });
+        stage.addActor(attackButton);
+    }
+
     private void addSetButton() {
-        TextButton summonButton = new TextButton("Set", AssetController.getSkin("first"));
-        summonButton.setPosition(1450, 620);
-        summonButton.setSize(200, 50);
-        summonButton.addListener(new ClickListener() {
+        TextButton setButton = new TextButton("Set", AssetController.getSkin("first"));
+        setButton.setPosition(1450, 620);
+        setButton.setSize(200, 50);
+        setButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isInHand() && manager.isDone()) {
-                    getGameController().set();
+                    getGameController().getCurrentPlayerController().set();
                 }
             }
         });
-        stage.addActor(summonButton);
+        stage.addActor(setButton);
     }
 
     private void addSummonButton() {
@@ -138,7 +236,7 @@ public class GameMenuView extends Menu {
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isInHand() && manager.isDone()) {
-                    getGameController().summon();
+                    getGameController().getCurrentPlayerController().summon();
                 }
             }
         });
@@ -154,7 +252,7 @@ public class GameMenuView extends Menu {
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 if (manager.isDone()) {
-                    getGameController().nextPhase();
+                    getGameController().getCurrentPlayerController().nextPhase();
                     phaseLabel.setText("Phase: " + getGameController().getGameTurnController().getPhase().toString());
                 }
             }
@@ -400,5 +498,90 @@ public class GameMenuView extends Menu {
 
     private GameController getGameController() {
         return GameController.getGameControllerById(gameControllerID);
+    }
+
+    public ArrayBlockingQueue<GameCard> promptChoice(List<GameCard> cards) {
+        return promptChoice(cards, "Select Card");
+    }
+
+    public ArrayBlockingQueue<GameCard> promptChoice(List<GameCard> cards, String message) {
+        ArrayBlockingQueue<GameCard> choice = new ArrayBlockingQueue<>(1);
+        System.out.println("Choice Called");
+        if (cards.size() > 0) {
+            final int[] selectedTarget = {-1};
+            Dialog dialog = new Dialog(message, AssetController.getSkin("first")) {
+                @Override
+                protected void result(Object object) {
+                    super.result(object);
+                    Boolean result = (Boolean) object;
+                    synchronized (choice) {
+                        if (result && selectedTarget[0] != -1) {
+                            choice.add(cards.get(selectedTarget[0]));
+                        }
+                    }
+                    isDialogShown = false;
+                    hide();
+                }
+            };
+            Table table = new Table(AssetController.getSkin("first"));
+            int counter = 0;
+            for (GameCard card : cards) {
+                Image image;
+                if (!card.isRevealed() && card.isFaceDown()) {
+                    image = new Image(AssetController.getDeck().getAtlas().findRegion("Unknown"));
+                } else {
+                    image = new Image(AssetController.getDeck().getAtlas().findRegion(Utils.firstUpperOnly(card.getCard().getName()).replaceAll("\\s+", "")));
+                }
+                int finalCounter = counter;
+                image.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        super.clicked(event, x, y);
+                        selectedTarget[0] = finalCounter;
+                        System.out.println("Selected Choice " + finalCounter);
+                    }
+                });
+                if (card.isFaceDown()) {
+                    table.add(image).width(250).height(150).pad(10);
+                } else {
+                    table.add(image).width(150).height(250).pad(10);
+                }
+                counter++;
+            }
+            table.row();
+            ScrollPane scroll = new ScrollPane(table, AssetController.getSkin("first"));
+            dialog.getContentTable().add(scroll).width(500).height(500);
+            dialog.getContentTable().row();
+            dialog.button("Select", true);
+            dialog.button("Cancel", false);
+            isDialogShown = true;
+            dialog.show(stage);
+        }
+        return choice;
+    }
+
+    public ArrayBlockingQueue<Boolean> confirm(String message) {
+        ArrayBlockingQueue<Boolean> choice = new ArrayBlockingQueue<>(1);
+        System.out.println("Confirm Called");
+        Dialog dialog = new Dialog("Confirmation", AssetController.getSkin("first")) {
+            @Override
+            protected void result(Object object) {
+                super.result(object);
+                Boolean result = (Boolean) object;
+                if (result) {
+                    choice.add(Boolean.TRUE);
+                } else {
+                    choice.add(Boolean.FALSE);
+                }
+                isDialogShown = false;
+                hide();
+            }
+        };
+        dialog.text(message);
+        dialog.button("Confirm", true);
+        dialog.button("Cancel", false);
+        isDialogShown = true;
+        dialog.show(stage);
+        return choice;
     }
 }
