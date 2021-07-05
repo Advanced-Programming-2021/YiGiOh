@@ -1,5 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import edu.sharif.ce.apyugioh.controller.AssetController;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

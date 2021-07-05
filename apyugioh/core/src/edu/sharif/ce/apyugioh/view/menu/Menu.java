@@ -1,8 +1,6 @@
 package edu.sharif.ce.apyugioh.view.menu;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.g3d.Environment;
@@ -12,9 +10,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.MainMenuController;
 import edu.sharif.ce.apyugioh.view.View;
 
 public class Menu extends View implements Screen {
@@ -28,6 +26,7 @@ public class Menu extends View implements Screen {
     protected int lastX, lastY;
     private Vector3 camPos;
     protected boolean moveCamera = true;
+    protected InputMultiplexer inputMultiplexer;
 
     public Menu(YuGiOh game) {
         this.game = game;
@@ -43,6 +42,7 @@ public class Menu extends View implements Screen {
         lastX = Gdx.graphics.getWidth() / 2;
         lastY = Gdx.graphics.getHeight() / 2;
         camPos = Vector3.Zero;
+        inputMultiplexer = new InputMultiplexer();
     }
 
     @Override

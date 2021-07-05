@@ -25,12 +25,16 @@ public class User implements Comparable<User> {
     @Getter
     @Setter
     private int mainDeckID;
+    @Getter
+    @Setter
+    private String avatarName;
 
-    public User(String username, String password, String nickname) {
+    public User(String username, String password, String nickname, String avatarName) {
         id = DatabaseManager.getUserList().stream().mapToInt(e -> e.id).max().getAsInt() + 1;
         this.username = username;
         this.password = Utils.hash(password);
         this.nickname = nickname;
+        this.avatarName = avatarName;
         mainDeckID = -1;
         DatabaseManager.addUser(this);
         new Inventory(id);
@@ -70,6 +74,11 @@ public class User implements Comparable<User> {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+        DatabaseManager.updateUsersToDB();
+    }
+
+    public void setAvatar(String avatarName) {
+        this.avatarName = avatarName;
         DatabaseManager.updateUsersToDB();
     }
 

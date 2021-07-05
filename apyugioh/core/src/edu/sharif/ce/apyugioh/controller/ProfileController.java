@@ -26,6 +26,7 @@ public class ProfileController {
     }
 
     @Setter
+    @Getter
     private User user;
 
     public void changeNickname(String nickname) {
@@ -63,7 +64,16 @@ public class ProfileController {
     }
 
     public void showProfile() {
+        if (view != null)
+            view.dispose();
+        view = new ProfileMenuView(ProgramController.getGame());
         ProgramController.setState(MenuState.PROFILE);
         ProgramController.setCurrentMenu(view);
     }
+
+    public void back() {
+//        view.dispose();
+        MainMenuController.getInstance().showMainMenu();
+    }
+
 }

@@ -32,7 +32,7 @@ public class UserController {
             view.showError(UserMenuView.ERROR_USER_NICKNAME_ALREADY_TAKEN, nickname);
             return;
         }
-        User user = new User(username, password, nickname);
+        User user = new User(username, password, nickname, "default");
         MainMenuController.getInstance().setUser(user);
         view.showSuccess(UserMenuView.SUCCESS_USER_CREATE);
         ProgramController.setState(MenuState.MAIN);

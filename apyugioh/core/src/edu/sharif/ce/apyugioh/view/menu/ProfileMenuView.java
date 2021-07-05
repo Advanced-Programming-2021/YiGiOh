@@ -1,9 +1,14 @@
 package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -13,18 +18,31 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ObjectSet;
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.MainMenuController;
+import edu.sharif.ce.apyugioh.controller.ProfileController;
 import edu.sharif.ce.apyugioh.controller.UserController;
+import edu.sharif.ce.apyugioh.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 import edu.sharif.ce.apyugioh.view.model.DeckModelView;
-import javafx.stage.FileChooser;
+import edu.sharif.ce.apyugioh.view.model.DesktopFileChooser;
+import net.spookygames.gdx.nativefilechooser.NativeFileChooser;
+import net.spookygames.gdx.nativefilechooser.NativeFileChooserCallback;
+import net.spookygames.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 
-public class ProfileMenuView extends Menu{
+public class ProfileMenuView extends Menu {
 
     private final float TRANSITION_SPEED = 3;
 
@@ -35,6 +53,8 @@ public class ProfileMenuView extends Menu{
     private DeckModelView deck;
     private Texture backgroundTexture;
     private HashMap<String, Window> windows;
+    private ProfilePicture profilePicture;
+    private InputProcessor inputProcessor;
 
     public ProfileMenuView(YuGiOh game) {
         super(game);
@@ -43,7 +63,7 @@ public class ProfileMenuView extends Menu{
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
         batch = new SpriteBatch();
         stage = new Stage();
-        backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
+        backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + 10 + ".jpg"));
         windows = new HashMap<>();
     }
 
@@ -62,7 +82,11 @@ public class ProfileMenuView extends Menu{
         card.setTranslation(35, 0, -13);
         cards.add(card);
         createWindows();
-        Gdx.input.setInputProcessor(stage);
+        createProfileDetails();
+        inputMultiplexer.addProcessor(stage);
+        createInputProcessor();
+        inputMultiplexer.addProcessor(inputProcessor);
+        Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
     @Override
@@ -107,6 +131,7 @@ public class ProfileMenuView extends Menu{
     private void createWindows() {
         createMainWindow();
         createChangeNicknameWindow();
+        createChangePasswordWindow();
     }
 
     private void createMainWindow() {
@@ -115,6 +140,7 @@ public class ProfileMenuView extends Menu{
                 new TextButton("Change Nickname", AssetController.getSkin("first")),
                 new TextButton("Change Password", AssetController.getSkin("first")),
                 new TextButton("Delete Account", AssetController.getSkin("first")),
+                new TextButton("Back", AssetController.getSkin("first"))
         };
         Window window = new Window("", AssetController.getSkin("first"));
         window.setKeepWithinStage(false);
@@ -132,20 +158,38 @@ public class ProfileMenuView extends Menu{
                         windows.get("nickname").addAction(Actions.moveTo(0, Gdx.graphics.getHeight() / 2 - 542 / 2, TRANSITION_SPEED));
                     }
                 });
+            } else if (button.getText().toString().equals("Change Password")) {
+                button.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), TRANSITION_SPEED));
+                        AssetController.playSound("chain");
+                        windows.get("password").addAction(Actions.moveTo(Gdx.graphics.getWidth() - 940, Gdx.graphics.getHeight() / 2 - 542 / 2, TRANSITION_SPEED));
+                    }
+                });
             } else if (button.getText().toString().equals("Change Avatar")) {
                 button.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-                        
+                        NativeFileChooser fileChooser = new DesktopFileChooser();
+                        // Configure
+                        createFileChooser(fileChooser);
+                    }
+                });
+            } else if (button.getText().toString().equals("Back")) {
+                button.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        ProfileController.getInstance().back();
                     }
                 });
             }
 
-            window.padTop(150);
             table.add(button).width(350).height(100).spaceBottom(20);
             table.row();
         }
 
+        window.padTop(200);
         windows.put("main", window);
         window.add(table);
         stage.addActor(window);
@@ -185,7 +229,7 @@ public class ProfileMenuView extends Menu{
                 button.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-
+                        ProfileController.getInstance().changeNickname(nicknameField.getText());
                     }
                 });
             }
@@ -198,5 +242,160 @@ public class ProfileMenuView extends Menu{
         windows.put("nickname", window);
         window.add(table);
         stage.addActor(window);
+    }
+
+    private void createChangePasswordWindow() {
+        TextButton[] buttons = new TextButton[] {
+                new TextButton("Save", AssetController.getSkin("first")),
+                new TextButton("Back", AssetController.getSkin("first"))
+        };
+        Window window = new Window("", AssetController.getSkin("first"), "right");
+        window.setKeepWithinStage(false);
+        window.setWidth(940);
+        window.setHeight(542);
+
+        Table table = new Table(AssetController.getSkin("first"));
+        table.padRight(170).padTop(-50);
+
+        TextField passwordField = new TextField("", AssetController.getSkin("first"));
+        Label passwordLabel = new Label("Password : ", AssetController.getSkin("first"));
+        table.add(passwordLabel).width(150).height(50).spaceBottom(20);
+        table.add(passwordField).width(150).height(50).spaceBottom(20);
+        table.row();
+
+        TextField newPasswordField = new TextField("", AssetController.getSkin("first"));
+        Label confirmPasswordLabel = new Label("new Password : ", AssetController.getSkin("first"));
+        table.add(confirmPasswordLabel).width(150).height(50).spaceBottom(20);
+        table.add(newPasswordField).width(150).height(50).spaceBottom(20);
+        table.row();
+
+        for (TextButton button : buttons) {
+            if (button.getText().toString().equals("Back")) {
+                button.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        passwordField.setText("");
+                        newPasswordField.setText("");
+                        window.addAction(Actions.moveTo(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, TRANSITION_SPEED));
+                        AssetController.playSound("chain");
+                        windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, TRANSITION_SPEED));
+                    }
+                });
+            } else if (button.getText().toString().equals("Save")) {
+                button.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        ProfileController.getInstance().changePassword(
+                                passwordField.getText(),
+                                newPasswordField.getText()
+                        );
+                    }
+                });
+            }
+
+            table.add(button).width(350).height(100).colspan(2).spaceBottom(10);
+            table.row();
+        }
+
+        window.setPosition(Gdx.graphics.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2);
+        windows.put("password", window);
+        window.add(table);
+        stage.addActor(window);
+    }
+
+    private void createFileChooser(NativeFileChooser fileChooser) {
+        NativeFileChooserConfiguration conf = new NativeFileChooserConfiguration();
+        conf.directory = Gdx.files.absolute(System.getProperty("user.home"));
+        conf.mimeFilter = "audio/*";
+        conf.nameFilter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith("ogg");
+            }
+        };
+        conf.title = "Choose profile photo";
+        fileChooser.chooseFile(conf, new NativeFileChooserCallback() {
+            @Override
+            public void onFileChosen(FileHandle file) {
+                // Do stuff with file, yay!
+                profilePicture.setProfilePicture(file);
+            }
+
+            @Override
+            public void onCancellation() {
+                System.out.println("Cancelled!");
+            }
+
+            @Override
+            public void onError(Exception exception) {
+                System.out.println("Not an audio");
+            }
+        });
+    }
+
+    private void createProfileDetails() {
+        Image image = new Image(new Texture(Gdx.files.internal("skins/profile_frame.png")));
+        image.setPosition(170, Gdx.graphics.getHeight() - 200);
+        Table table = new Table(AssetController.getSkin("first"));
+        Label usernameLabel = new Label("Username: " + ProfileController.getInstance().getUser().getUsername(), AssetController.getSkin("first"), "title");
+        Label nicknameLabel = new Label("Nickname: " + ProfileController.getInstance().getUser().getNickname(), AssetController.getSkin("first"));
+        table.add(usernameLabel).spaceBottom(5).left();
+        table.row();
+        table.add(nicknameLabel).left();
+        table.setPosition(300 + image.getWidth(), Gdx.graphics.getHeight() - 150);
+        profilePicture = new ProfilePicture(Gdx.files.local("assets/db/profiles/" + ProfileController.getInstance().getUser().getAvatarName()), true);
+        stage.addActor(image);
+        stage.addActor(table);
+        stage.addActor(profilePicture);
+    }
+
+    private void createInputProcessor() {
+        inputProcessor = new InputProcessor() {
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode != Input.Keys.ESCAPE && keycode != Input.Keys.BACK) {
+                    return false;
+                }
+                AssetController.stopSound();
+                ProfileController.getInstance().back();
+                return true;
+            }
+
+            @Override
+            public boolean keyUp(int keycode) {
+                return false;
+            }
+
+            @Override
+            public boolean keyTyped(char character) {
+                return false;
+            }
+
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                return false;
+            }
+
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                return false;
+            }
+
+            @Override
+            public boolean touchDragged(int screenX, int screenY, int pointer) {
+                return false;
+            }
+
+            @Override
+            public boolean mouseMoved(int screenX, int screenY) {
+                return false;
+            }
+
+            @Override
+            public boolean scrolled(float amountX, float amountY) {
+                return false;
+            }
+        };
     }
 }

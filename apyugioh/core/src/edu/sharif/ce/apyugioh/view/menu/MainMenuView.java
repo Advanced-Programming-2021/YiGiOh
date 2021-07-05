@@ -11,8 +11,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.ObjectSet;
 
 import java.util.HashMap;
@@ -28,6 +27,7 @@ import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.AILevel;
+import edu.sharif.ce.apyugioh.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 
@@ -46,6 +46,7 @@ public class MainMenuView extends Menu {
     ObjectSet<CardModelView> cards;
     private Texture backgroundTexture;
     private HashMap<String, Window> windows;
+    private ProfilePicture profilePicture;
 
 
     public MainMenuView(YuGiOh game) {
@@ -73,6 +74,7 @@ public class MainMenuView extends Menu {
         card.setTranslation(35, 0, -13);
         cards.add(card);
         createMainWindow();
+        createProfileDetails();
         Gdx.input.setInputProcessor(stage);
     }
 
@@ -180,5 +182,21 @@ public class MainMenuView extends Menu {
         window.padTop(150);
         windows.put("main", window);
         stage.addActor(window);
+    }
+
+    private void createProfileDetails() {
+        Image image = new Image(new Texture(Gdx.files.internal("skins/profile_frame.png")));
+        image.setPosition(170, Gdx.graphics.getHeight() - 200);
+        Table table = new Table(AssetController.getSkin("first"));
+        Label usernameLabel = new Label("Username: " + MainMenuController.getInstance().getUser().getUsername(), AssetController.getSkin("first"), "title");
+        Label nicknameLabel = new Label("Nickname: " + MainMenuController.getInstance().getUser().getNickname(), AssetController.getSkin("first"));
+        table.add(usernameLabel).spaceBottom(5).left();
+        table.row();
+        table.add(nicknameLabel).left();
+        table.setPosition(300 + image.getWidth(), Gdx.graphics.getHeight() - 150);
+        profilePicture = new ProfilePicture(Gdx.files.local("assets/db/profiles/" + MainMenuController.getInstance().getUser().getAvatarName()), true);
+        stage.addActor(image);
+        stage.addActor(table);
+        stage.addActor(profilePicture);
     }
 }

@@ -55,7 +55,6 @@ public class ShopMenuView extends Menu {
         errorMessages.put(ERROR_MONEY_NOT_ENOUGH, "not enough money to buy %s.\nyou currently have %s and you need %s more to buy this card");
     }
 
-    private InputMultiplexer inputMultiplexer;
     private InputProcessor inputProcessor;
     private Stage stage;
     private SpriteBatch batch;
@@ -77,7 +76,6 @@ public class ShopMenuView extends Menu {
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
         environment.add(new PointLight().set(0.8f, 0.8f, 0.8f, 5, 0, 0, 150));
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
-        inputMultiplexer = new InputMultiplexer();
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
         moveCamera = false;
         manager = new GameActionsManager();
@@ -298,13 +296,13 @@ public class ShopMenuView extends Menu {
                         return;
                     }
                     CardModelView selectedCard = cards.get(selectedCardIndex);
-                    CardAction action = new CardAction(selectedCard, new Vector3(45, 0, 0), 180, 0.012f) {
+                    CardAction action = new CardAction(selectedCard, new Vector3(45, 0, 0), 180, 0.1f) {
                         public void onStart() {
                             AssetController.playSound("flip");
                         }
                     };
                     manager.addAction(action);
-                    CardAction action2 = new CardAction(selectedCard, new Vector3(15, 0, 0), 0, 0.012f);
+                    CardAction action2 = new CardAction(selectedCard, new Vector3(15, 0, 0), 0, 0.1f);
                     manager.addAction(action2);
                     buyWindow.addAction(Actions.moveBy(0, -buyWindow.getHeight(), 3));
                     AssetController.playSound("chain");
@@ -322,7 +320,7 @@ public class ShopMenuView extends Menu {
                 } else {
                     if (selectedCardIndex != -1) {
                         CardModelView card = cards.get(selectedCardIndex);
-                        CardAction action = new CardAction(card, new Vector3(45, 0, 0), 180, 0.012f) {
+                        CardAction action = new CardAction(card, new Vector3(45, 0, 0), 180, 0.1f) {
                             public void onStart() {
                                 AssetController.playSound("flip");
                             }
@@ -336,7 +334,7 @@ public class ShopMenuView extends Menu {
                         manager.addAction(action);
                         int rowCounter = selectedCardIndex / 10;
                         int columnCounter = selectedCardIndex % 10;
-                        CardAction action2 = new CardAction(card, new Vector3(75, cards.first().getPosition().y - 18 * rowCounter, cards.first().getPosition().z + 13 * columnCounter), 0, 0.012f);
+                        CardAction action2 = new CardAction(card, new Vector3(75, cards.first().getPosition().y - 18 * rowCounter, cards.first().getPosition().z + 13 * columnCounter), 0, 0.1f);
                         manager.addAction(action2);
                         buyWindow.addAction(Actions.moveBy(0, buyWindow.getHeight(), 3));
                         AssetController.playSound("chain");
