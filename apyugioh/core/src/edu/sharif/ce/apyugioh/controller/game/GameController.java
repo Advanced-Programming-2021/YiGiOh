@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.controller.player.ConfirmationAction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -7,6 +8,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
@@ -38,7 +43,7 @@ public class GameController {
     @Getter
     private static GameView view;
     @Getter
-    private static GameMenuView UIView;
+    public static GameMenuView UIView;
     private static Logger logger;
 
     //initialize block
@@ -64,6 +69,7 @@ public class GameController {
     private List<RoundResult> roundResults;
     private List<EffectController> firstPlayerEffectControllers;
     private List<EffectController> secondPlayerEffectControllers;
+    private ExecutorService executor;
 
     public GameController(PlayerController firstPlayer, PlayerController secondPlayer, int numberOfRounds) {
         id = LocalDateTime.now().getNano();
@@ -81,6 +87,7 @@ public class GameController {
         secondPlayerEffectControllers = new ArrayList<>();
 
         gameControllers.add(this);
+        executor = Executors.newSingleThreadExecutor();
     }
 
     public static GameController getGameControllerById(int id) {
@@ -289,7 +296,7 @@ public class GameController {
         }
     }
 
-    public EffectResponse knockOutMonster(GameCard monster) {
+    public void knockOutMonster(GameCard monster) {
         removeMonsterCard(monster);
         EffectController effectController = new EffectController(id, monster);
         //Exploder Dragon
@@ -303,143 +310,214 @@ public class GameController {
                 && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
             effectController.destroyAttackerCardIfDestroyed();
         }
-        return applyEffect(Trigger.AFTER_MONSTER_KNOCK_OUT);
+        //Sales check here please!
+        applyEffect(Trigger.AFTER_MONSTER_KNOCK_OUT, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                return null;
+            }
+        });
     }
 
     public void activeEffect() {
         GameCard selectedCard = selectionController.getCard();
-        EffectResponse response;
         if (!isCardSelected()) {
             view.showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
-        } else if (!selectedCard.getCard().getCardType().equals(CardType.SPELL)) {
+        }
+        if (!selectedCard.getCard().getCardType().equals(CardType.SPELL)) {
             view.showError(GameView.ERROR_WRONG_CARD_TYPE, "spell card");
-        } else if (!(gameTurnController.getPhase().equals(Phase.MAIN1)
+            return;
+        }
+        if (!(gameTurnController.getPhase().equals(Phase.MAIN1)
                 || gameTurnController.getPhase().equals(Phase.MAIN2))) {
             view.showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-        } else if (selectedCard.isRevealed()) {
+            return;
+        }
+        if (selectedCard.isRevealed()) {
             view.showError(GameView.ERROR_SPELL_ALREADY_ACTIVATED, "spell");
-        } else if ((response = applyEffect(Trigger.BEFORE_ACTIVE_SPELL)) != null && response.equals(EffectResponse.ACTIVE_SPELL_CANT_BE_DONE)) {
-            view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED, "spell");
-        } else if (selectedCard.getCard().getCardType().equals(CardType.SPELL) &&
+            return;
+        }
+        applyEffect(Trigger.BEFORE_ACTIVE_SPELL, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                EffectResponse response;
+                if ((response = result.peek()) != null && response.equals(EffectResponse.ACTIVE_SPELL_CANT_BE_DONE)) {
+                    view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED, "spell");
+                }
+                return null;
+            }
+        });
+        if (selectedCard.getCard().getCardType().equals(CardType.SPELL) &&
                 (!((Spell) selectedCard.getCard()).getProperty().equals(SpellProperty.QUICK_PLAY)
                         && !getCurrentPlayer().getField().isInSpellZone(selectedCard))) {
             view.showError(GameView.ERROR_CARD_CANT_BE_ACTIVATED, "spell");
-        } else {
-            EffectController effectController = new EffectController(id, selectedCard);
-            selectedCard.setRevealed(true);
-            for (Effects cardEffect : selectedCard.getCard().getCardEffects()) {
-                if (cardEffect.equals(Effects.SPECIAL_SUMMON_FROM_GRAVEYARD)) {
-                    effectController.specialSummonFromGraveyard();
-                }
-                if (cardEffect.equals(Effects.ADD_FIELD_SPELL_TO_HAND)) {
-                    effectController.addFieldSpellToHand();
-                }
-                if (cardEffect.equals(Effects.DRAW_TWO_CARD)) {
-                    effectController.drawCard(2);
-                }
-                if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_MONSTERS)) {
-                    effectController.destroyAllRivalCards();
-                }
-                if (cardEffect.equals(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
-                    effectController.controlRivalMonster();
-                    effectController.disposableEffect();
-                }
-                if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_SPELL_TRAPS)) {
-                    effectController.destroyRivalSpellTraps();
-                }
-                if (cardEffect.equals(Effects.SWORD_OF_REVEALING_LIGHT)) {
-                    effectController.flipAllRivalFaceDownMonsters();
-                    getCurrentPlayerEffectControllers().add(new EffectController(id, selectedCard, 3));
-                }
-                if (cardEffect.equals(Effects.DESTROY_ALL_MONSTERS)) {
-                    effectController.destroyCurrentPlayerMonsters();
-                    effectController.destroyRivalMonsters();
-                }
-                if (cardEffect.equals(Effects.TWIN_TWISTERS)) {
-                    effectController.twinTwisters();
-                }
-                if (cardEffect.equals(Effects.DESTROY_SPELL_OR_TRAP)) {
-                    effectController.destroySpellTrap();
-                }
-                if (cardEffect.equals(Effects.YAMI)) {
-                    effectController.yami();
-                }
-                if (cardEffect.equals(Effects.FOREST)) {
-                    effectController.forest();
-                }
-                if (cardEffect.equals(Effects.CLOSED_FOREST)) {
-                    effectController.closedForest();
-                }
-                if (cardEffect.equals(Effects.UMIIRUKA)) {
-                    effectController.umiiruka();
-                }
-                if (cardEffect.equals(Effects.SWORD_OF_DARK_DESTRUCTION)) {
-                    effectController.swordOfDarkDestruction();
-                }
-                if (cardEffect.equals(Effects.BLACK_PENDANT)) {
-                    effectController.blackPendant();
-                }
-                if (cardEffect.equals(Effects.UNITED_WE_STAND)) {
-                    effectController.unitedWeStand();
-                }
-                if (cardEffect.equals(Effects.MAGNUM_SHIELD)) {
-                    effectController.magnumShield();
-                }
-                if (cardEffect.equals(Effects.TWIN_TWISTERS)) {
-                    effectController.twinTwisters();
-                }
-                if (cardEffect.equals(Effects.DESTROY_SPELL_OR_TRAP)) {
-                    effectController.destroySpellTrap();
-                }
-                if (cardEffect.equals(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
-                    getCurrentPlayerEffectControllers().add(effectController);
-                }
-                if (cardEffect.equals(Effects.INCREASE_LP_IF_SPELL_ACTIVATED)) {
-                    getCurrentPlayerEffectControllers().add(effectController);
-                }
-                if (cardEffect.equals(Effects.MESSENGER_OF_PEACE)) {
-                    getCurrentPlayerEffectControllers().add(effectController);
-                }
-                if (cardEffect.equals(Effects.RING_OF_DEFENSE)) {
-                    getCurrentPlayerEffectControllers().add(effectController);
-                }
-            }
-            if (!((Spell) selectedCard.getCard()).getProperty().equals(SpellProperty.CONTINUOUS) &&
-                    !selectedCard.getCard().getCardEffects().contains(Effects.SWORD_OF_REVEALING_LIGHT)) {
-                removeSpellTrapCard(selectedCard);
-            }
-            applyEffect(Trigger.AFTER_ACTIVE_SPELL);
-            view.showSuccess(GameView.SUCCESS_SPELL_ACTIVATED, selectedCard.getCard().getName());
+            return;
         }
+        EffectController effectController = new EffectController(id, selectedCard);
+        selectedCard.setRevealed(true);
+        for (Effects cardEffect : selectedCard.getCard().getCardEffects()) {
+            if (cardEffect.equals(Effects.SPECIAL_SUMMON_FROM_GRAVEYARD)) {
+                effectController.specialSummonFromGraveyard();
+            }
+            if (cardEffect.equals(Effects.ADD_FIELD_SPELL_TO_HAND)) {
+                effectController.addFieldSpellToHand();
+            }
+            if (cardEffect.equals(Effects.DRAW_TWO_CARD)) {
+                effectController.drawCard(2);
+            }
+            if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_MONSTERS)) {
+                effectController.destroyAllRivalCards();
+            }
+            if (cardEffect.equals(Effects.CONTROL_ONE_RIVAL_MONSTER)) {
+                effectController.controlRivalMonster();
+                effectController.disposableEffect();
+            }
+            if (cardEffect.equals(Effects.DESTROY_ALL_RIVAL_SPELL_TRAPS)) {
+                effectController.destroyRivalSpellTraps();
+            }
+            if (cardEffect.equals(Effects.SWORD_OF_REVEALING_LIGHT)) {
+                effectController.flipAllRivalFaceDownMonsters();
+                getCurrentPlayerEffectControllers().add(new EffectController(id, selectedCard, 3));
+            }
+            if (cardEffect.equals(Effects.DESTROY_ALL_MONSTERS)) {
+                effectController.destroyCurrentPlayerMonsters();
+                effectController.destroyRivalMonsters();
+            }
+            if (cardEffect.equals(Effects.TWIN_TWISTERS)) {
+                effectController.twinTwisters();
+            }
+            if (cardEffect.equals(Effects.DESTROY_SPELL_OR_TRAP)) {
+                effectController.destroySpellTrap();
+            }
+            if (cardEffect.equals(Effects.YAMI)) {
+                effectController.yami();
+            }
+            if (cardEffect.equals(Effects.FOREST)) {
+                effectController.forest();
+            }
+            if (cardEffect.equals(Effects.CLOSED_FOREST)) {
+                effectController.closedForest();
+            }
+            if (cardEffect.equals(Effects.UMIIRUKA)) {
+                effectController.umiiruka();
+            }
+            if (cardEffect.equals(Effects.SWORD_OF_DARK_DESTRUCTION)) {
+                effectController.swordOfDarkDestruction();
+            }
+            if (cardEffect.equals(Effects.BLACK_PENDANT)) {
+                effectController.blackPendant();
+            }
+            if (cardEffect.equals(Effects.UNITED_WE_STAND)) {
+                effectController.unitedWeStand();
+            }
+            if (cardEffect.equals(Effects.MAGNUM_SHIELD)) {
+                effectController.magnumShield();
+            }
+            if (cardEffect.equals(Effects.TWIN_TWISTERS)) {
+                effectController.twinTwisters();
+            }
+            if (cardEffect.equals(Effects.DESTROY_SPELL_OR_TRAP)) {
+                effectController.destroySpellTrap();
+            }
+            if (cardEffect.equals(Effects.DRAW_CARD_IF_MONSTER_DESTROYED)) {
+                getCurrentPlayerEffectControllers().add(effectController);
+            }
+            if (cardEffect.equals(Effects.INCREASE_LP_IF_SPELL_ACTIVATED)) {
+                getCurrentPlayerEffectControllers().add(effectController);
+            }
+            if (cardEffect.equals(Effects.MESSENGER_OF_PEACE)) {
+                getCurrentPlayerEffectControllers().add(effectController);
+            }
+            if (cardEffect.equals(Effects.RING_OF_DEFENSE)) {
+                getCurrentPlayerEffectControllers().add(effectController);
+            }
+        }
+        if (!((Spell) selectedCard.getCard()).getProperty().equals(SpellProperty.CONTINUOUS) &&
+                !selectedCard.getCard().getCardEffects().contains(Effects.SWORD_OF_REVEALING_LIGHT)) {
+            removeSpellTrapCard(selectedCard);
+        }
+        applyEffect(Trigger.AFTER_ACTIVE_SPELL, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                return null;
+            }
+        });
+        view.showSuccess(GameView.SUCCESS_SPELL_ACTIVATED, selectedCard.getCard().getName());
+
     }
 
     public void activeTrapInRivalTurn() {
         changeTurnTemp();
     }
 
-    public boolean canActiveTrap(EffectController effectController) {
+    public void canActiveTrap(EffectController effectController, ConfirmationAction action) {
+        ArrayBlockingQueue<Boolean> choice = new ArrayBlockingQueue<>(1);
         if (getRivalPlayerEffectControllers().contains(effectController)) {
             activeTrapInRivalTurn();
-            if (getPlayerControllerByCard(effectController.getEffectCard()).confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
-                effectController.getEffectCard().setRevealed(true);
-                EffectResponse response = applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
-                if (response == null) return true;
-                if (response.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
-                    removeSpellTrapCard(effectController.getEffectCard());
+             getPlayerControllerByCard(effectController.getEffectCard()).confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap", new ConfirmationAction() {
+                @Override
+                public Boolean call() throws Exception {
+                    ArrayBlockingQueue<Boolean> choice = getChoice();
+                    if (choice == null) return false;
+                    Boolean result = choice.peek();
+                    if (result == null) return false;
+                    if (!result) return false;
+                    effectController.getEffectCard().setRevealed(true);
+                    applyEffect(Trigger.BEFORE_ACTIVE_TRAP, new EffectAction() {
+                        @Override
+                        public EffectResponse call() throws Exception {
+                            if (result.peek() == null) {
+                                choice.add(Boolean.TRUE);
+                                return null;
+                            }
+                            if (result.peek().equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
+                                removeSpellTrapCard(effectController.getEffectCard());
+                                choice.add(Boolean.FALSE);
+                            } else choice.add(Boolean.TRUE);
+                            return null;
+                        }
+                    });
                     return false;
-                } else return true;
-            }
+                }
+            });
         } else if (getCurrentPlayerEffectControllers().contains(effectController)) {
-            if (getCurrentPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap")) {
-                EffectResponse response = applyEffect(Trigger.BEFORE_ACTIVE_TRAP);
-                if (response == null) return true;
-                if (response.equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
-                    removeSpellTrapCard(effectController.getEffectCard());
+            getCurrentPlayerController().confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap", new ConfirmationAction() {
+                @Override
+                public Boolean call() throws Exception {
+                    ArrayBlockingQueue<Boolean> choice = getChoice();
+                    if (choice == null) return false;
+                    Boolean result = choice.peek();
+                    if (result == null) return false;
+                    if (!result) return false;
+                    applyEffect(Trigger.BEFORE_ACTIVE_TRAP, new EffectAction() {
+                        @Override
+                        public EffectResponse call() throws Exception {
+                            if (result.peek() == null) {
+                                choice.add(Boolean.TRUE);
+                                return null;
+                            }
+                            if (result.peek().equals(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE)) {
+                                removeSpellTrapCard(effectController.getEffectCard());
+                                choice.add(Boolean.FALSE);
+                            } else choice.add(Boolean.TRUE);
+                            return null;
+                        }
+                    });
                     return false;
-                } else return true;
-            }
+                }
+            });
         }
-        return false;
+        executor.submit(() -> {
+            while (choice.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(choice);
+        executor.submit(action);
     }
 
     public void removeDuplicateEffects() {
@@ -461,7 +539,8 @@ public class GameController {
         }
     }
 
-    public EffectResponse applyEffect(Trigger trigger) {
+    public void applyEffect(Trigger trigger, EffectAction action) {
+        ArrayBlockingQueue<EffectResponse> result = new ArrayBlockingQueue<>(1);
         removeDuplicateEffects();
         for (EffectController effectController : new ArrayList<>(getCurrentPlayerEffectControllers())) {
             //ignore disposable effects
@@ -478,8 +557,19 @@ public class GameController {
             //effects with trigger
             if (trigger.equals(Trigger.STANDBY)) {
                 //Mind Crush
-                if (effectController.containEffect(Effects.MIND_CRUSH) && canActiveTrap(effectController)) {
-                    effectController.mindCrush();
+                if (effectController.containEffect(Effects.MIND_CRUSH)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.mindCrush();
+                            return true;
+                        }
+                    });
                 }
                 //Messenger of peace
                 if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
@@ -497,8 +587,19 @@ public class GameController {
                 }
             } else if (trigger.equals(Trigger.MAIN)) {
                 //Call of the Haunted
-                if (effectController.containEffect(Effects.CALL_OF_THE_HAUNTED) && canActiveTrap(effectController)) {
-                    effectController.callOfTheHaunted();
+                if (effectController.containEffect(Effects.CALL_OF_THE_HAUNTED)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.callOfTheHaunted();
+                            return true;
+                        }
+                    });
                 }
             } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
                 //Man-Eater Bug
@@ -508,14 +609,36 @@ public class GameController {
                 }
             } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
                 //Solemn Warning
-                if (effectController.containEffect(Effects.SOLEMN_WARNING) && canActiveTrap(effectController)) {
-                    effectController.solemnWarning();
+                if (effectController.containEffect(Effects.SOLEMN_WARNING)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.solemnWarning();
+                            return true;
+                        }
+                    });
                 }
                 //Torrential Tribute
-                if (effectController.containEffect(Effects.DESTROY_ALL_MONSTERS) && canActiveTrap(effectController)) {
-                    effectController.destroyCurrentPlayerMonsters();
-                    effectController.destroyRivalMonsters();
-                    removeSpellTrapCard(effectController.getEffectCard());
+                if (effectController.containEffect(Effects.DESTROY_ALL_MONSTERS)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.destroyCurrentPlayerMonsters();
+                            effectController.destroyRivalMonsters();
+                            removeSpellTrapCard(effectController.getEffectCard());
+                            return true;
+                        }
+                    });
                 }
                 //Command Knight
                 if (effectController.containEffect(Effects.ADD_ATTACK_TO_ALL_MONSTERS)) {
@@ -530,8 +653,19 @@ public class GameController {
                 }
             } else if (trigger.equals(Trigger.AFTER_SPECIAL_SUMMON)) {
                 //Solemn Warning
-                if (effectController.containEffect(Effects.SOLEMN_WARNING) && canActiveTrap(effectController)) {
-                    effectController.solemnWarning();
+                if (effectController.containEffect(Effects.SOLEMN_WARNING)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.solemnWarning();
+                            return true;
+                        }
+                    });
                 }
                 //Beast King Barbaros
                 if (effectController.containEffect(Effects.BEAST_KING_BARBAROS)) {
@@ -548,7 +682,7 @@ public class GameController {
                 //Messenger of peace
                 if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
                     if (effectController.isAttackerMonsterPowerful(1500)) {
-                        return EffectResponse.ATTACK_CANT_BE_DONE;
+                        result.add(EffectResponse.ATTACK_CANT_BE_DONE);
                     }
                 }
             } else if (trigger.equals(Trigger.AFTER_ATTACK)) {
@@ -593,40 +727,106 @@ public class GameController {
                     }
                 }
                 //Time Seal
-                if (effectController.containEffect(Effects.CANT_DRAW) && canActiveTrap(effectController)) {
-                    effectController.cantDraw();
-                    return EffectResponse.CANT_DRAW;
+                if (effectController.containEffect(Effects.CANT_DRAW)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean resultt = choice.peek();
+                            if (resultt == null) return false;
+                            if (!resultt) return false;
+                            effectController.cantDraw();
+                            result.add(EffectResponse.CANT_DRAW);
+                            return true;
+                        }
+                    });
                 }
             } else if (trigger.equals(Trigger.STANDBY)) {
                 //Mind Crush
-                if (effectController.containEffect(Effects.MIND_CRUSH) && canActiveTrap(effectController)) {
-                    effectController.mindCrush();
+                if (effectController.containEffect(Effects.MIND_CRUSH)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.mindCrush();
+                            return true;
+                        }
+                    });
                 }
             } else if (trigger.equals(Trigger.MAIN)) {
                 //Call of the Haunted
-                if (effectController.containEffect(Effects.CALL_OF_THE_HAUNTED) && canActiveTrap(effectController)) {
-                    effectController.callOfTheHaunted();
+                if (effectController.containEffect(Effects.CALL_OF_THE_HAUNTED)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.callOfTheHaunted();
+                            return true;
+                        }
+                    });
                 }
             } else if (trigger.equals(Trigger.BEFORE_ATTACK)) {
                 //Mirror Force
-                if (effectController.containEffect(Effects.DESTROY_ALL_RIVAL_FACE_UP_MONSTERS) && canActiveTrap(effectController)) {
-                    effectController.destroyAllRivalFaceUpMonsters();
-                    removeSpellTrapCard(effectController.getEffectCard());
+                if (effectController.containEffect(Effects.DESTROY_ALL_RIVAL_FACE_UP_MONSTERS)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.destroyAllRivalFaceUpMonsters();
+                            removeSpellTrapCard(effectController.getEffectCard());
+                            return true;
+                        }
+                    });
                 }
                 //Negate Attack
-                if (effectController.containEffect(Effects.NEGATE_ATTACK_PHASE) && canActiveTrap(effectController)) {
-                    effectController.negateAttackPhase();
+                if (effectController.containEffect(Effects.NEGATE_ATTACK_PHASE)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.negateAttackPhase();
+                            return true;
+                        }
+                    });
                 }
                 //Magic Cylinder
-                if (effectController.containEffect(Effects.MAGIC_CYLINDER) && canActiveTrap(effectController)) {
-                    effectController.magicCylinder();
-                    return EffectResponse.ATTACK_CANT_BE_DONE;
+                if (effectController.containEffect(Effects.MAGIC_CYLINDER)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean resultt = choice.peek();
+                            if (resultt == null) return false;
+                            if (!resultt) return false;
+                            effectController.magicCylinder();
+                            result.add(EffectResponse.ATTACK_CANT_BE_DONE);
+                            return true;
+                        }
+                    });
                 }
                 //Command Knight
                 if (effectController.containEffect(Effects.CAN_NOT_BE_ATTACKED_WHEN_WE_HAVE_ANOTHER_MONSTER) &&
                         attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     if (effectController.isThereAnotherMonster()) {
-                        return EffectResponse.ATTACK_CANT_BE_DONE;
+                        result.add(EffectResponse.ATTACK_CANT_BE_DONE);
                     }
                 }
                 //Suijin
@@ -648,17 +848,17 @@ public class GameController {
                         && attackController.getAttackedMonster().equals(effectController.getEffectCard())) {
                     effectController.disposableEffect();
                     getGameTurnController().getAttackedMonsters().add(attackController.getAttackingMonster());
-                    return EffectResponse.ATTACK_CANT_BE_DONE;
+                    result.add(EffectResponse.ATTACK_CANT_BE_DONE);
                 }
                 //Sword of Revealing Light
                 if (effectController.containEffect(Effects.SWORD_OF_REVEALING_LIGHT)
                         && effectController.getRemainsTurn() > 0) {
-                    return EffectResponse.ATTACK_CANT_BE_DONE;
+                    result.add(EffectResponse.ATTACK_CANT_BE_DONE);
                 }
                 //Messenger of peace
                 if (effectController.containEffect(Effects.MESSENGER_OF_PEACE)) {
                     if (effectController.isAttackerMonsterPowerful(1500))
-                        return EffectResponse.ATTACK_CANT_BE_DONE;
+                        result.add(EffectResponse.ATTACK_CANT_BE_DONE);
                 }
                 //Exploder Dragon
                 if (effectController.containEffect(Effects.LPS_DOESNT_CHANGE)
@@ -682,15 +882,25 @@ public class GameController {
                 //Mirage Dragon
                 if (effectController.containEffect(Effects.RIVAL_CANT_ACTIVE_TRAP)) {
                     view.showError(GameView.ERROR_TRAP_FAILED);
-                    return EffectResponse.ACTIVE_TRAP_CANT_BE_DONE;
+                    result.add(EffectResponse.ACTIVE_TRAP_CANT_BE_DONE);
                 }
             } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
                 //Trap Hole
                 if (effectController.containEffect(Effects.TRAP_HOLE)
                         && getSelectionController() != null
-                        && getSelectionController().getCard().getCurrentAttack() >= 1000
-                        && canActiveTrap(effectController)) {
-                    effectController.trapHole();
+                        && getSelectionController().getCard().getCurrentAttack() >= 1000) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.trapHole();
+                            return true;
+                        }
+                    });
                 }
                 //Man-Eater Bug
                 if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
@@ -701,39 +911,101 @@ public class GameController {
                 //Trap Hole
                 if (effectController.containEffect(Effects.TRAP_HOLE)
                         && getSelectionController() != null
-                        && getSelectionController().getCard().getCurrentAttack() >= 1000
-                        && canActiveTrap(effectController)) {
-                    effectController.trapHole();
+                        && getSelectionController().getCard().getCurrentAttack() >= 1000) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.trapHole();
+                            return true;
+                        }
+                    });
                 }
             } else if (trigger.equals(Trigger.AFTER_SUMMON)) {
                 //Solemn Warning
-                if (effectController.containEffect(Effects.SOLEMN_WARNING) && canActiveTrap(effectController)) {
-                    effectController.solemnWarning();
+                if (effectController.containEffect(Effects.SOLEMN_WARNING)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.solemnWarning();
+                            return true;
+                        }
+                    });
                 }
                 //Torrential Tribute
-                if (effectController.containEffect(Effects.DESTROY_ALL_MONSTERS) && canActiveTrap(effectController)) {
-                    effectController.destroyCurrentPlayerMonsters();
-                    effectController.destroyRivalMonsters();
-                    removeSpellTrapCard(effectController.getEffectCard());
+                if (effectController.containEffect(Effects.DESTROY_ALL_MONSTERS)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.destroyCurrentPlayerMonsters();
+                            effectController.destroyRivalMonsters();
+                            removeSpellTrapCard(effectController.getEffectCard());
+                            return true;
+                        }
+                    });
                 }
             } else if (trigger.equals(Trigger.AFTER_SPECIAL_SUMMON)) {
                 //Solemn Warning
-                if (effectController.containEffect(Effects.SOLEMN_WARNING) && canActiveTrap(effectController)) {
-                    effectController.solemnWarning();
+                if (effectController.containEffect(Effects.SOLEMN_WARNING)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean result = choice.peek();
+                            if (result == null) return false;
+                            if (!result) return false;
+                            effectController.solemnWarning();
+                            return true;
+                        }
+                    });
                 }
             } else if (trigger.equals(Trigger.BEFORE_ACTIVE_SPELL)) {
                 //Magic Jammer
-                if (effectController.containEffect(Effects.MAGIC_JAMMER) && canActiveTrap(effectController)) {
-                    if (effectController.magicJammer()) {
-                        removeSpellTrapCard(effectController.getEffectCard());
-                        view.showSuccess(GameView.SUCCESS_EFFECT, effectController.getEffectCard().getCard().getName());
-                        return EffectResponse.ACTIVE_SPELL_CANT_BE_DONE;
-                    }
+                if (effectController.containEffect(Effects.MAGIC_JAMMER)) {
+                    canActiveTrap(effectController, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            ArrayBlockingQueue<Boolean> choice = getChoice();
+                            if (choice == null) return false;
+                            Boolean resultt = choice.peek();
+                            if (resultt == null) return false;
+                            if (!resultt) return false;
+                            effectController.magicJammer();
+                            result.add(EffectResponse.ACTIVE_SPELL_CANT_BE_DONE);
+                            return true;
+                        }
+                    });
                 }
             }
         }
+        if (result.isEmpty()) result.add(EffectResponse.NULL);
         if (isTurnTempChanged) resetTurnTemp();
-        return null;
+        executor.submit(() -> {
+            while (result.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setResult(result);
+        getExecutor().submit(action);
     }
 
     public void resetEffect() {

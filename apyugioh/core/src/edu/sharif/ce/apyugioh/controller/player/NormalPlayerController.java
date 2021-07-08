@@ -2,6 +2,7 @@ package edu.sharif.ce.apyugioh.controller.player;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.view.menu.GameMenuView;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -156,9 +157,19 @@ public class NormalPlayerController extends PlayerController {
     }
 
     @Override
-    public boolean confirm(String message) {
+    public void confirm(String message, ConfirmationAction action) {
         ArrayBlockingQueue<Boolean> choice = GameController.getUIView().confirm(message);
-        return choice.poll();
+        getGameController().getExecutor().submit(() -> {
+            while (choice.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(choice);
+        getGameController().getExecutor().submit(action);
     }
 
     @Nullable

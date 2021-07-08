@@ -50,7 +50,7 @@ public class GameMenuView extends Menu {
     @Getter
     private int gameControllerID;
     private InputProcessor inputProcessor;
-    private Stage stage;
+    public Stage stage;
     private SpriteBatch batch;
     private Array<CardModelView> cards;
     private DeckModelView deck;

@@ -7,5 +7,6 @@ public enum EffectResponse {
     ATTACKED_CARD_CANT_BE_DESTROYED,
     ACTIVE_TRAP_CANT_BE_DONE,
     ACTIVE_SPELL_CANT_BE_DONE,
-    CANT_DRAW
+    CANT_DRAW,
+    NULL
 }

@@ -38,12 +38,15 @@ public class SummonController {
     }
 
     public SummonController(int gameControllerID, GameCard card) {
+        System.out.println("Create SummonController");
         this.gameControllerID = gameControllerID;
         this.card = card;
         summoningPlayer = getGameController().getPlayerByCard(card);
+        System.out.println("SummonController Created");
     }
 
     public boolean normalSummon() {
+        System.out.println("Normal Summon");
         if (specialCases.contains(card.getCard().getName()))
             return summonSpecialMonsters();
         if (!checkForTribute())
@@ -58,8 +61,21 @@ public class SummonController {
         getGameController().getEffectControllersByPlayer(getGameController().getPlayerByCard(card))
                 .add(new EffectController(gameControllerID, card));
         logger.info("in game with id {}: summon successful", gameControllerID);
-        getGameController().applyEffect(Trigger.AFTER_SUMMON);
-        getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON);
+        getGameController().applyEffect(Trigger.AFTER_SUMMON, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                System.out.println("After summon action");
+                return null;
+            }
+        });
+        getGameController().applyEffect(Trigger.AFTER_NORMAL_SUMMON, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                System.out.println("After normal summon action");
+                return null;
+            }
+        });
+//        System.out.println("Check Before Summon2");
         if (summoningPlayer.getField().isInMonsterZone(card)) {
             GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
             getGameTurnController().setSummonedMonster(card);
@@ -89,7 +105,12 @@ public class SummonController {
                     if (result) {
                         getGameController().getEffectControllersByPlayer(getGameController().getPlayerByCard(card))
                                 .add(new EffectController(gameControllerID, card));
-                        getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON);
+                        getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON, new EffectAction() {
+                            @Override
+                            public EffectResponse call() throws Exception {
+                                return null;
+                            }
+                        });
                     }
                     return result;
                 } else
@@ -145,20 +166,24 @@ public class SummonController {
         return true;
     }
 
-    public boolean specialSummon() {
+    public void specialSummon() {
         if (summoningPlayer.getField().getAvailableMonstersInZoneCount() == 5) {
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
-            return false;
+            return;
         }
         boolean result = summon();
         if (!result)
-            return false;
-        EffectResponse response = getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON);
-        if (response != null && response.equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
-            Utils.printError("you can't special summon this card");
-            return false;
-        }
-        return true;
+            return;
+        getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                EffectResponse response;
+                if ((response = result.peek()) != null && response.equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
+                    Utils.printError("you can't special summon this card");
+                }
+                return null;
+            }
+        });
     }
 
     public boolean ritualSummon() {
@@ -181,8 +206,18 @@ public class SummonController {
         getGameTurnController().setChangedPositionMonster(card);
         getGameController().getEffectControllersByPlayer(getGameController().getPlayerByCard(card))
                 .add(new EffectController(gameControllerID, card));
-        getGameController().applyEffect(Trigger.AFTER_SUMMON);
-        getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON);
+        getGameController().applyEffect(Trigger.AFTER_SUMMON, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                return null;
+            }
+        });
+        getGameController().applyEffect(Trigger.AFTER_FLIP_SUMMON, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                return null;
+            }
+        });
         if (summoningPlayer.getField().isInMonsterZone(card)) {
             GameController.getView().showSuccess(GameView.SUCCESS_FLIP_SUMMON_SUCCESSFUL);
             getGameTurnController().setSummonedMonster(card);

@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
@@ -481,7 +482,7 @@ public class AIPlayerController extends PlayerController {
         super.tributeMonster(amount);
         GameCard[] cards = new GameCard[amount];
         for (int i = 0; i < amount; i++) {
-            int selection = selectLowestAttackMonster(availableCards.toArray(GameCard[]::new));
+            int selection = selectLowestAttackMonster(availableCards.toArray(new GameCard[0]));
             if (selection == -1) {
                 return null;
             }
@@ -657,8 +658,11 @@ public class AIPlayerController extends PlayerController {
     }
 
     @Override
-    public boolean confirm(String message) {
-        return true;
+    public void confirm(String message, ConfirmationAction action) {
+        ArrayBlockingQueue<Boolean> choice = new ArrayBlockingQueue<>(1);
+        choice.add(Boolean.TRUE);
+        action.setChoice(choice);
+        getGameController().getExecutor().submit(action);
     }
 
     private GameCard selectRandom(List<GameCard> cards) {

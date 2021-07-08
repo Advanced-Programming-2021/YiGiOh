@@ -1,10 +1,13 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import edu.sharif.ce.apyugioh.controller.player.ConfirmationAction;
+import javafx.scene.effect.Effect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.model.EffectResponse;
@@ -82,11 +85,17 @@ public class GameTurnController {
     }
 
     public void drawPhase() {
-        EffectResponse response = getGameController().applyEffect(Trigger.DRAW);
-        if (response != null && response.equals(EffectResponse.CANT_DRAW)) {
-            phase = Phase.DRAW;
-            return;
-        }
+        getGameController().applyEffect(Trigger.DRAW, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                if (result == null) return null;
+                EffectResponse response = result.peek();
+                if (response != null && response.equals(EffectResponse.CANT_DRAW)) {
+                    phase = Phase.DRAW;
+                }
+                return null;
+            }
+        });
         GameCard drawnCard = getCurrentPlayerField().drawCard();
         if (drawnCard == null)
             getGameController().endRound(!getGameController().isFirstPlayerTurn());
@@ -105,12 +114,22 @@ public class GameTurnController {
 
     public void standByPhase() {
         phase = Phase.STANDBY;
-        getGameController().applyEffect(Trigger.STANDBY);
+        getGameController().applyEffect(Trigger.STANDBY, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                return null;
+            }
+        });
     }
 
     public void firstMainPhase() {
         phase = Phase.MAIN1;
-        getGameController().applyEffect(Trigger.MAIN);
+        getGameController().applyEffect(Trigger.MAIN, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                return null;
+            }
+        });
     }
 
     public void battlePhase() {
@@ -119,7 +138,12 @@ public class GameTurnController {
 
     public void secondMainPhase() {
         phase = Phase.MAIN2;
-        getGameController().applyEffect(Trigger.MAIN);
+        getGameController().applyEffect(Trigger.MAIN, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                return null;
+            }
+        });
     }
 
     public void endPhase() {
@@ -152,45 +176,86 @@ public class GameTurnController {
     }
 
     public void summon() {
-        if (checkBeforeSummon()) {
-            if (new SummonController(gameControllerID, getSelectionController().getCard()).normalSummon()) {
+        checkBeforeSummon(new ConfirmationAction() {
+            @Override
+            public Boolean call() throws Exception {
+                ArrayBlockingQueue<Boolean> choice = getChoice();
+                if (choice == null) return false;
+                Boolean result = choice.peek();
+                if (result == null) return false;
+                if (!result) return false;
+                System.out.println("Check before summon");
+                SummonController summonController = new SummonController(gameControllerID, getSelectionController().getCard());
+                summonController.normalSummon();
                 setSummonedMonster(getSelectionController().getCard());
+//                if (test) {
+//                    return true;
+//                }
+                return false;
             }
-        }
+        });
     }
 
-    private boolean checkBeforeSummon() {
+    private void checkBeforeSummon(ConfirmationAction action) {
+        ArrayBlockingQueue<Boolean> choice = new ArrayBlockingQueue<>(1);
         if (getSelectionController() == null) {
             GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
-            return false;
+            choice.add(Boolean.FALSE);
+            return;
         }
         if (!getSelectionController().getLocation().isInHand() ||
                 !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER) ||
                 ((Monster) getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.RITUAL)) {
             GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "summon");
-            return false;
+            choice.add(Boolean.FALSE);
+            return;
         }
         if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
             GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return false;
+            choice.add(Boolean.FALSE);
+            return;
         }
-        EffectResponse response;
         if (getCurrentPlayerField().isMonsterZoneFull() &&
                 ((Monster) getSelectionController().getCard().getCard()).getLevel() <= 4) {
             logger.info("in game with id {}: can't summon | monster zone full", gameControllerID);
             System.out.println(getCurrentPlayerField().isMonsterZoneFull());
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
-            return false;
+            choice.add(Boolean.FALSE);
+            return;
         } else if (hasAnyMonsterSetOrSummon()) {
             logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
             GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
-            return false;
-        } else if ((response = getGameController().applyEffect(Trigger.BEFORE_SUMMON)) != null
-                && response.equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
-            GameController.getView().showError(GameView.ERROR_CANT_BE_SUMMONED);
-            return false;
+            choice.add(Boolean.FALSE);
+            return;
         }
-        return true;
+        getGameController().applyEffect(Trigger.BEFORE_SUMMON, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                if (result == null) return null;
+                EffectResponse effectResponse = result.peek();
+                if (effectResponse == null) return null;
+                if (effectResponse.equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
+                    GameController.getView().showError(GameView.ERROR_CANT_BE_SUMMONED);
+                    choice.add(Boolean.FALSE);
+                } else {
+                    choice.add(Boolean.TRUE);
+                }
+                System.out.println("Effect Action...");
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (choice.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(choice);
+        getGameController().getExecutor().submit(action);
     }
 
     public void changePosition(boolean isChangeToAttack) {
@@ -255,55 +320,74 @@ public class GameTurnController {
     }
 
     public void attack(int position) {
-        if (isAttackImpossible(position)) return;
-        getGameController().getAttackController().attack();
-        attackedMonsters.add(getSelectionController().getCard());
-    }
-
-    private boolean isAttackImpossible(int position) {
         if (getSelectionController().getCard().isFaceDown()) {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
-            return true;
+            return;
         }
         if (getGameController().getPassedTurns() == 1) {
             GameController.getView().showError(GameView.ERROR_CANT_ATTACK_IN_FIRST_TURN);
-            return true;
+            return;
         }
         if (hasMonsterAttacked(getSelectionController().getCard())) {
             GameController.getView().showError(GameView.ERROR_CARD_ALREADY_ATTACKED);
-            return true;
+            return;
         }
         if (position < 1 || position > 5 || getGameController().getRivalPlayer().getField().getMonsterZone()[position - 1] == null) {
             GameController.getView().showError(GameView.ERROR_NO_CARD_TO_ATTACK_TO);
-            return true;
+            return;
         }
         getGameController().setAttackController(new AttackController(gameControllerID, position));
-        EffectResponse response;
-        if ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
-            GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
-            return true;
-        }
+        getGameController().applyEffect(Trigger.BEFORE_ATTACK, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                if (result == null) return null;
+                EffectResponse effectResponse = result.peek();
+                if (effectResponse == null) return null;
+                if (effectResponse.equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
+                    GameController.getView().showError(GameView.ERROR_CANT_ATTACK_WITH_CARD);
+                }
+                return null;
+            }
+        });
         if (!getGameController().getGameTurnController().getPhase().equals(Phase.BATTLE)) {
             GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
-            return true;
+            return;
         }
-        return false;
+        getGameController().getAttackController().attack();
+        attackedMonsters.add(getSelectionController().getCard());
     }
 
     public void directAttack() {
         if (isDirectAttackImpossible()) return;
         EffectResponse response;
-        if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0 || ((response = getGameController().applyEffect(Trigger.BEFORE_ATTACK)) != null && response.equals(EffectResponse.ATTACK_CANT_BE_DONE))) {
+        if (getRivalPlayerField().getFirstFreeMonsterZoneIndex() > 0) {
             GameController.getView().showError(GameView.ERROR_CANT_DIRECTLY_ATTACK);
             return;
         }
+        getGameController().applyEffect(Trigger.BEFORE_ATTACK, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                if (result == null) return null;
+                EffectResponse effectResponse = result.peek();
+                if (effectResponse == null) return null;
+                if (effectResponse.equals(EffectResponse.ATTACK_CANT_BE_DONE)) {
+                    GameController.getView().showError(GameView.ERROR_CANT_DIRECTLY_ATTACK);
+                }
+                return null;
+            }
+        });
         getGameController().setAttackController(new AttackController(gameControllerID));
         if (getGameController().getAttackController().directAttack()) {
             GameController.getView().showSuccess(GameView.SUCCESS_DIRECT_ATTACK_SUCCESSFUL,
                     String.valueOf(((Monster) getSelectionController().getCard().getCard()).getAttackPoints()));
         }
         attackedMonsters.add(getSelectionController().getCard());
-        getGameController().applyEffect(Trigger.AFTER_ATTACK);
+        getGameController().applyEffect(Trigger.AFTER_ATTACK, new EffectAction() {
+            @Override
+            public EffectResponse call() throws Exception {
+                return null;
+            }
+        });
     }
 
     private boolean isDirectAttackImpossible() {
@@ -357,6 +441,7 @@ public class GameTurnController {
     }
 
     private SelectionController getSelectionController() {
+        System.out.println("Get Selection Controller");
         return getGameController().getSelectionController();
     }
 

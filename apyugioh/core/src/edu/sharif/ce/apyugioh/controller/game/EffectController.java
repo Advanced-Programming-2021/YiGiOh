@@ -1,6 +1,9 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.controller.player.ConfirmationAction;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.*;
 import edu.sharif.ce.apyugioh.model.card.*;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
 
 @Getter
@@ -23,6 +27,7 @@ public class EffectController {
     private int remainsTurn;
     private boolean isUsedThisTurn;
     private boolean isUsedBefore;
+    public static boolean confirmation = false;
     private int gameControllerID;
 
     public EffectController(int gameControllerID, GameCard effectCard) {
@@ -165,12 +170,22 @@ public class EffectController {
     }
 
     public void messengerOfPeace() {
-        boolean confirm = getCurrentPlayerController().confirm("do you want to pay 100 LP for Messenger of peace?!");
-        if (confirm) {
-            decreaseLP(100);
-        } else {
-            getGameController().removeSpellTrapCard(effectCard);
-        }
+        getCurrentPlayerController().confirm("do you want to pay 100 LP for Messenger of peace?!", new ConfirmationAction() {
+            @Override
+            public Boolean call() throws Exception {
+                ArrayBlockingQueue<Boolean> choice = getChoice();
+                if (choice == null) return false;
+                Boolean result = choice.peek();
+                if (result == null) return false;
+                if (result) {
+                    decreaseLP(100);
+                    return true;
+                } else {
+                    getGameController().removeSpellTrapCard(effectCard);
+                    return false;
+                }
+            }
+        });
     }
 
     public boolean isAttackerMonsterPowerful(int maxAttackPower) {
@@ -250,12 +265,20 @@ public class EffectController {
 
     public void setZeroAttackForAttackerCard() {
         if (!isUsedBefore) {
-            boolean userResponse = getRivalPlayerController().confirm("do you want to active set zero attack for attacker card?!");
-            if (userResponse) {
-                getGameController().getAttackController().getAttackingMonster().addAttackModifier(-1000000, effectCard, true);
-                cardsAffected.add(getGameController().getAttackController().getAttackingMonster());
-                setUsed();
-            }
+            getRivalPlayerController().confirm("do you want to active set zero attack for attacker card?!", new ConfirmationAction() {
+                @Override
+                public Boolean call() throws Exception {
+                    ArrayBlockingQueue<Boolean> choice = getChoice();
+                    if (choice == null) return false;
+                    Boolean result = choice.peek();
+                    if (result == null) return false;
+                    if (!result) return false;
+                    getGameController().getAttackController().getAttackingMonster().addAttackModifier(-1000000, effectCard, true);
+                    cardsAffected.add(getGameController().getAttackController().getAttackingMonster());
+                    setUsed();
+                    return true;
+                }
+            });
         }
     }
 
@@ -354,42 +377,60 @@ public class EffectController {
 
     //Texchanger
     public void summonNormalCyberseMonster() {
-        boolean confirm = getRivalPlayerController().confirm("do you want summon a normal Cyberse monster?!");
-        if (confirm) {
-            GameCard monsterToSummon = getRivalPlayerController().specialCyberseSummon();
-            if (monsterToSummon == null) {
-                getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
-            } else if (monsterToSummon.getCard().getCardEffects().size() != 0 ||
-                    !((Monster) monsterToSummon.getCard()).getType().equals(MonsterType.CYBERSE)) {
-                getGameControllerView().showError(GameView.ERROR_WRONG_CARD_TYPE, "normal Cyberse monster");
-            } else {
-                if (!effectCard.isRevealed()) effectCard.setRevealed(true);
-                new SummonController(gameControllerID, monsterToSummon).specialSummon();
+        getRivalPlayerController().confirm("do you want summon a normal Cyberse monster?!", new ConfirmationAction() {
+            @Override
+            public Boolean call() throws Exception {
+                ArrayBlockingQueue<Boolean> choice = getChoice();
+                if (choice == null) return false;
+                Boolean result = choice.peek();
+                if (result == null) return false;
+                if (!result) return false;
+                GameCard monsterToSummon = getRivalPlayerController().specialCyberseSummon();
+                if (monsterToSummon == null) {
+                    getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
+                    return false;
+                } else if (monsterToSummon.getCard().getCardEffects().size() != 0 ||
+                        !((Monster) monsterToSummon.getCard()).getType().equals(MonsterType.CYBERSE)) {
+                    getGameControllerView().showError(GameView.ERROR_WRONG_CARD_TYPE, "normal Cyberse monster");
+                    return false;
+                } else {
+                    if (!effectCard.isRevealed()) effectCard.setRevealed(true);
+                    new SummonController(gameControllerID, monsterToSummon).specialSummon();
+                    return true;
+                }
             }
-        }
+        });
     }
 
     public void drawCardFromGraveyard(int minLevel) {
-        boolean confirm = getCurrentPlayerController()
-                .confirm("do you want to draw card with level greater than 7 by remove a card from your hand?!");
-        if (confirm) {
-            GameCard cardToRemove;
-            if ((cardToRemove = selectCardToRemoveFromHand()) == null) {
-                getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
-                return;
+        getCurrentPlayerController().confirm("do you want to draw card with level greater than 7 by remove a card from your hand?!", new ConfirmationAction() {
+            @Override
+            public Boolean call() throws Exception {
+                ArrayBlockingQueue<Boolean> choice = getChoice();
+                if (choice == null) return false;
+                Boolean result = choice.peek();
+                if (result == null) return false;
+                if (!result) return false;
+                GameCard cardToRemove;
+                if ((cardToRemove = selectCardToRemoveFromHand()) == null) {
+                    getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
+                    return false;
+                }
+                Player cardPlayer = getGameController().getPlayerByCard(cardToRemove);
+                GameCard drawnCard = getCurrentPlayerController().selectCardFromGraveyard(minLevel);
+                if (drawnCard == null) return false;
+                if (((Monster) drawnCard.getCard()).getLevel() < 7) {
+                    getGameControllerView().showError(GameView.ERROR_WRONG_CARD_TYPE, "card with level greater than 7");
+                    return false;
+                } else {
+                    cardPlayer.getField().removeFromHand(cardToRemove);
+                    cardPlayer.getField().putInGraveyard(cardToRemove);
+                    getCurrentPlayerField().removeFromGraveyard(drawnCard);
+                    getCurrentPlayerField().putInHand(drawnCard);
+                    return true;
+                }
             }
-            Player cardPlayer = getGameController().getPlayerByCard(cardToRemove);
-            GameCard drawnCard = getCurrentPlayerController().selectCardFromGraveyard(minLevel);
-            if (drawnCard == null) return;
-            if (((Monster) drawnCard.getCard()).getLevel() < 7) {
-                getGameControllerView().showError(GameView.ERROR_WRONG_CARD_TYPE, "card with level greater than 7");
-            } else {
-                cardPlayer.getField().removeFromHand(cardToRemove);
-                cardPlayer.getField().putInGraveyard(cardToRemove);
-                getCurrentPlayerField().removeFromGraveyard(drawnCard);
-                getCurrentPlayerField().putInHand(drawnCard);
-            }
-        }
+        });
     }
 
     public void destroyRivalFieldZone() {
@@ -421,18 +462,27 @@ public class EffectController {
 
     public void destroyOneOfRivalMonsters() {
         PlayerController cardPlayer = getPlayerControllerByCard(effectCard);
-        boolean confirm = Objects.requireNonNull(cardPlayer)
-                .confirm("do you want to active " + effectCard.getCard().getName());
-        if (confirm) {
-            GameCard destructibleCard = Objects.requireNonNull(cardPlayer).selectRivalMonster();
-            if (destructibleCard == null) {
-                getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
-            } else if (!cardPlayer.getRivalPlayer().getField().isInMonsterZone(destructibleCard)) {
-                getGameControllerView().showError(GameView.ERROR_NOT_FROM_PLACE, "rival monster zone");
-            } else {
-                getGameController().removeMonsterCard(destructibleCard);
+        Objects.requireNonNull(cardPlayer).confirm("do you want to active " + effectCard.getCard().getName(), new ConfirmationAction() {
+            @Override
+            public Boolean call() throws Exception {
+                ArrayBlockingQueue<Boolean> choice = getChoice();
+                if (choice == null) return false;
+                Boolean result = choice.peek();
+                if (result == null) return false;
+                if (!result) return false;
+                GameCard destructibleCard = Objects.requireNonNull(cardPlayer).selectRivalMonster();
+                if (destructibleCard == null) {
+                    getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
+                    return false;
+                } else if (!cardPlayer.getRivalPlayer().getField().isInMonsterZone(destructibleCard)) {
+                    getGameControllerView().showError(GameView.ERROR_NOT_FROM_PLACE, "rival monster zone");
+                    return false;
+                } else {
+                    getGameController().removeMonsterCard(destructibleCard);
+                    return true;
+                }
             }
-        }
+        });
     }
 
     public void scanDestroyedRivalMonster() {
@@ -447,17 +497,27 @@ public class EffectController {
     }
 
     public void specialSetFromHand() {
-        boolean confirm = getCurrentPlayerController().confirm("do you want to special set a normal card from your hand?!");
-        if (confirm) {
-            GameCard monsterToSet = getCurrentPlayerController().selectNormalCardFromHand(4);
-            if (monsterToSet == null) {
-                getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
-            } else {
-                if (!new SetController(gameControllerID, monsterToSet).specialSet()) {
-                    getGameControllerView().showError(GameView.ERROR_EFFECT_ACTIVATING_FAILED, effectCard.getCard().getName());
+        getCurrentPlayerController().confirm("do you want to special set a normal card from your hand?!", new ConfirmationAction() {
+            @Override
+            public Boolean call() throws Exception {
+                ArrayBlockingQueue<Boolean> choice = getChoice();
+                if (choice == null) return false;
+                Boolean result = choice.peek();
+                if (result == null) return false;
+                if (!result) return false;
+                GameCard monsterToSet = getCurrentPlayerController().selectNormalCardFromHand(4);
+                if (monsterToSet == null) {
+                    getGameControllerView().showError(GameView.ERROR_SELECTION_CARD_NOT_FOUND);
+                    return false;
+                } else {
+                    if (!new SetController(gameControllerID, monsterToSet).specialSet()) {
+                        getGameControllerView().showError(GameView.ERROR_EFFECT_ACTIVATING_FAILED, effectCard.getCard().getName());
+                        return false;
+                    }
+                    return true;
                 }
             }
-        }
+        });
     }
 
     public void disposableEffect() {
@@ -588,34 +648,44 @@ public class EffectController {
     }
 
     public void solemnWarning() {
-        if (!getCurrentPlayerController().confirm("do you want to activate \"Solemn Warning\" trap by spending 2000LPs?"))
-            return;
-        if (getPlayerByCard(effectCard).getLifePoints() <= 2000) {
-            Utils.printError("not enough LPs to activate this trap");
-            return;
-        }
-        getPlayerByCard(effectCard).decreaseLifePoints(2000);
-        GameCard summonedMonster = getCurrentPlayer().getField().getRecentlySummonedMonster();
-        if (summonedMonster == null)
-            return;
-        getGameController().removeMonsterCard(summonedMonster);
-        getGameController().removeSpellTrapCard(effectCard);
-        getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, effectCard.getCard().getName());
+        getCurrentPlayerController().confirm("do you want to activate \"Solemn Warning\" trap by spending 2000LPs?", new ConfirmationAction() {
+            @Override
+            public Boolean call() throws Exception {
+                ArrayBlockingQueue<Boolean> choice = getChoice();
+                if (choice == null) return false;
+                Boolean result = choice.peek();
+                if (result == null) return false;
+                if (!result) return false;
+                if (getPlayerByCard(effectCard).getLifePoints() <= 2000) {
+                    Utils.printError("not enough LPs to activate this trap");
+                    return false;
+                }
+                getPlayerByCard(effectCard).decreaseLifePoints(2000);
+                GameCard summonedMonster = getCurrentPlayer().getField().getRecentlySummonedMonster();
+                if (summonedMonster == null)
+                    return false;
+                getGameController().removeMonsterCard(summonedMonster);
+                getGameController().removeSpellTrapCard(effectCard);
+                getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, effectCard.getCard().getName());
+                return true;
+            }
+        });
     }
 
-    public boolean magicJammer() {
+    public void magicJammer() {
         if (getGameController().getSelectionController() == null)
-            return false;
+            return;
         GameCard handCard = Objects.requireNonNull(getPlayerControllerByCard(effectCard)).selectCardFromHand(null);
         if (handCard == null) {
-            return false;
+            return;
         }
         Player player = getPlayerByCard(handCard);
         player.getField().removeFromHand(handCard);
         player.getField().putInGraveyard(handCard);
         GameCard activatedSpell = getGameController().getSelectionController().getCard();
         getGameController().removeSpellTrapCard(activatedSpell);
-        return true;
+        getGameController().removeSpellTrapCard(getEffectCard());
+        getGameControllerView().showSuccess(GameView.SUCCESS_EFFECT, getEffectCard().getCard().getName());
     }
 
     public void callOfTheHaunted() {
