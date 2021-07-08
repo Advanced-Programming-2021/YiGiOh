@@ -11,11 +11,13 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.ObjectSet;
 
 import java.util.HashMap;
 
+import com.sun.tools.javac.comp.Check;
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.DeckMenuController;
@@ -30,6 +32,7 @@ import edu.sharif.ce.apyugioh.model.AILevel;
 import edu.sharif.ce.apyugioh.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
+import org.w3c.dom.Text;
 
 public class MainMenuView extends Menu {
 
@@ -40,11 +43,13 @@ public class MainMenuView extends Menu {
         successMessages.put(SUCCESS_LOGOUT, "user logged out successfully!");
     }
 
+    private float TRANSITION_SPEED = 3;
     private boolean loaded;
     private Stage stage;
     private SpriteBatch batch;
-    ObjectSet<CardModelView> cards;
     private Texture backgroundTexture;
+    private StartGameDialog startGameDialog;
+    private ObjectSet<CardModelView> cards;
     private HashMap<String, Window> windows;
     private ProfilePicture profilePicture;
 
@@ -144,9 +149,11 @@ public class MainMenuView extends Menu {
                 mainMenuButton.addListener(new ButtonClickListener() {
                     @Override
                     public void clickAction() {
-                        //DuelController.getInstance().startNoPlayerDuel(AILevel.HARD, AILevel.MEDIOCRE, 1);
-                        DuelController.getInstance().startSinglePlayerDuel(MainMenuController.getInstance().getUser().getUsername(), AILevel.MEDIOCRE, 1);
-                        GameController.showGame();
+                        //DuelController.getInstance().startSinglePlayerDuel(MainMenuController.getInstance().getUser().getUsername(), AILevel.MEDIOCRE, 1);
+                        //GameController.showGame();
+                        AssetController.playSound("chain");
+                        startGameDialog.addAction(Actions.moveTo(Gdx.graphics.getWidth()-startGameDialog.getWidth(),startGameDialog.getY(),TRANSITION_SPEED));
+                        window.addAction(Actions.moveTo(window.getX(),Gdx.graphics.getHeight(),TRANSITION_SPEED));
                     }
                 });
             }
@@ -179,9 +186,22 @@ public class MainMenuView extends Menu {
             window.add(mainMenuButton).width(300).height(80).spaceBottom(10);
             window.row();
         }
+
         window.padTop(150);
         windows.put("main", window);
         stage.addActor(window);
+        createStartGameDialog();
+    }
+
+    private void createStartGameDialog() {
+        startGameDialog = new StartGameDialog("", AssetController.getSkin("first"));
+        startGameDialog.setSize(1000,900);
+        startGameDialog.setKeepWithinStage(false);
+        System.out.println(startGameDialog.getWidth());
+        startGameDialog.setPosition(Gdx.graphics.getWidth(),
+                Gdx.graphics.getHeight()/2-startGameDialog.getHeight()/2);
+        windows.put("start",startGameDialog);
+        stage.addActor(startGameDialog);
     }
 
     private void createProfileDetails() {
@@ -199,4 +219,109 @@ public class MainMenuView extends Menu {
         stage.addActor(table);
         stage.addActor(profilePicture);
     }
+
+    public void cancelStartGame(){
+        Window mainWindow = windows.get("main");
+        Window startWindow = windows.get("start");
+        AssetController.playSound("chain");
+        mainWindow.addAction(Actions.moveTo(mainWindow.getX(),Gdx.graphics.getHeight()-mainWindow.getHeight(),TRANSITION_SPEED));
+        startWindow.addAction(Actions.moveTo(Gdx.graphics.getWidth(),startWindow.getY(),TRANSITION_SPEED));
+    }
+
+    private void startGame(String firstPlayerUsername, String secondPlayerUsername, int rounds, AILevel aiLevel) {
+
+    }
+}
+
+class StartGameDialog extends Window {
+
+    private String rivalUsername;
+    private AILevel aiLevel;
+    private int rounds;
+
+    //widgets
+    private Label roundsTitleLabel;
+    private Slider roundsSlider;
+    private Label roundsLabel;
+    private Label modeLabel;
+    private CheckBox modeCheckBox;
+    private Label AiLevelLabel;
+    private CheckBox easyCheckBox;
+    private CheckBox mediocreCheckBox;
+    private CheckBox hardCheckBox;
+    private Label rivalUsernameLabel;
+    private TextField rivalUsernameField;
+    private TextButton startButton;
+    private TextButton cancelButton;
+
+    public StartGameDialog(String title, Skin skin) {
+        super(title, skin,"right");
+        initializeWidgets();
+        arrangeWidgets();
+        addListeners();
+        rivalUsername = "";
+        aiLevel = AILevel.EASY;
+        rounds = 1;
+    }
+
+    private void initializeWidgets() {
+        roundsTitleLabel = new Label("Rounds: ", AssetController.getSkin("first"), "title");
+        roundsSlider = new Slider(1, 3, 1, false, AssetController.getSkin("first"));
+        roundsLabel = new Label("1", AssetController.getSkin("first"));
+        modeLabel = new Label("Mode: ", AssetController.getSkin("first"), "title");
+        modeCheckBox = new CheckBox("Multiplayer", AssetController.getSkin("first"));
+        AiLevelLabel = new Label("Level: ", AssetController.getSkin("first"), "title");
+        easyCheckBox = new CheckBox("Easy", AssetController.getSkin("first"));
+        mediocreCheckBox = new CheckBox("Mediocre", AssetController.getSkin("first"));
+        hardCheckBox = new CheckBox("Hard", AssetController.getSkin("first"));
+        rivalUsernameLabel = new Label("Rival: ", AssetController.getSkin("first"), "title");
+        rivalUsernameField = new TextField("", AssetController.getSkin("first"));
+        startButton = new TextButton("Start", AssetController.getSkin("first"));
+        cancelButton = new TextButton("Cancel", AssetController.getSkin("first"));
+
+        addActor(roundsTitleLabel);
+        addActor(roundsSlider);
+        addActor(roundsLabel);
+        addActor(modeLabel);
+        addActor(modeCheckBox);
+        addActor(AiLevelLabel);
+        addActor(easyCheckBox);
+        addActor(mediocreCheckBox);
+        addActor(hardCheckBox);
+        addActor(rivalUsernameLabel);
+        addActor(rivalUsernameField);
+        addActor(startButton);
+        addActor(cancelButton);
+    }
+
+    private void arrangeWidgets() {
+
+        setSize(1000,getHeight());
+        roundsTitleLabel.setPosition(100, getY() + getHeight() - 100);
+        roundsSlider.setPosition(roundsTitleLabel.getX() + 150, roundsTitleLabel.getY());
+        roundsLabel.setPosition(roundsSlider.getX() + 300,roundsSlider.getY());
+        modeLabel.setPosition(100,getY() + getHeight() - 200);
+        modeCheckBox.setPosition(modeLabel.getX()+50, modeLabel.getY());
+
+        AiLevelLabel.setPosition(modeCheckBox.getX() + 100,modeCheckBox.getY());
+        easyCheckBox.setPosition(AiLevelLabel.getX() + 100, AiLevelLabel.getY());
+        mediocreCheckBox.setPosition(easyCheckBox.getX() + 200, easyCheckBox.getY());
+        hardCheckBox.setPosition(mediocreCheckBox.getX() + 200,mediocreCheckBox.getY());
+
+        rivalUsernameLabel.setPosition(modeCheckBox.getX() + 100,modeCheckBox.getY());
+        rivalUsernameField.setPosition(rivalUsernameLabel.getX() + 200, rivalUsernameLabel.getY());
+
+        startButton.setBounds(300,0,400,100);
+        cancelButton.setBounds(1000,0,400,100);
+    }
+
+    private void addListeners() {
+        cancelButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                MainMenuController.getView().cancelStartGame();
+            }
+        });
+    }
+
 }

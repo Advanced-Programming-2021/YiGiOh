@@ -51,16 +51,16 @@ public class DuelController {
         gameController.play();
     }
 
-    public void startSinglePlayerDuel(String username, AILevel level, int rounds) {
+    public boolean startSinglePlayerDuel(String username, AILevel level, int rounds) {
         String AIUsername = getAIUsernameByLevel(level);
-        if (isRoundCountValid(rounds)) return;
-        if (isUsernameDifferent(username, AIUsername)) return;
+        if (isRoundCountValid(rounds)) return false;
+        if (isUsernameDifferent(username, AIUsername)) return false;
         User firstUser = User.getUserByUsername(username);
         User secondUser = User.getUserByUsername(AIUsername);
-        if (isUserDecksActive(username, AIUsername, firstUser, secondUser)) return;
+        if (isUserDecksActive(username, AIUsername, firstUser, secondUser)) return false;
         Deck firstDeck = Deck.getDeckByID(firstUser.getMainDeckID());
         Deck secondDeck = Deck.getDeckByID(secondUser.getMainDeckID());
-        if (isUserDecksValid(username, AIUsername, firstDeck, secondDeck)) return;
+        if (isUserDecksValid(username, AIUsername, firstDeck, secondDeck)) return false;
         Player firstPlayer = initializePlayer(firstUser, firstDeck);
         Player secondPlayer = initializePlayer(secondUser, secondDeck);
         Random random = new Random();
@@ -69,9 +69,11 @@ public class DuelController {
         AIPlayerController secondPlayerController = new AIPlayerController(secondPlayer);
         GameController gameController = new GameController(isFirstPlayerTurn ? firstPlayerController : secondPlayerController, isFirstPlayerTurn ? secondPlayerController : firstPlayerController, rounds);
         ProgramController.setGameControllerID(gameController.getId());
+        System.out.println(ProgramController.getGameControllerID());
         logger.info("duel with id {} started between {} and {} with {} rounds", gameController.getId(), firstUser.getNickname(),
                 secondUser.getNickname(), rounds);
         gameController.play();
+        return true;
     }
 
     public void startMultiplayerDuel(String firstPlayerUsername, String secondPlayerUsername, int rounds) {

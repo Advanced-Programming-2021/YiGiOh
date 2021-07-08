@@ -29,6 +29,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
@@ -80,6 +81,7 @@ public class GameMenuView extends Menu {
     @Override
     public void show() {
         super.show();
+        gameControllerID = ProgramController.getGameControllerID();
         board = new CardFrontView(new Sprite(new Texture(Gdx.files.internal("backgrounds/board.png"))));
         board.environment = environment;
         board.worldTransform.setToRotation(0, 1, 0, 270);
@@ -90,6 +92,8 @@ public class GameMenuView extends Menu {
         cam.update();
         phaseLabel.setPosition(1450, 780);
         stage.addActor(phaseLabel);
+        firstPlayerController = getGameController().getFirstPlayer();
+        secondPlayerController = getGameController().getSecondPlayer();
         firstPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
         firstPlayerHPLabel.setPosition(1450, 1000);
         stage.addActor(firstPlayerHPLabel);
