@@ -11,5 +11,5 @@ public abstract class SelectionAction implements Callable<GameCard> {
 
     @Getter
     @Setter
-    ArrayBlockingQueue<GameCard> cards;
+    public ArrayBlockingQueue<GameCard> cards;
 }

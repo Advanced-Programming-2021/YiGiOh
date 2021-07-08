@@ -179,7 +179,6 @@ public class GameTurnController {
         checkBeforeSummon(new ConfirmationAction() {
             @Override
             public Boolean call() throws Exception {
-                ArrayBlockingQueue<Boolean> choice = getChoice();
                 if (choice == null) return false;
                 Boolean result = choice.peek();
                 if (result == null) return false;

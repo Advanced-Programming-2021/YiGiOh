@@ -147,7 +147,9 @@ public class MainMenuView extends Menu {
                         //DuelController.getInstance().startNoPlayerDuel(AILevel.HARD, AILevel.MEDIOCRE, 1);
 //                        DuelController.getInstance().startSinglePlayerDuel(MainMenuController.getInstance().getUser().getUsername(), AILevel.MEDIOCRE, 1);
                         DuelController.getInstance().startMultiplayerDuel(MainMenuController.getInstance().getUser().getUsername(), "Ali", 1);
-                        GameController.showGame();
+                        if (ProgramController.getGameControllerID() != -1) {
+                            GameController.showGame();
+                        }
                     }
                 });
             }

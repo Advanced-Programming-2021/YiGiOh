@@ -10,5 +10,5 @@ public abstract class ConfirmationAction implements Callable<Boolean> {
 
     @Setter
     @Getter
-    ArrayBlockingQueue<Boolean> choice;
+    public ArrayBlockingQueue<Boolean> choice;
 }

@@ -2,6 +2,7 @@ package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -98,6 +99,8 @@ public class UserMenuView extends Menu {
             instances.add(instance);
             instances.add(instance.copy());
             instances.get(1).transform.setTranslation(18, -8, 14);
+            instances.get(0).materials.get(0).set(new ColorAttribute(ColorAttribute.Diffuse, Color.RED));
+            //instances.get(1).materials.get(0).set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
             loaded = true;
         } else if (loaded) {
             instances.get(0).transform.rotate(0, -1, 0, 100 * Gdx.graphics.getDeltaTime());

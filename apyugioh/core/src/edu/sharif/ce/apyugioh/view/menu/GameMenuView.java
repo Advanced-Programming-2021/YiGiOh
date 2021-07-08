@@ -2,14 +2,18 @@ package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -32,6 +36,7 @@ import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
+import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.view.model.CameraAction;
@@ -61,6 +66,9 @@ public class GameMenuView extends Menu {
     private HashMap<CardLocation, Polygon> cardPolygons;
     private Label phaseLabel, firstPlayerHPLabel, secondPlayerHPLabel;
     private boolean isDialogShown;
+    private ShapeRenderer shapeRenderer;
+    private Polygon selectedPolygon;
+    private Rectangle attackRect;
 
     public GameMenuView(YuGiOh game) {
         super(game);
@@ -75,11 +83,14 @@ public class GameMenuView extends Menu {
         phaseLabel = new Label("Phase: Draw", AssetController.getSkin("first"), "title");
         firstPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
         secondPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
+        attackRect = new Rectangle();
+        attackRect.set(-1, -1, 0, 0);
     }
 
     @Override
     public void show() {
         super.show();
+        shapeRenderer = new ShapeRenderer();
         board = new CardFrontView(new Sprite(new Texture(Gdx.files.internal("backgrounds/board.png"))));
         board.environment = environment;
         board.worldTransform.setToRotation(0, 1, 0, 270);
@@ -88,45 +99,68 @@ public class GameMenuView extends Menu {
         cam.position.set(0, -70, 0);
         cam.lookAt(75, -25, 0);
         cam.update();
+        addLabelsToStage();
+        addButtonsToStage();
+        addPolygons();
+        Gdx.input.setInputProcessor(stage);
+        addSelectionListenerToStage();
+    }
+
+    private void addLabelsToStage() {
         phaseLabel.setPosition(1450, 780);
         stage.addActor(phaseLabel);
-        firstPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
         firstPlayerHPLabel.setPosition(1450, 1000);
+        firstPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
         stage.addActor(firstPlayerHPLabel);
-        secondPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
         secondPlayerHPLabel.setPosition(1450, 950);
+        secondPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
         stage.addActor(secondPlayerHPLabel);
+    }
+
+    private void addButtonsToStage() {
         addNextPhaseButton();
         addSummonButton();
         addSetButton();
         addAttackButton();
+    }
+
+    private void addPolygons() {
         addFirstPlayerMonsterZonePolygons();
         addFirstPlayerSpellZonePolygons();
         addFirstPlayerHandPolygons();
         addFirstPlayerExtraPolygons();
-        Gdx.input.setInputProcessor(stage);
+    }
+
+    private void addSelectionListenerToStage() {
         stage.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 if (!manager.isDone() || isDialogShown) return;
                 System.out.println(x + " : " + y + " clicked!");
+                boolean isSelected = false;
                 for (Map.Entry<CardLocation, Polygon> polygon : cardPolygons.entrySet()) {
                     if (polygon.getValue().contains(x, y)) {
-                        System.out.println("Clicked " + polygon.getKey().toString());
                         if (polygon.getKey().isFromMonsterZone() && getGameController().getCurrentPlayer().getField().getMonsterZone()[polygon.getKey().getPosition()] == null)
                             continue;
                         if (polygon.getKey().isFromSpellZone() && getGameController().getCurrentPlayer().getField().getSpellZone()[polygon.getKey().getPosition()] == null)
                             continue;
-                        if (polygon.getKey().isInHand() && getGameController().getCurrentPlayer().getField().getHand().size() < polygon.getKey().getPosition())
+                        if (polygon.getKey().isInHand() && getGameController().getCurrentPlayer().getField().getHand().size() <= polygon.getKey().getPosition())
                             continue;
                         if (polygon.getKey().isFromFieldZone() && getGameController().getCurrentPlayer().getField().getFieldZone() == null)
                             continue;
                         if (polygon.getKey().isFromGraveyard() && getGameController().getCurrentPlayer().getField().getGraveyard().size() < 1)
                             continue;
+                        System.out.println("Clicked " + polygon.getKey().toString());
                         getGameController().select(polygon.getKey());
+                        selectedPolygon = polygon.getValue();
+                        isSelected = true;
                         break;
                     }
+                }
+                if (!isSelected) {
+                    getGameController().deselect();
+                    selectedPolygon = null;
                 }
             }
         });
@@ -141,74 +175,100 @@ public class GameMenuView extends Menu {
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
                 if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isFromMonsterZone() && manager.isDone()) {
-                    final int[] selectedTarget = {-1};
-                    boolean isEmpty = true;
-                    for (int i = 0; i < getGameController().getRivalPlayer().getField().getMonsterZone().length; i++) {
-                        if (getGameController().getRivalPlayer().getField().getMonsterZone()[i] != null) {
-                            isEmpty = false;
-                            break;
-                        }
-                    }
-                    boolean finalIsEmpty = isEmpty;
-                    Dialog dialog = new Dialog("Attack", AssetController.getSkin("first")) {
-                        @Override
-                        protected void result(Object object) {
-                            super.result(object);
-                            Boolean result = (Boolean) object;
-                            if (result && selectedTarget[0] != -1) {
-                                if (finalIsEmpty) {
-                                    System.out.println("Direct Attack");
-                                    getGameController().getCurrentPlayerController().directAttack();
-                                } else {
-                                    System.out.println("Attack " + selectedTarget[0] + 1);
-                                    getGameController().getCurrentPlayerController().attack(selectedTarget[0] + 1);
-                                }
-                            }
-                            isDialogShown = false;
-                            hide();
-                        }
-                    };
-                    if (isEmpty) {
-                        dialog.button("Attack Direct", true);
-                    } else {
-                        Table table = new Table(AssetController.getSkin("first"));
-                        for (int i = 0; i < getGameController().getRivalPlayer().getField().getMonsterZone().length; i++) {
-                            if (getGameController().getRivalPlayer().getField().getMonsterZone()[i] != null) {
-                                Image image;
-                                if (!getGameController().getRivalPlayer().getField().getMonsterZone()[i].isRevealed() && getGameController().getRivalPlayer().getField().getMonsterZone()[i].isFaceDown()) {
-                                    image = new Image(AssetController.getDeck().getAtlas().findRegion("Unknown"));
-                                } else {
-                                    image = new Image(AssetController.getDeck().getAtlas().findRegion(Utils.firstUpperOnly(getGameController().getRivalPlayer().getField().getMonsterZone()[i].getCard().getName()).replaceAll("\\s+", "")));
-                                }
-                                int finalI = i;
-                                image.addListener(new ClickListener() {
-                                    @Override
-                                    public void clicked(InputEvent event, float x, float y) {
-                                        super.clicked(event, x, y);
-                                        selectedTarget[0] = finalI;
-                                        System.out.println("Selected Target " + finalI + 1);
-                                    }
-                                });
-                                if (getGameController().getRivalPlayer().getField().getMonsterZone()[i].isFaceDown()) {
-                                    table.add(image).width(250).height(150).pad(10);
-                                } else {
-                                    table.add(image).width(150).height(250).pad(10);
-                                }
-                            }
-                        }
-                        table.row();
-                        ScrollPane scroll = new ScrollPane(table, AssetController.getSkin("first"));
-                        dialog.getContentTable().add(scroll).width(500).height(500);
-                        dialog.getContentTable().row();
-                        dialog.button("Attack", true);
-                    }
-                    dialog.button("Cancel", false);
-                    isDialogShown = true;
-                    dialog.show(stage);
+                    showAttackDialog();
                 }
             }
         });
         stage.addActor(attackButton);
+    }
+
+    private void showAttackDialog() {
+        final int[] selectedTarget = {-1};
+        boolean isEmpty = true;
+        for (int i = 0; i < getGameController().getRivalPlayer().getField().getMonsterZone().length; i++) {
+            if (getGameController().getRivalPlayer().getField().getMonsterZone()[i] != null) {
+                isEmpty = false;
+                break;
+            }
+        }
+        Dialog dialog = createAttackDialog(selectedTarget, isEmpty);
+        if (isEmpty) {
+            dialog.button("Attack Direct", true);
+        } else {
+            addTargetsToAttackDialog(selectedTarget, dialog);
+        }
+        dialog.button("Cancel", false);
+        isDialogShown = true;
+        dialog.show(stage);
+    }
+
+    private void addTargetsToAttackDialog(int[] selectedTarget, Dialog dialog) {
+        Table table = new Table(AssetController.getSkin("first"));
+        for (int i = 0; i < getGameController().getRivalPlayer().getField().getMonsterZone().length; i++) {
+            if (getGameController().getRivalPlayer().getField().getMonsterZone()[i] != null) {
+                Image image;
+                if (!getGameController().getRivalPlayer().getField().getMonsterZone()[i].isRevealed() && getGameController().getRivalPlayer().getField().getMonsterZone()[i].isFaceDown()) {
+                    image = new Image(AssetController.getDeck().getAtlas().findRegion("Unknown"));
+                } else {
+                    image = new Image(AssetController.getDeck().getAtlas().findRegion(Utils.firstUpperOnly(getGameController().getRivalPlayer().getField().getMonsterZone()[i].getCard().getName()).replaceAll("\\s+", "")));
+                }
+                int finalI = i;
+                if (getGameController().getRivalPlayer().getField().getMonsterZone()[i].isFaceDown()) {
+                    table.add(image).width(250).height(150).pad(10);
+                } else {
+                    table.add(image).width(150).height(250).pad(10);
+                }
+                image.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        super.clicked(event, x, y);
+                        selectedTarget[0] = finalI;
+                        System.out.println("Selected Target " + finalI + 1);
+                        Vector2 imageCoordinates = image.localToStageCoordinates(new Vector2(0, 0));
+                        if (getGameController().getRivalPlayer().getField().getMonsterZone()[finalI].isFaceDown()) {
+                            attackRect.set(imageCoordinates.x, imageCoordinates.y, 250, 150);
+                        } else {
+                            attackRect.set(imageCoordinates.x, imageCoordinates.y, 150, 250);
+                        }
+                    }
+                });
+            }
+        }
+        table.row();
+        ScrollPane scroll = new ScrollPane(table, AssetController.getSkin("first"));
+        dialog.getContentTable().add(scroll).width(450).height(500);
+        dialog.getContentTable().row();
+        dialog.button("Attack", true);
+    }
+
+    private Dialog createAttackDialog(int[] selectedTarget, boolean finalIsEmpty) {
+        Dialog dialog = new Dialog("Attack", AssetController.getSkin("first")) {
+            @Override
+            protected void result(Object object) {
+                super.result(object);
+                Boolean result = (Boolean) object;
+                if (result) {
+                    if (selectedTarget[0] != -1 && getGameController().getSelectionController() != null) {
+                        if (finalIsEmpty) {
+                            System.out.println("Direct Attack");
+                            getGameController().getCurrentPlayerController().directAttack();
+                        } else {
+                            System.out.println("Attack " + selectedTarget[0] + 1);
+                            getGameController().getCurrentPlayerController().attack(selectedTarget[0] + 1);
+                        }
+                        selectedPolygon = null;
+                        isDialogShown = false;
+                        attackRect.set(-1, -1, 0, 0);
+                        hide();
+                    }
+                } else {
+                    isDialogShown = false;
+                    attackRect.set(-1, -1, 0, 0);
+                    hide();
+                }
+            }
+        };
+        return dialog;
     }
 
     private void addSetButton() {
@@ -221,6 +281,7 @@ public class GameMenuView extends Menu {
                 super.clicked(event, x, y);
                 if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isInHand() && manager.isDone()) {
                     getGameController().getCurrentPlayerController().set();
+                    selectedPolygon = null;
                 }
             }
         });
@@ -237,6 +298,7 @@ public class GameMenuView extends Menu {
                 super.clicked(event, x, y);
                 if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isInHand() && manager.isDone()) {
                     getGameController().getCurrentPlayerController().summon();
+                    selectedPolygon = null;
                 }
             }
         });
@@ -254,6 +316,9 @@ public class GameMenuView extends Menu {
                 if (manager.isDone()) {
                     getGameController().getCurrentPlayerController().nextPhase();
                     phaseLabel.setText("Phase: " + getGameController().getGameTurnController().getPhase().toString());
+                    if (getGameController().getGameTurnController().getPhase().phaseLevel > Phase.MAIN2.phaseLevel) {
+                        selectedPolygon = null;
+                    }
                 }
             }
         });
@@ -310,6 +375,17 @@ public class GameMenuView extends Menu {
         modelBatch.end();
         stage.act(delta);
         stage.draw();
+        if (selectedPolygon != null && !isDialogShown) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.CYAN);
+            shapeRenderer.polygon(selectedPolygon.getTransformedVertices());
+            shapeRenderer.end();
+        } else if (isDialogShown && attackRect.getWidth() != 0) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.PINK);
+            shapeRenderer.rect(attackRect.getX(), attackRect.getY(), attackRect.getWidth(), attackRect.getHeight());
+            shapeRenderer.end();
+        }
     }
 
     @Override

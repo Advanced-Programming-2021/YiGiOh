@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
-import edu.sharif.ce.apyugioh.controller.player.ConfirmationAction;
+import com.badlogic.gdx.Gdx;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,13 +10,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.player.AIPlayerController;
+import edu.sharif.ce.apyugioh.controller.player.ConfirmationAction;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.EffectResponse;
@@ -454,7 +455,7 @@ public class GameController {
         ArrayBlockingQueue<Boolean> choice = new ArrayBlockingQueue<>(1);
         if (getRivalPlayerEffectControllers().contains(effectController)) {
             activeTrapInRivalTurn();
-             getPlayerControllerByCard(effectController.getEffectCard()).confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap", new ConfirmationAction() {
+            getPlayerControllerByCard(effectController.getEffectCard()).confirm("do you want to active " + effectController.getEffectCard().getCard().getName() + " trap", new ConfirmationAction() {
                 @Override
                 public Boolean call() throws Exception {
                     ArrayBlockingQueue<Boolean> choice = getChoice();
@@ -1197,6 +1198,10 @@ public class GameController {
     }
 
     private void updateView() {
-        UIView.update(isFirstPlayerTurn);
+        executor.submit(() -> {
+            Gdx.app.postRunnable(() -> {
+                UIView.update(isFirstPlayerTurn);
+            });
+        });
     }
 }
