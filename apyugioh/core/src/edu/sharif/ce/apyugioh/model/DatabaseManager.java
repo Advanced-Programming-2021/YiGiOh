@@ -13,9 +13,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import edu.sharif.ce.apyugioh.controller.CSVParser;
 import edu.sharif.ce.apyugioh.controller.Utils;
@@ -272,6 +271,20 @@ public class DatabaseManager {
             System.exit(1);
         }
         return true;
+    }
+
+    public static List<Map.Entry<String, Integer>> getScoreboard() {
+        HashMap<String, Integer> results = new HashMap<>();
+        int size = 0;
+        for (User user : getUserList()) {
+            if (!user.getUsername().equals("AIHard")
+                    && !user.getUsername().equals("AIMediocre")
+                    && !user.getUsername().equals("AIEasy")) {
+                if (size < 8) results.put(user.getUsername(), user.getScore());
+                size++;
+            }
+        }
+        return results.entrySet().stream().sorted(Comparator.comparingInt(e -> -e.getValue())).collect(Collectors.toList());
     }
 
     private static class CardEffects {

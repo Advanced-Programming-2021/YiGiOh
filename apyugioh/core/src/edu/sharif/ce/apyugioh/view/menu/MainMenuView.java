@@ -17,14 +17,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import java.util.HashMap;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
-import edu.sharif.ce.apyugioh.controller.AssetController;
-import edu.sharif.ce.apyugioh.controller.DeckMenuController;
-import edu.sharif.ce.apyugioh.controller.DuelController;
-import edu.sharif.ce.apyugioh.controller.MainMenuController;
-import edu.sharif.ce.apyugioh.controller.ProfileController;
-import edu.sharif.ce.apyugioh.controller.ProgramController;
-import edu.sharif.ce.apyugioh.controller.ShopController;
-import edu.sharif.ce.apyugioh.controller.UserController;
+import edu.sharif.ce.apyugioh.controller.*;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.AILevel;
 import edu.sharif.ce.apyugioh.model.ProfilePicture;
@@ -147,9 +140,7 @@ public class MainMenuView extends Menu {
                         //DuelController.getInstance().startNoPlayerDuel(AILevel.HARD, AILevel.MEDIOCRE, 1);
 //                        DuelController.getInstance().startSinglePlayerDuel(MainMenuController.getInstance().getUser().getUsername(), AILevel.MEDIOCRE, 1);
                         DuelController.getInstance().startMultiplayerDuel(MainMenuController.getInstance().getUser().getUsername(), "Ali", 1);
-                        if (ProgramController.getGameControllerID() != -1) {
-                            GameController.showGame();
-                        }
+                        GameController.showGame();
                     }
                 });
             }
@@ -176,6 +167,15 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         ProfileController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         ProfileController.getInstance().showProfile();
+                    }
+                });
+            }
+            if (mainMenuButton.getText().toString().equals("Scoreboard")) {
+                mainMenuButton.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        ScoreboardController.getInstance().setUser(MainMenuController.getInstance().getUser());
+                        ScoreboardController.getInstance().showScoreboard();
                     }
                 });
             }
