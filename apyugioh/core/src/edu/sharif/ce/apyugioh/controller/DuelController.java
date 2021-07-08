@@ -76,15 +76,15 @@ public class DuelController {
         return true;
     }
 
-    public void startMultiplayerDuel(String firstPlayerUsername, String secondPlayerUsername, int rounds) {
-        if (isRoundCountValid(rounds)) return;
-        if (isUsernameDifferent(firstPlayerUsername, secondPlayerUsername)) return;
+    public boolean startMultiplayerDuel(String firstPlayerUsername, String secondPlayerUsername, int rounds) {
+        if (isRoundCountValid(rounds)) return false;
+        if (isUsernameDifferent(firstPlayerUsername, secondPlayerUsername)) return false;
         User firstUser = User.getUserByUsername(firstPlayerUsername);
         User secondUser = User.getUserByUsername(secondPlayerUsername);
-        if (isUserDecksActive(firstPlayerUsername, secondPlayerUsername, firstUser, secondUser)) return;
+        if (isUserDecksActive(firstPlayerUsername, secondPlayerUsername, firstUser, secondUser)) return false;
         Deck firstDeck = Deck.getDeckByID(firstUser.getMainDeckID());
         Deck secondDeck = Deck.getDeckByID(secondUser.getMainDeckID());
-        if (isUserDecksValid(firstPlayerUsername, secondPlayerUsername, firstDeck, secondDeck)) return;
+        if (isUserDecksValid(firstPlayerUsername, secondPlayerUsername, firstDeck, secondDeck)) return false;
         Player firstPlayer = initializePlayer(firstUser, firstDeck);
         Player secondPlayer = initializePlayer(secondUser, secondDeck);
         Random random = new Random();
@@ -96,9 +96,18 @@ public class DuelController {
         logger.info("duel with id {} started between {} and {} with {} rounds", gameController.getId(), firstUser.getNickname(),
                 secondUser.getNickname(), rounds);
         gameController.play();
+        return true;
     }
 
     private boolean isUserDecksValid(String firstPlayerUsername, String secondPlayerUsername, Deck firstDeck, Deck secondDeck) {
+        if (firstDeck == null) {
+            view.showError(DuelView.ERROR_ACTIVE_DECK_NOT_SET,firstPlayerUsername);
+            return true;
+        }
+        if (secondDeck == null){
+            view.showError(DuelView.ERROR_ACTIVE_DECK_NOT_SET,secondPlayerUsername);
+            return true;
+        }
         if (!firstDeck.isDeckValid()) {
             view.showError(DuelView.ERROR_DECK_INVALID, firstPlayerUsername);
             return true;

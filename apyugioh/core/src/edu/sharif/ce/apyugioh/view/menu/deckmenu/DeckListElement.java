@@ -65,6 +65,7 @@ class DeckListElement extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         if (deck == null)
             return;
+        Color pastColor = deckNameLabel.getStyle().fontColor;
         if (isSelectable) {
             if (deck != null && DeckMenuController.getInstance().getSelectedDeck() != null &&
                     DeckMenuController.getInstance().getSelectedDeck().getId() == deck.getId())
@@ -77,5 +78,6 @@ class DeckListElement extends Actor {
         super.draw(batch, parentAlpha);
         topCardSprite.draw(batch, parentAlpha);
         deckNameLabel.draw(batch, parentAlpha);
+        deckNameLabel.getStyle().fontColor = pastColor;
     }
 }
