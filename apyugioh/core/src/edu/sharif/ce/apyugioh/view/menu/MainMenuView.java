@@ -191,12 +191,12 @@ public class MainMenuView extends Menu {
         Image image = new Image(new Texture(Gdx.files.internal("skins/profile_frame.png")));
         image.setPosition(170, Gdx.graphics.getHeight() - 200);
         Table table = new Table(AssetController.getSkin("first"));
-        Label usernameLabel = new Label("Username: " + MainMenuController.getInstance().getUser().getUsername(), AssetController.getSkin("first"), "title");
-        Label nicknameLabel = new Label("Nickname: " + MainMenuController.getInstance().getUser().getNickname(), AssetController.getSkin("first"));
+        Label usernameLabel = new Label("" + MainMenuController.getInstance().getUser().getUsername(), AssetController.getSkin("first"), "title");
+        Label nicknameLabel = new Label("" + MainMenuController.getInstance().getUser().getNickname(), AssetController.getSkin("first"));
         table.add(usernameLabel).spaceBottom(5).left();
         table.row();
         table.add(nicknameLabel).left();
-        table.setPosition(300 + image.getWidth(), Gdx.graphics.getHeight() - 150);
+        table.setPosition(245 + (MainMenuController.getInstance().getUser().getUsername().length() - 5) * 10 + image.getWidth(), Gdx.graphics.getHeight() - 150);
         profilePicture = new ProfilePicture(Gdx.files.local("assets/db/profiles/" + MainMenuController.getInstance().getUser().getAvatarName()), true);
         stage.addActor(image);
         stage.addActor(table);
