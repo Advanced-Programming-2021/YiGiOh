@@ -7,8 +7,12 @@ import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import edu.sharif.ce.apyugioh.controller.AssetController;
+import edu.sharif.ce.apyugioh.controller.MainMenuController;
 import edu.sharif.ce.apyugioh.controller.ProfileController;
 import lombok.Getter;
+import lombok.Setter;
 
 public class ProfilePicture extends Actor {
 
@@ -25,11 +29,16 @@ public class ProfilePicture extends Actor {
     @Getter
     private Texture texture;
     private boolean isRounded;
+    @Setter
+    @Getter
+    private int xPosition, yPosition;
 
     public ProfilePicture(FileHandle fileHandle, boolean isRounded) {
         this.pictureFile = fileHandle;
         this.isRounded = isRounded;
         initializePixmap();
+        xPosition = 219;
+        yPosition = Gdx.graphics.getHeight() - 186;
     }
 
     private void initializePixmap() {
@@ -43,7 +52,7 @@ public class ProfilePicture extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        batch.draw(texture, 219, Gdx.graphics.getHeight() - 186);
+        batch.draw(texture, xPosition, yPosition);
     }
 
     private void roundPixmap() {
@@ -98,9 +107,14 @@ public class ProfilePicture extends Actor {
         pixmap = resizedPixmap;
     }
 
-    public void setProfilePicture(FileHandle fileHandle) {
+    public void setProfilePicture(FileHandle fileHandle, boolean isRounded) {
+        if (isRounded) {
+            this.pictureFile = fileHandle;
+            initializePixmap();
+            return;
+        }
         this.pictureFile = fileHandle;
-        isRounded = false;
+        this.isRounded = false;
         initializePixmap();
     }
 }

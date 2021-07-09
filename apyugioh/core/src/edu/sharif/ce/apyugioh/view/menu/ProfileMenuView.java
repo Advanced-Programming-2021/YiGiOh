@@ -318,7 +318,7 @@ public class ProfileMenuView extends Menu {
             @Override
             public void onFileChosen(FileHandle file) {
                 // Do stuff with file, yay!
-                profilePicture.setProfilePicture(file);
+                profilePicture.setProfilePicture(file, false);
             }
 
             @Override

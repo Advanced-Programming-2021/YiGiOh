@@ -37,6 +37,7 @@ import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.Phase;
+import edu.sharif.ce.apyugioh.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.view.model.CameraAction;
@@ -64,11 +65,13 @@ public class GameMenuView extends Menu {
     private PlayerController firstPlayerController, secondPlayerController;
     private GameDeckModelView cardViews;
     private HashMap<CardLocation, Polygon> cardPolygons;
-    private Label phaseLabel, firstPlayerHPLabel, secondPlayerHPLabel;
+    private Label phaseLabel, currentPlayerHPLabel, rivalPlayerHPLabel, currentPlayerNameLabel, currentPlayerNicknameLabel, rivalPlayerNameLabel, rivalPlayerNicknameLabel;
     private boolean isDialogShown;
     private ShapeRenderer shapeRenderer;
     private Polygon selectedPolygon;
     private Rectangle attackRect;
+    ProfilePicture currentPlayerProfilePicture;
+    ProfilePicture rivalPlayerProfilePicture;
 
     public GameMenuView(YuGiOh game) {
         super(game);
@@ -81,8 +84,8 @@ public class GameMenuView extends Menu {
         batch = new SpriteBatch();
         cardPolygons = new HashMap<>();
         phaseLabel = new Label("Phase: Draw", AssetController.getSkin("first"), "title");
-        firstPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
-        secondPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
+        currentPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
+        rivalPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
         attackRect = new Rectangle();
         attackRect.set(-1, -1, 0, 0);
     }
@@ -102,19 +105,9 @@ public class GameMenuView extends Menu {
         addLabelsToStage();
         addButtonsToStage();
         addPolygons();
+        initializeUsersDetail(50);
         Gdx.input.setInputProcessor(stage);
         addSelectionListenerToStage();
-    }
-
-    private void addLabelsToStage() {
-        phaseLabel.setPosition(1450, 780);
-        stage.addActor(phaseLabel);
-        firstPlayerHPLabel.setPosition(1450, 1000);
-        firstPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
-        stage.addActor(firstPlayerHPLabel);
-        secondPlayerHPLabel.setPosition(1450, 950);
-        secondPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
-        stage.addActor(secondPlayerHPLabel);
     }
 
     private void addButtonsToStage() {
@@ -373,6 +366,9 @@ public class GameMenuView extends Menu {
             card.render(modelBatch, environment);
         }
         modelBatch.end();
+
+        updateUsersDetail();
+
         stage.act(delta);
         stage.draw();
         if (selectedPolygon != null && !isDialogShown) {
@@ -414,8 +410,8 @@ public class GameMenuView extends Menu {
         updateMonsterZone(isFirstPlayerTurn);
         updateDeck();
         updateHand();
-        firstPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
-        secondPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
+        currentPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
+        rivalPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
     }
 
     public void updateCamera(boolean isFirstPlayerTurn) {
@@ -572,6 +568,61 @@ public class GameMenuView extends Menu {
         }
     }
 
+    private void initializeUsersDetail(int x) {
+        Image currentImage = new Image(new Texture(Gdx.files.internal("skins/profile_frame.png")));
+        currentImage.setPosition(x, Gdx.graphics.getHeight() - 200);
+        Image rivalImage = new Image(new Texture(Gdx.files.internal("skins/profile_frame.png")));
+        rivalImage.setPosition(x, 150);
+        Table currentTable = new Table(AssetController.getSkin("first"));
+        Table rivalTable = new Table(AssetController.getSkin("first"));
+        currentPlayerNameLabel = new Label("" + getGameController().getCurrentPlayer().getUser().getUsername(), AssetController.getSkin("first"), "title");
+        currentPlayerNicknameLabel = new Label("" +  getGameController().getCurrentPlayer().getUser().getNickname(), AssetController.getSkin("first"));
+        currentTable.add(currentPlayerNameLabel).spaceBottom(5).left();
+        currentTable.row();
+        currentTable.add(currentPlayerNicknameLabel).left().spaceBottom(15);
+        currentTable.row();
+        currentTable.setPosition(x + 75 + currentImage.getWidth(), 200);
+        rivalPlayerNameLabel = new Label("" + getGameController().getRivalPlayer().getUser().getUsername(), AssetController.getSkin("first"), "title");
+        rivalPlayerNicknameLabel = new Label("" +  getGameController().getRivalPlayer().getUser().getNickname(), AssetController.getSkin("first"));
+        rivalTable.add(rivalPlayerNameLabel).spaceBottom(5).left();
+        rivalTable.row();
+        rivalTable.add(rivalPlayerNicknameLabel).left().spaceBottom(15);
+        rivalTable.row();
+        rivalTable.setPosition(x + 75 + currentImage.getWidth(), Gdx.graphics.getHeight() - 150);
+        currentPlayerProfilePicture = new ProfilePicture(Gdx.files.local("assets/db/profiles/" + getGameController().getCurrentPlayer().getUser().getAvatarName()), true);
+        rivalPlayerProfilePicture = new ProfilePicture(Gdx.files.local("assets/db/profiles/" + getGameController().getRivalPlayer().getUser().getAvatarName()), true);
+        currentPlayerProfilePicture.setYPosition(164);
+        currentPlayerProfilePicture.setXPosition(x + 49);
+        rivalPlayerProfilePicture.setXPosition(x + 49);
+
+        currentPlayerHPLabel.setText("LP: " + getGameController().getCurrentPlayer().getLifePoints());
+        currentTable.add(currentPlayerHPLabel).padLeft(-25);
+        rivalPlayerHPLabel.setText("LP: " + getGameController().getRivalPlayer().getLifePoints());
+        rivalTable.add(rivalPlayerHPLabel).padLeft(-25);
+        stage.addActor(currentImage);
+        stage.addActor(rivalImage);
+        stage.addActor(currentTable);
+        stage.addActor(rivalTable);
+        stage.addActor(currentPlayerProfilePicture);
+        stage.addActor(rivalPlayerProfilePicture);
+    }
+
+    private void addLabelsToStage() {
+        phaseLabel.setPosition(1450, 780);
+        stage.addActor(phaseLabel);
+    }
+
+    private void updateUsersDetail() {
+        currentPlayerProfilePicture.setProfilePicture(Gdx.files.local("assets/db/profiles/" + getGameController().getCurrentPlayer().getUser().getAvatarName()), true);
+        currentPlayerNameLabel.setText("" + getGameController().getCurrentPlayer().getUser().getUsername());
+        currentPlayerNicknameLabel.setText("" + getGameController().getCurrentPlayer().getUser().getNickname());
+        rivalPlayerProfilePicture.setProfilePicture(Gdx.files.local("assets/db/profiles/" + getGameController().getRivalPlayer().getUser().getAvatarName()), true);
+        rivalPlayerNameLabel.setText("" + getGameController().getRivalPlayer().getUser().getUsername());
+        rivalPlayerNicknameLabel.setText("" + getGameController().getRivalPlayer().getUser().getNickname());
+        currentPlayerHPLabel.setText("LP: " + getGameController().getCurrentPlayer().getLifePoints());
+        rivalPlayerHPLabel.setText("LP: " + getGameController().getRivalPlayer().getLifePoints());
+    }
+
     private GameController getGameController() {
         return GameController.getGameControllerById(gameControllerID);
     }
@@ -660,4 +711,5 @@ public class GameMenuView extends Menu {
         dialog.show(stage);
         return choice;
     }
+
 }
