@@ -134,7 +134,7 @@ public class DeckMenuView extends Menu {
         mainDeckWindow = new Window("", AssetController.getSkin("first"));
         decksListWindow = new Window("", AssetController.getSkin("first"));
         decksListTable = new Table();
-        activeDeckWindow = new Window("current Deck", AssetController.getSkin("first"));
+        activeDeckWindow = new Window("", AssetController.getSkin("first"));
         backButton = new TextButton("Back", AssetController.getSkin("first"));
         activateButton = new TextButton("Activate", AssetController.getSkin("first"));
         newDeckButton = new TextButton("New Deck...", AssetController.getSkin("first"));
@@ -212,7 +212,7 @@ public class DeckMenuView extends Menu {
         stage.addActor(deleteDeckButton);
         stage.addActor(activateButton);
         activeDeckPreview = new DeckListElement("----",DeckMenuController.getInstance().getUser().getId(),
-                activeDeckWindow.getWidth()*0.5f,activeDeckWindow.getHeight()*0.85f,12);
+                activeDeckWindow.getWidth()*0.5f,activeDeckWindow.getHeight()*0.85f,10);
         activeDeckWindow.add(activeDeckPreview).expand().fill();
     }
 
@@ -347,6 +347,7 @@ public class DeckMenuView extends Menu {
         //dragged to Inventory
         if (isInsideWindow(inventoryWindow, mouseX, mouseY)) {
             if (draggingCardContainer != inventoryCards) {
+                AssetController.playSound("flip");
                 if (draggingCardContainer == mainDeckCards)
                     removeCardFromMainDeck(draggingCard.getCard());
                 if (draggingCardContainer == sideDeckCards)
@@ -354,11 +355,17 @@ public class DeckMenuView extends Menu {
             }
         }
         //dragged to sideDeck
-        if (isInsideWindow(sideDeckWindow, mouseX, mouseY))
+        if (isInsideWindow(sideDeckWindow, mouseX, mouseY)) {
+            if (draggingCardContainer != sideDeckCards)
+                AssetController.playSound("flip");
             addCardToSideDeck(draggingCard.getCard());
+        }
         //dragged to mainDeck
-        if (isInsideWindow(mainDeckWindow, mouseX, mouseY))
+        if (isInsideWindow(mainDeckWindow, mouseX, mouseY)) {
+            if (draggingCardContainer != mainDeckCards)
+                AssetController.playSound("flip");
             addCardToMainDeck(draggingCard.getCard());
+        }
         draggingCard = null;
         draggingCardContainer = null;
         updateCardContainers();

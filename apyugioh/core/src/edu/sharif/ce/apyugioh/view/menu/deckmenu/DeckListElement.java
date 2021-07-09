@@ -73,7 +73,7 @@ class DeckListElement extends Actor {
             else
                 deckNameLabel.getStyle().fontColor = Color.WHITE;
         }
-        deckNameLabel.setPosition(getX() + (getWidth() - deckNameLabel.getWidth()) / 2f, getY());
+        deckNameLabel.setPosition(getX() + (getWidth() - topCardSprite.getWidth()) / 2f, getY());
         topCardSprite.setBounds(getX(), getY() + nameLabelHeight, getWidth(), getHeight() - nameLabelHeight);
         super.draw(batch, parentAlpha);
         topCardSprite.draw(batch, parentAlpha);

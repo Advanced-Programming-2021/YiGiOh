@@ -127,6 +127,7 @@ public class MainMenuView extends Menu {
         TextButton[] mainMenuButtons = new TextButton[]{
                 new TextButton("Play", AssetController.getSkin("first")),
                 new TextButton("Deck", AssetController.getSkin("first")),
+                new TextButton("Card Factory",AssetController.getSkin("first")),
                 new TextButton("Scoreboard", AssetController.getSkin("first")),
                 new TextButton("Shop", AssetController.getSkin("first")),
                 new TextButton("Profile", AssetController.getSkin("first")),
@@ -162,6 +163,15 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         DeckMenuController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         DeckMenuController.getInstance().showDeckMenu();
+                    }
+                });
+            }
+            if (mainMenuButton.getText().toString().equals("Card Factory")) {
+                mainMenuButton.addListener(new ButtonClickListener() {
+                    @Override
+                    public void clickAction() {
+                        CardFactoryMenuController.getInstance().setUser(MainMenuController.getInstance().getUser());
+                        CardFactoryMenuController.getInstance().showCardFactoryMenu();
                     }
                 });
             }
