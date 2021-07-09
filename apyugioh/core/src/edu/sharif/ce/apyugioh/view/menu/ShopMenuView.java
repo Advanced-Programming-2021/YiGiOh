@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -101,6 +102,16 @@ public class ShopMenuView extends Menu {
                         System.out.println("Typed: " + (int) c);
                     }
                 }
+            }
+        });
+        searchBox.addListener(new InputListener(){
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    back();
+                    return true;
+                }
+                return super.keyDown(event,keycode);
             }
         });
         searchBox.setPosition(1480, 50);
@@ -348,6 +359,17 @@ public class ShopMenuView extends Menu {
         }
     }
 
+    private void back(){
+        if (poppedUpCard != null) {
+            poppedUpCard = null;
+        }
+        searchBox.setText("");
+        manager.clear();
+        AssetController.stopSound();
+        game.setScreen(MainMenuController.getView());
+        dispose();
+    }
+
     private void createInputProcessor() {
         inputProcessor = new InputProcessor() {
 
@@ -356,14 +378,7 @@ public class ShopMenuView extends Menu {
                 if (keycode != Input.Keys.ESCAPE && keycode != Input.Keys.BACK) {
                     return false;
                 }
-                if (poppedUpCard != null) {
-                    poppedUpCard = null;
-                }
-                searchBox.setText("");
-                manager.clear();
-                AssetController.stopSound();
-                game.setScreen(MainMenuController.getView());
-                dispose();
+                back();
                 return true;
             }
 

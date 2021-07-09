@@ -443,7 +443,7 @@ public class DeckMenuView extends Menu {
     }
 
     public void showErrorDialog(String errorMessage) {
-        Dialog dialog = new Dialog("Enter New Deck's Name:",AssetController.getSkin("first"));
+        Dialog dialog = new Dialog("",AssetController.getSkin("first"));
         TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
         Label errorMessageLabel = new Label(errorMessage,AssetController.getSkin("first"),"title");
         errorMessageLabel.getStyle().fontColor = Color.WHITE;
