@@ -70,7 +70,7 @@ public class GameMenuView extends Menu {
     private boolean isDialogShown;
     private ShapeRenderer shapeRenderer;
     private Polygon selectedPolygon;
-    private Rectangle attackRect;
+    private Rectangle attackRect, firstHPBar, secondHPBar;
     ProfilePicture currentPlayerProfilePicture;
     ProfilePicture rivalPlayerProfilePicture;
 
@@ -89,6 +89,8 @@ public class GameMenuView extends Menu {
         rivalPlayerHPLabel = new Label("", AssetController.getSkin("first"), "title");
         attackRect = new Rectangle();
         attackRect.set(-1, -1, 0, 0);
+        firstHPBar = new Rectangle();
+        secondHPBar = new Rectangle();
     }
 
     @Override
@@ -385,6 +387,13 @@ public class GameMenuView extends Menu {
 
         updateUsersDetail();
 
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Math.min(1, 1 - firstPlayerController.getPlayer().getLifePoints() / 8000f), Math.min(1, firstPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
+        shapeRenderer.rect(firstHPBar.x, firstHPBar.y, firstHPBar.width, firstHPBar.height);
+        shapeRenderer.setColor(Math.min(1, 1 - secondPlayerController.getPlayer().getLifePoints() / 8000f), Math.min(1, secondPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
+        shapeRenderer.rect(secondHPBar.x, secondHPBar.y, secondHPBar.width, secondHPBar.height);
+        shapeRenderer.end();
+
         stage.act(delta);
         stage.draw();
         if (selectedPolygon != null && !isDialogShown) {
@@ -430,6 +439,8 @@ public class GameMenuView extends Menu {
         updateHand();
         currentPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
         rivalPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
+        firstHPBar.setWidth(300 * firstPlayerController.getPlayer().getLifePoints() / 8000f);
+        secondHPBar.setWidth(300 * secondPlayerController.getPlayer().getLifePoints() / 8000f);
     }
 
     private void updateFieldZone() {
@@ -606,6 +617,8 @@ public class GameMenuView extends Menu {
     }
 
     private void initializeUsersDetail(int x) {
+        firstHPBar.set(x + 50, 150, 300, 30);
+        secondHPBar.set(x + 50, Gdx.graphics.getHeight() - 205, 300, 30);
         Image currentImage = new Image(new Texture(Gdx.files.internal("skins/profile_frame.png")));
         currentImage.setPosition(x, Gdx.graphics.getHeight() - 200);
         Image rivalImage = new Image(new Texture(Gdx.files.internal("skins/profile_frame.png")));
@@ -683,6 +696,7 @@ public class GameMenuView extends Menu {
                             choice.add(cards.get(selectedTarget[0]));
                         }
                     }
+                    attackRect.set(-1, -1, 0, 0);
                     isDialogShown = false;
                     hide();
                 }
@@ -703,6 +717,12 @@ public class GameMenuView extends Menu {
                         super.clicked(event, x, y);
                         selectedTarget[0] = finalCounter;
                         System.out.println("Selected Choice " + finalCounter);
+                        Vector2 imageCoordinates = image.localToStageCoordinates(new Vector2(0, 0));
+                        if (card.isFaceDown()) {
+                            attackRect.set(imageCoordinates.x, imageCoordinates.y, 250, 150);
+                        } else {
+                            attackRect.set(imageCoordinates.x, imageCoordinates.y, 150, 250);
+                        }
                     }
                 });
                 if (card.isFaceDown()) {

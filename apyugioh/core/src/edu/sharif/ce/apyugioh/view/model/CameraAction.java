@@ -33,17 +33,17 @@ public class CameraAction extends GameAction {
         if (alpha == 0 && !onStartCalled) {
             camStartPosition = cam.position.cpy();
             camStartDirection = cam.direction.cpy();
-            camStartUp = cam.up.cpy();
+            //camStartUp = cam.up.cpy();
             camFinalPosition = target.cpy();
             cam.position.set(camFinalPosition);
             cam.lookAt(lookAt);
-            cam.rotate(cam.direction, 180);
+            //cam.rotate(cam.direction, 180);
             camFinalDirection = cam.direction.cpy();
-            camFinalUp = cam.up.cpy();
-            cam.rotate(cam.direction, 180);
+            //camFinalUp = cam.up.cpy();
+            //cam.rotate(cam.direction, 180);
             cam.position.set(camStartPosition);
             cam.direction.set(camStartDirection);
-            cam.up.set(camStartUp);
+            //cam.up.set(camStartUp);
             cam.normalizeUp();
             onStart();
             onStartCalled = true;
@@ -60,13 +60,19 @@ public class CameraAction extends GameAction {
         camTempDirection.set(camStartDirection);
         camTempDirection.lerp(camFinalDirection, alpha).nor();
         cam.direction.set(camTempDirection);
-        //cam.up.rotate(cam.direction, 180 * (alpha - lastAlpha));
+        if (alpha - lastAlpha < 0.8f) {
+            cam.rotate(cam.direction, 180 * (alpha - lastAlpha));
+        }
         cam.normalizeUp();
         if (Utils.almostEqual(alpha, 1, 0.01f) && !onDoneCalled) {
-            if (!Utils.almostEqual(camStartDirection.dot(camFinalDirection), 1, 0.01f)) {
-                cam.up.set(camFinalUp);
-                cam.normalizeUp();
+            cam.position.set(target);
+            cam.direction.set(0, 0, -1);
+            if (lookAt.y > 0) {
+                cam.up.set(0, -1, 0);
+            } else {
+                cam.up.set(0, 1, 0);
             }
+            cam.lookAt(lookAt.x, lookAt.y, lookAt.z);
             onDone();
             onDoneCalled = true;
         }
