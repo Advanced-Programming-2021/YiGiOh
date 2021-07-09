@@ -1,5 +1,7 @@
 package edu.sharif.ce.apyugioh.view;
 
+import edu.sharif.ce.apyugioh.controller.MainMenuController;
+
 public class DuelView extends View {
 
     public static final int ERROR_USERNAME_INVALID = -1;
@@ -16,4 +18,14 @@ public class DuelView extends View {
         errorMessages.put(ERROR_ROUNDS_INVALID, "%s number of rounds is not supported");
     }
 
+    @Override
+    public void showError(int errorID, String... values) {
+        System.out.println(String.format(errorMessages.get(errorID),values));
+        MainMenuController.getView().showMessage(String.format(errorMessages.get(errorID),values));
+    }
+
+    @Override
+    public void showSuccess(int successID, String... values) {
+        MainMenuController.getView().showMessage(String.format(successMessages.get(successID),values));
+    }
 }
