@@ -1198,6 +1198,7 @@ public class GameController {
     }
 
     private void updateView() {
+        UIView.update(isFirstPlayerTurn);
         executor.submit(() -> {
             Gdx.app.postRunnable(() -> {
                 UIView.update(isFirstPlayerTurn);

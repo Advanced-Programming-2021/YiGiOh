@@ -36,6 +36,7 @@ import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
+import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
@@ -216,7 +217,7 @@ public class GameMenuView extends Menu {
                     public void clicked(InputEvent event, float x, float y) {
                         super.clicked(event, x, y);
                         selectedTarget[0] = finalI;
-                        System.out.println("Selected Target " + finalI + 1);
+                        System.out.println("Selected Target " + (finalI + 1));
                         Vector2 imageCoordinates = image.localToStageCoordinates(new Vector2(0, 0));
                         if (getGameController().getRivalPlayer().getField().getMonsterZone()[finalI].isFaceDown()) {
                             attackRect.set(imageCoordinates.x, imageCoordinates.y, 250, 150);
@@ -241,11 +242,11 @@ public class GameMenuView extends Menu {
                 super.result(object);
                 Boolean result = (Boolean) object;
                 if (result) {
-                    if (selectedTarget[0] != -1 && getGameController().getSelectionController() != null) {
+                    if (getGameController().getSelectionController() != null) {
                         if (finalIsEmpty) {
                             System.out.println("Direct Attack");
                             getGameController().getCurrentPlayerController().directAttack();
-                        } else {
+                        } else if (selectedTarget[0] != -1) {
                             System.out.println("Attack " + selectedTarget[0] + 1);
                             getGameController().getCurrentPlayerController().attack(selectedTarget[0] + 1);
                         }
@@ -253,6 +254,8 @@ public class GameMenuView extends Menu {
                         isDialogShown = false;
                         attackRect.set(-1, -1, 0, 0);
                         hide();
+                    } else {
+                        System.out.println("Selection is Empty!");
                     }
                 } else {
                     isDialogShown = false;
@@ -359,6 +362,19 @@ public class GameMenuView extends Menu {
     public void render(float delta) {
         super.render(delta);
         manager.update(delta);
+        if (getGameController().getCurrentPlayerController().getPlayer().getField().getFieldZone() != null) {
+            if (getGameController().getCurrentPlayerController().getPlayer().getField().getFieldZone().getCard().getCardEffects().contains(Effects.YAMI)) {
+                board.material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.DARK_GRAY));
+            } else if (getGameController().getCurrentPlayerController().getPlayer().getField().getFieldZone().getCard().getCardEffects().contains(Effects.FOREST)) {
+                board.material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.GREEN));
+            } else if (getGameController().getCurrentPlayerController().getPlayer().getField().getFieldZone().getCard().getCardEffects().contains(Effects.CLOSED_FOREST)) {
+                board.material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.FOREST));
+            } else if (getGameController().getCurrentPlayerController().getPlayer().getField().getFieldZone().getCard().getCardEffects().contains(Effects.UMIIRUKA)) {
+                board.material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.BLUE));
+            }
+        } else {
+            board.material.set(new ColorAttribute(ColorAttribute.Diffuse, Color.CYAN));
+        }
         modelBatch.begin(cam);
         modelBatch.render(instances, environment);
         modelBatch.render(board);
@@ -394,7 +410,8 @@ public class GameMenuView extends Menu {
         this.secondPlayerController = secondPlayerController;
         cardViews = new GameDeckModelView(firstPlayerController.getPlayer().getField(), secondPlayerController.getPlayer().getField());
         for (CardModelView card : cardViews.getAllCards()) {
-            card.scale(0.5f, 0.5f, 0.5f);
+            card.scale(0.45f, 0.45f, 0.45f);
+            card.setTranslation(0, 0, 0);
         }
         update(true);
     }
@@ -408,10 +425,30 @@ public class GameMenuView extends Menu {
         updateGraveyard();
         updateSpellZone(isFirstPlayerTurn);
         updateMonsterZone(isFirstPlayerTurn);
+        updateFieldZone();
         updateDeck();
         updateHand();
         currentPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
         rivalPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
+    }
+
+    private void updateFieldZone() {
+        if (firstPlayerController.getPlayer().getField().getFieldZone() != null) {
+            CardModelView cardView = cardViews.getCard(firstPlayerController.getPlayer().getField().getFieldZone().getId());
+            Matrix4 target = cardView.getTransform();
+            target.setToRotation(0, 1, 0, -90);
+            target.setTranslation(74, -29f, -38.5f);
+            CardAction action = new CardAction(cardView, target, 1);
+            manager.addAction(action);
+        }
+        if (secondPlayerController.getPlayer().getField().getFieldZone() != null) {
+            CardModelView cardView = cardViews.getCard(secondPlayerController.getPlayer().getField().getFieldZone().getId());
+            Matrix4 target = cardView.getTransform();
+            target.setToRotation(0, 1, 0, -90);
+            target.setTranslation(74, 29f, 38.5f);
+            CardAction action = new CardAction(cardView, target, 1);
+            manager.addAction(action);
+        }
     }
 
     public void updateCamera(boolean isFirstPlayerTurn) {
@@ -466,7 +503,7 @@ public class GameMenuView extends Menu {
             if (card != null) {
                 CardModelView cardView = cardViews.getCard(card.getId());
                 Matrix4 target = cardView.getTransform();
-                if (!isFirstPlayerTurn) {
+                if (isFirstPlayerTurn) {
                     target.setToRotation(0, 1, 0, -90);
                 } else {
                     target.setToRotation(0, 1, 0, card.isRevealed() ? -90 : 90);
@@ -553,7 +590,7 @@ public class GameMenuView extends Menu {
             Matrix4 target = cardView.getTransform();
             target.setToRotation(0, 1, 0, 90);
             target.setTranslation(74 - (++counter) * 0.01f, -49.5f, 43f + (counter) * 0.01f);
-            CardAction action = new CardAction(cardView, target, cardView.getPosition().x < 20 ? 10 : 1);
+            CardAction action = new CardAction(cardView, target, 5);
             manager.addAction(action);
         }
         counter = 0;
@@ -563,7 +600,7 @@ public class GameMenuView extends Menu {
             target.setToRotation(0, 1, 0, 90);
             target.rotate(0, 0, 1, 180);
             target.setTranslation(74 - (++counter) * 0.01f, 49.5f, -43f - (counter) * 0.01f);
-            CardAction action = new CardAction(cardView, target, cardView.getPosition().x < 20 ? 10 : 1);
+            CardAction action = new CardAction(cardView, target, 5);
             manager.addAction(action);
         }
     }
@@ -576,14 +613,14 @@ public class GameMenuView extends Menu {
         Table currentTable = new Table(AssetController.getSkin("first"));
         Table rivalTable = new Table(AssetController.getSkin("first"));
         currentPlayerNameLabel = new Label("" + getGameController().getCurrentPlayer().getUser().getUsername(), AssetController.getSkin("first"), "title");
-        currentPlayerNicknameLabel = new Label("" +  getGameController().getCurrentPlayer().getUser().getNickname(), AssetController.getSkin("first"));
+        currentPlayerNicknameLabel = new Label("" + getGameController().getCurrentPlayer().getUser().getNickname(), AssetController.getSkin("first"));
         currentTable.add(currentPlayerNameLabel).spaceBottom(5).left();
         currentTable.row();
         currentTable.add(currentPlayerNicknameLabel).left().spaceBottom(15);
         currentTable.row();
         currentTable.setPosition(x + 75 + currentImage.getWidth(), 200);
         rivalPlayerNameLabel = new Label("" + getGameController().getRivalPlayer().getUser().getUsername(), AssetController.getSkin("first"), "title");
-        rivalPlayerNicknameLabel = new Label("" +  getGameController().getRivalPlayer().getUser().getNickname(), AssetController.getSkin("first"));
+        rivalPlayerNicknameLabel = new Label("" + getGameController().getRivalPlayer().getUser().getNickname(), AssetController.getSkin("first"));
         rivalTable.add(rivalPlayerNameLabel).spaceBottom(5).left();
         rivalTable.row();
         rivalTable.add(rivalPlayerNicknameLabel).left().spaceBottom(15);
