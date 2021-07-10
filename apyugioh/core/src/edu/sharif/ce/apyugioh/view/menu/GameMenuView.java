@@ -20,11 +20,13 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
@@ -79,6 +81,7 @@ public class GameMenuView extends Menu {
     private ProfilePicture currentPlayerProfilePicture, rivalPlayerProfilePicture;
     private boolean isGameEnded;
     private Console gameConsole;
+    private ImageButton settingsButton;
 
     public GameMenuView(YuGiOh game) {
         super(game);
@@ -97,6 +100,7 @@ public class GameMenuView extends Menu {
         attackRect.set(-1, -1, 0, 0);
         firstHPBar = new Rectangle();
         secondHPBar = new Rectangle();
+        settingsButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal("ic_settings.png"))));
     }
 
     @Override
@@ -118,6 +122,48 @@ public class GameMenuView extends Menu {
         Gdx.input.setInputProcessor(stage);
         addSelectionListenerToStage();
         AssetController.playMusic("gameplay", 0.5f);
+        initializeGameConsole();
+        addSettingsButton();
+    }
+
+    private void addSettingsButton() {
+        settingsButton.setPosition(1840, 1000);
+        settingsButton.setSize(64, 64);
+        settingsButton.setOrigin(32, 32);
+        settingsButton.setTransform(true);
+        settingsButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
+                Dialog dialog = new Dialog("Settings", AssetController.getSkin("first")) {
+                    @Override
+                    protected void result(Object object) {
+                        super.result(object);
+                        Boolean result = (Boolean) object;
+                        hide();
+                        isDialogShown = false;
+                    }
+                };
+                TextButton surrenderButton = new TextButton("Surrender", AssetController.getSkin("first"));
+                surrenderButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        super.clicked(event, x, y);
+                        getGameController().surrender();
+                        hide();
+                        isDialogShown = false;
+                    }
+                });
+                dialog.getContentTable().add(surrenderButton);
+                dialog.button("Cancel", false);
+                dialog.show(stage);
+                isDialogShown = true;
+            }
+        });
+        stage.addActor(settingsButton);
+    }
+
+    private void initializeGameConsole() {
         gameConsole = new GUIConsole();
         gameConsole.setCommandExecutor(new CheatExecutor());
         gameConsole.setDisplayKeyID(Input.Keys.GRAVE);
@@ -413,6 +459,12 @@ public class GameMenuView extends Menu {
         shapeRenderer.rect(secondHPBar.x, secondHPBar.y, secondHPBar.width, secondHPBar.height);
         shapeRenderer.end();
 
+        if (Gdx.input.getX() > settingsButton.getX() && Gdx.input.getX() < settingsButton.getX() + settingsButton.getWidth() && Gdx.graphics.getHeight() - Gdx.input.getY() > settingsButton.getY() && Gdx.graphics.getHeight() - Gdx.input.getY() < settingsButton.getY() + settingsButton.getHeight()) {
+            settingsButton.setRotation(settingsButton.getRotation() + 300 * Gdx.graphics.getDeltaTime());
+        } else {
+            settingsButton.setRotation(0);
+        }
+
         stage.act(delta);
         stage.draw();
         if (selectedPolygon != null && !isDialogShown) {
@@ -429,7 +481,10 @@ public class GameMenuView extends Menu {
 
         if (isGameEnded) {
             Gdx.input.setInputProcessor(null);
-            phaseLabel.setText((firstPlayerController.getPlayer().getLifePoints() > 0 ? firstPlayerController.getPlayer().getUser().getNickname() : secondPlayerController.getPlayer().getUser().getNickname()) + " Won");
+            phaseLabel.setText((getGameController().getRoundResults().get(getGameController().getRoundResults().size() - 1).isFirstPlayerWin() ? firstPlayerController.getPlayer().getUser().getNickname() : secondPlayerController.getPlayer().getUser().getNickname()) + " Won");
+        } else if (getGameController() != null && getGameController().getRoundResults() != null && getGameController().getRoundResults().size() == getGameController().getNumberOfRounds()) {
+            isGameEnded = true;
+            AssetController.playSound("gameplay_lose");
         }
         gameConsole.draw();
     }
@@ -462,8 +517,8 @@ public class GameMenuView extends Menu {
         updateFieldZone();
         updateDeck();
         updateHand();
-        currentPlayerHPLabel.setText((isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getUser().getUsername() + " : " + (isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getLifePoints());
-        rivalPlayerHPLabel.setText((isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getUser().getUsername() + " : " + (isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getLifePoints());
+        currentPlayerHPLabel.setText((isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getUser().getUsername() + " : " + (isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getLifePoints());
+        rivalPlayerHPLabel.setText((isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getUser().getUsername() + " : " + (isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getLifePoints());
         firstHPBar.setWidth(300 * (isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getLifePoints() / 8000f);
         secondHPBar.setWidth(300 * (isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getLifePoints() / 8000f);
         if (firstPlayerController.getPlayer().getLifePoints() == 0 || secondPlayerController.getPlayer().getLifePoints() == 0) {

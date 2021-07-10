@@ -17,7 +17,16 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.RunnableAction;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ObjectSet;
@@ -25,13 +34,13 @@ import com.badlogic.gdx.utils.ObjectSet;
 import java.util.HashMap;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
-import edu.sharif.ce.apyugioh.controller.*;
 import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.CardFactoryMenuController;
 import edu.sharif.ce.apyugioh.controller.DeckMenuController;
 import edu.sharif.ce.apyugioh.controller.DuelController;
 import edu.sharif.ce.apyugioh.controller.MainMenuController;
 import edu.sharif.ce.apyugioh.controller.ProfileController;
+import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.ScoreboardController;
 import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.controller.UserController;
@@ -59,6 +68,7 @@ public class MainMenuView extends Menu {
     private ObjectSet<CardModelView> cards;
     private HashMap<String, Window> windows;
     private ProfilePicture profilePicture;
+    private int rotationDone, targetRotation;
 
 
     public MainMenuView(YuGiOh game) {
@@ -108,6 +118,16 @@ public class MainMenuView extends Menu {
             instances.get(0).transform.rotate(0, -1, 0, 100 * Gdx.graphics.getDeltaTime());
             instances.get(1).transform.rotate(0, 1, 0, 100 * Gdx.graphics.getDeltaTime());
         }
+        if (targetRotation != 0) {
+            instances.get(2).transform.rotate(0, 1, 0, (700 * (targetRotation - (rotationDone / 1.4f)) / (float) targetRotation) * Gdx.graphics.getDeltaTime());
+            rotationDone += (700 * (targetRotation - (rotationDone / 1.4f)) / (float) targetRotation) * Gdx.graphics.getDeltaTime();
+            if (rotationDone > targetRotation) {
+                targetRotation = 0;
+                rotationDone = 0;
+                instances.removeIndex(2);
+                GameController.showGame();
+            }
+        }
         super.render(delta);
         batch.begin();
         batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -136,7 +156,7 @@ public class MainMenuView extends Menu {
         TextButton[] mainMenuButtons = new TextButton[]{
                 new TextButton("Play", AssetController.getSkin("first")),
                 new TextButton("Deck", AssetController.getSkin("first")),
-                new TextButton("Card Factory",AssetController.getSkin("first")),
+                new TextButton("Card Factory", AssetController.getSkin("first")),
                 new TextButton("Scoreboard", AssetController.getSkin("first")),
                 new TextButton("Shop", AssetController.getSkin("first")),
                 new TextButton("Profile", AssetController.getSkin("first")),
@@ -163,8 +183,8 @@ public class MainMenuView extends Menu {
                         //DuelController.getInstance().startNoPlayerDuel(AILevel.HARD, AILevel.MEDIOCRE, 1);
 //                        DuelController.getInstance().startSinglePlayerDuel(MainMenuController.getInstance().getUser().getUsername(), AILevel.MEDIOCRE, 1);
                         AssetController.playSound("chain");
-                        startGameWindow.addAction(Actions.moveTo(Gdx.graphics.getWidth()- startGameWindow.getWidth(), startGameWindow.getY(),TRANSITION_SPEED));
-                        window.addAction(Actions.moveTo(window.getX(),Gdx.graphics.getHeight(),TRANSITION_SPEED));
+                        startGameWindow.addAction(Actions.moveTo(Gdx.graphics.getWidth() - startGameWindow.getWidth(), startGameWindow.getY(), TRANSITION_SPEED));
+                        window.addAction(Actions.moveTo(window.getX(), Gdx.graphics.getHeight(), TRANSITION_SPEED));
                     }
                 });
             }
@@ -228,7 +248,7 @@ public class MainMenuView extends Menu {
         startGameWindow.setKeepWithinStage(false);
         System.out.println(startGameWindow.getWidth());
         startGameWindow.setPosition(Gdx.graphics.getWidth(),
-                Gdx.graphics.getHeight()/2- startGameWindow.getHeight()/2);
+                Gdx.graphics.getHeight() / 2 - startGameWindow.getHeight() / 2);
         windows.put("start", startGameWindow);
         stage.addActor(startGameWindow);
     }
@@ -251,10 +271,10 @@ public class MainMenuView extends Menu {
         stage.addActor(profilePicture);
     }
 
-    public void showMessage(String message){
-        Dialog dialog = new Dialog("",AssetController.getSkin("first"));
-        TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
-        Label errorMessageLabel = new Label(message,AssetController.getSkin("first"),"title");
+    public void showMessage(String message) {
+        Dialog dialog = new Dialog("", AssetController.getSkin("first"));
+        TextButton okButton = new TextButton("Ok", AssetController.getSkin("first"));
+        Label errorMessageLabel = new Label(message, AssetController.getSkin("first"), "title");
         errorMessageLabel.getStyle().fontColor = Color.WHITE;
         dialog.setModal(true);
         dialog.setMovable(false);
@@ -270,12 +290,12 @@ public class MainMenuView extends Menu {
                 okAction.run();
             }
         });
-        dialog.addListener(new InputListener(){
+        dialog.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.ENTER)
                     okAction.run();
-                return super.keyDown(event,keycode);
+                return super.keyDown(event, keycode);
             }
         });
         dialog.getContentTable().add(errorMessageLabel).fill().expandX().padLeft(10).padRight(10).center();
@@ -285,9 +305,9 @@ public class MainMenuView extends Menu {
 
     @Override
     public void showError(int errorID, String... values) {
-        Dialog dialog = new Dialog("",AssetController.getSkin("first"));
-        TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
-        Label errorMessageLabel = new Label(String.format(errorMessages.get(errorID),values),AssetController.getSkin("first"),"title");
+        Dialog dialog = new Dialog("", AssetController.getSkin("first"));
+        TextButton okButton = new TextButton("Ok", AssetController.getSkin("first"));
+        Label errorMessageLabel = new Label(String.format(errorMessages.get(errorID), values), AssetController.getSkin("first"), "title");
         errorMessageLabel.getStyle().fontColor = Color.WHITE;
         dialog.setModal(true);
         dialog.setMovable(false);
@@ -303,12 +323,12 @@ public class MainMenuView extends Menu {
                 okAction.run();
             }
         });
-        dialog.addListener(new InputListener(){
+        dialog.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.ENTER)
                     okAction.run();
-                return super.keyDown(event,keycode);
+                return super.keyDown(event, keycode);
             }
         });
         dialog.getContentTable().add(errorMessageLabel).fill().expandX().padLeft(10).padRight(10).center();
@@ -318,9 +338,9 @@ public class MainMenuView extends Menu {
 
     @Override
     public void showSuccess(int successID, String... values) {
-        Dialog dialog = new Dialog("",AssetController.getSkin("first"));
-        TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
-        Label errorMessageLabel = new Label(String.format(successMessages.get(successID), values),AssetController.getSkin("first"),"title");
+        Dialog dialog = new Dialog("", AssetController.getSkin("first"));
+        TextButton okButton = new TextButton("Ok", AssetController.getSkin("first"));
+        Label errorMessageLabel = new Label(String.format(successMessages.get(successID), values), AssetController.getSkin("first"), "title");
         errorMessageLabel.getStyle().fontColor = Color.WHITE;
         dialog.setModal(true);
         dialog.setMovable(false);
@@ -336,12 +356,12 @@ public class MainMenuView extends Menu {
                 okAction.run();
             }
         });
-        dialog.addListener(new InputListener(){
+        dialog.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.ENTER)
                     okAction.run();
-                return super.keyDown(event,keycode);
+                return super.keyDown(event, keycode);
             }
         });
         dialog.getContentTable().add(errorMessageLabel).fill().expandX().padLeft(10).padRight(10).center();
@@ -349,15 +369,15 @@ public class MainMenuView extends Menu {
         dialog.show(stage);
     }
 
-    public void cancelStartGame(){
+    public void cancelStartGame() {
         Window mainWindow = windows.get("main");
         Window startWindow = windows.get("start");
         AssetController.playSound("chain");
-        mainWindow.addAction(Actions.moveTo(mainWindow.getX(),Gdx.graphics.getHeight()-mainWindow.getHeight(),TRANSITION_SPEED));
-        startWindow.addAction(Actions.sequence(Actions.moveTo(Gdx.graphics.getWidth(),startWindow.getY(),TRANSITION_SPEED),new RunnableAction(){
+        mainWindow.addAction(Actions.moveTo(mainWindow.getX(), Gdx.graphics.getHeight() - mainWindow.getHeight(), TRANSITION_SPEED));
+        startWindow.addAction(Actions.sequence(Actions.moveTo(Gdx.graphics.getWidth(), startWindow.getY(), TRANSITION_SPEED), new RunnableAction() {
             @Override
             public void run() {
-                ((StartGameDialog)startWindow).resetValues();
+                ((StartGameDialog) startWindow).resetValues();
             }
         }));
     }
@@ -365,12 +385,19 @@ public class MainMenuView extends Menu {
     public void startGame(String firstPlayerUsername, String secondPlayerUsername, int rounds, AILevel aiLevel) {
         boolean isDuelValid;
         if (secondPlayerUsername.equals(""))
-            isDuelValid = DuelController.getInstance().startSinglePlayerDuel(firstPlayerUsername,aiLevel,rounds);
+            isDuelValid = DuelController.getInstance().startSinglePlayerDuel(firstPlayerUsername, aiLevel, rounds);
         else
-            isDuelValid = DuelController.getInstance().startMultiplayerDuel(firstPlayerUsername,secondPlayerUsername,rounds);
+            isDuelValid = DuelController.getInstance().startMultiplayerDuel(firstPlayerUsername, secondPlayerUsername, rounds);
         System.out.println(isDuelValid);
-        if (isDuelValid)
-            GameController.showGame();
+        if (isDuelValid) {
+            Model coin = AssetController.getAssets().get("3D/coin/coin.g3db", Model.class);
+            ModelInstance instance = new ModelInstance(coin);
+            instance.transform.scale(0.3f, 0.3f, 0.3f);
+            instance.transform.setTranslation(8, 0, -5);
+            instance.materials.get(0).set(new ColorAttribute(ColorAttribute.Diffuse, Color.GOLD));
+            instances.add(instance);
+            targetRotation = GameController.getGameControllerById(ProgramController.getGameControllerID()).getFirstPlayer().getPlayer().getUser().getUsername().equals(firstPlayerUsername) ? 180 * 10 : 180 * 11;
+        }
     }
 }
 
@@ -396,8 +423,8 @@ class StartGameDialog extends Window {
     private TextButton cancelButton;
 
     public StartGameDialog(String title, Skin skin) {
-        super(title, skin,"right");
-        setSize(1200,600);
+        super(title, skin, "right");
+        setSize(1200, 600);
         initializeWidgets();
         arrangeWidgets();
         addListeners();
@@ -412,7 +439,7 @@ class StartGameDialog extends Window {
     private void initializeWidgets() {
         roundsTitleLabel = new Label("Rounds: ", AssetController.getSkin("first"), "title");
         roundsSlider = new Slider(1, 3, 3, false, AssetController.getSkin("first"));
-        roundsLabel = new Label("1", AssetController.getSkin("first"),"title");
+        roundsLabel = new Label("1", AssetController.getSkin("first"), "title");
         modeLabel = new Label("Mode: ", AssetController.getSkin("first"), "title");
         modeCheckBox = new CheckBox("Multiplayer", AssetController.getSkin("first"));
         AiLevelLabel = new Label("Level: ", AssetController.getSkin("first"), "title");
@@ -442,27 +469,27 @@ class StartGameDialog extends Window {
     private void arrangeWidgets() {
         roundsTitleLabel.setPosition(200, getHeight() - 150);
         roundsSlider.setPosition(roundsTitleLabel.getX() + 150, roundsTitleLabel.getY());
-        roundsLabel.setPosition(roundsSlider.getX() + 200,roundsSlider.getY());
-        modeLabel.setPosition(200,getHeight() - 300);
-        modeCheckBox.setPosition(modeLabel.getX()+100, modeLabel.getY() + 10);
+        roundsLabel.setPosition(roundsSlider.getX() + 200, roundsSlider.getY());
+        modeLabel.setPosition(200, getHeight() - 300);
+        modeCheckBox.setPosition(modeLabel.getX() + 100, modeLabel.getY() + 10);
 
         modeCheckBox.getStyle().fontColor = Color.WHITE;
 
-        AiLevelLabel.setPosition(modeLabel.getX(),modeCheckBox.getY()-100);
+        AiLevelLabel.setPosition(modeLabel.getX(), modeCheckBox.getY() - 100);
         easyCheckBox.setPosition(AiLevelLabel.getX() + 100, AiLevelLabel.getY());
         mediocreCheckBox.setPosition(easyCheckBox.getX() + 200, easyCheckBox.getY());
-        hardCheckBox.setPosition(mediocreCheckBox.getX() + 200,mediocreCheckBox.getY());
+        hardCheckBox.setPosition(mediocreCheckBox.getX() + 200, mediocreCheckBox.getY());
 
-        rivalUsernameLabel.setPosition(modeLabel.getX(),modeCheckBox.getY()-100);
+        rivalUsernameLabel.setPosition(modeLabel.getX(), modeCheckBox.getY() - 100);
         rivalUsernameField.setPosition(rivalUsernameLabel.getX() + 150, rivalUsernameLabel.getY());
-        rivalUsernameField.setSize(200,50);
+        rivalUsernameField.setSize(200, 50);
 
-        startButton.setBounds(50,100,350,100);
-        cancelButton.setBounds(500,100,350,100);
+        startButton.setBounds(50, 100, 350, 100);
+        cancelButton.setBounds(500, 100, 350, 100);
     }
 
-    private void updateMode(){
-        if (modeCheckBox.isChecked()){
+    private void updateMode() {
+        if (modeCheckBox.isChecked()) {
             AiLevelLabel.setVisible(false);
             easyCheckBox.setVisible(false);
             mediocreCheckBox.setVisible(false);
@@ -479,12 +506,12 @@ class StartGameDialog extends Window {
         }
     }
 
-    private void updateRoundsNumber(){
-        rounds = (int)roundsSlider.getValue();
-        roundsLabel.setText(String.valueOf((int)roundsSlider.getValue()));
+    private void updateRoundsNumber() {
+        rounds = (int) roundsSlider.getValue();
+        roundsLabel.setText(String.valueOf((int) roundsSlider.getValue()));
     }
 
-    private void updateAILevel(CheckBox checkedCheckBox){
+    private void updateAILevel(CheckBox checkedCheckBox) {
         easyCheckBox.setChecked(false);
         mediocreCheckBox.setChecked(false);
         hardCheckBox.setChecked(false);
@@ -497,7 +524,7 @@ class StartGameDialog extends Window {
             aiLevel = AILevel.HARD;
     }
 
-    public void resetValues(){
+    public void resetValues() {
         roundsSlider.setValue(1.0f);
         updateRoundsNumber();
         updateAILevel(easyCheckBox);
@@ -510,7 +537,7 @@ class StartGameDialog extends Window {
             @Override
             public void clickAction() {
                 MainMenuController.getView().startGame(MainMenuController.getInstance().getUser().getUsername(),
-                        rivalUsername,rounds,aiLevel);
+                        rivalUsername, rounds, aiLevel);
             }
         });
         cancelButton.addListener(new ButtonClickListener() {
@@ -519,7 +546,7 @@ class StartGameDialog extends Window {
                 MainMenuController.getView().cancelStartGame();
             }
         });
-        modeCheckBox.addListener(new ClickListener(){
+        modeCheckBox.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 updateMode();
@@ -531,19 +558,19 @@ class StartGameDialog extends Window {
                 updateRoundsNumber();
             }
         });
-        easyCheckBox.addListener(new ClickListener(){
+        easyCheckBox.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 updateAILevel(easyCheckBox);
             }
         });
-        mediocreCheckBox.addListener(new ClickListener(){
+        mediocreCheckBox.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 updateAILevel(mediocreCheckBox);
             }
         });
-        hardCheckBox.addListener(new ClickListener(){
+        hardCheckBox.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 updateAILevel(hardCheckBox);

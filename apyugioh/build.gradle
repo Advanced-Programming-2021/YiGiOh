@@ -1,5 +1,5 @@
 buildscript {
-    
+
 
     repositories {
         mavenLocal()
@@ -10,7 +10,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.1'
-        
+
 
     }
 }
@@ -50,7 +50,7 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
-        
+        implementation "games.spooky.gdx:gdx-nativefilechooser-desktop:1.0.0"
     }
 }
 
@@ -84,7 +84,7 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-x86_64"
         api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
-        
+        implementation "games.spooky.gdx:gdx-nativefilechooser-android:1.0.0"
     }
 }
 
@@ -106,5 +106,7 @@ project(":core") {
         implementation "com.opencsv:opencsv:5.4"
         compileOnly 'org.projectlombok:lombok:1.18.20'
         annotationProcessor 'org.projectlombok:lombok:1.18.20'
+        implementation "games.spooky.gdx:gdx-nativefilechooser:1.0.0"
+        implementation "com.strongjoshua:libgdx-inGameConsole:1.0.0"
     }
 }

@@ -138,6 +138,7 @@ public class AssetController {
 
         assets.load("3D/puzzle/puzzle.g3db", Model.class);
         assets.load("3D/yugi/yugi.g3db", Model.class);
+        assets.load("3D/coin/coin.g3db", Model.class);
         System.out.println("Loading ... ");
     }
 }
