@@ -111,6 +111,7 @@ public class GameMenuView extends Menu {
         initializeUsersDetail(50);
         Gdx.input.setInputProcessor(stage);
         addSelectionListenerToStage();
+        AssetController.playMusic("gameplay");
     }
 
     private void addButtonsToStage() {
@@ -145,8 +146,12 @@ public class GameMenuView extends Menu {
                             continue;
                         if (polygon.getKey().isFromFieldZone() && getGameController().getCurrentPlayer().getField().getFieldZone() == null)
                             continue;
-                        if (polygon.getKey().isFromGraveyard() && getGameController().getCurrentPlayer().getField().getGraveyard().size() < 1)
+                        if (polygon.getKey().isFromGraveyard() && getGameController().getCurrentPlayer().getField().getGraveyard().size() < 1) {
                             continue;
+                        } else if (polygon.getKey().isFromGraveyard()) {
+                            promptChoice(getGameController().getCurrentPlayer().getField().getGraveyard(), "Graveyard");
+                            return;
+                        }
                         System.out.println("Clicked " + polygon.getKey().toString());
                         getGameController().select(polygon.getKey());
                         selectedPolygon = polygon.getValue();
@@ -388,9 +393,9 @@ public class GameMenuView extends Menu {
         updateUsersDetail();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Math.min(1, 1 - firstPlayerController.getPlayer().getLifePoints() / 8000f), Math.min(1, firstPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
+        shapeRenderer.setColor(Math.min(1, 1 - getGameController().getRivalPlayerController().getPlayer().getLifePoints() / 8000f), Math.min(1, firstPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
         shapeRenderer.rect(firstHPBar.x, firstHPBar.y, firstHPBar.width, firstHPBar.height);
-        shapeRenderer.setColor(Math.min(1, 1 - secondPlayerController.getPlayer().getLifePoints() / 8000f), Math.min(1, secondPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
+        shapeRenderer.setColor(Math.min(1, 1 - getGameController().getCurrentPlayerController().getPlayer().getLifePoints() / 8000f), Math.min(1, secondPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
         shapeRenderer.rect(secondHPBar.x, secondHPBar.y, secondHPBar.width, secondHPBar.height);
         shapeRenderer.end();
 
@@ -406,6 +411,10 @@ public class GameMenuView extends Menu {
             shapeRenderer.setColor(Color.PINK);
             shapeRenderer.rect(attackRect.getX(), attackRect.getY(), attackRect.getWidth(), attackRect.getHeight());
             shapeRenderer.end();
+        }
+
+        if (firstPlayerController.getPlayer().getLifePoints() == 0 || secondPlayerController.getPlayer().getLifePoints() == 0) {
+            
         }
     }
 
@@ -456,6 +465,7 @@ public class GameMenuView extends Menu {
             CardModelView cardView = cardViews.getCard(secondPlayerController.getPlayer().getField().getFieldZone().getId());
             Matrix4 target = cardView.getTransform();
             target.setToRotation(0, 1, 0, -90);
+            target.rotate(0, 0, 1, 180);
             target.setTranslation(74, 29f, 38.5f);
             CardAction action = new CardAction(cardView, target, 1);
             manager.addAction(action);
