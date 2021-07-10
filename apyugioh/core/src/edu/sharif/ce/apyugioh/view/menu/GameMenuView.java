@@ -11,29 +11,14 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Polygon;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.Utils;
@@ -41,20 +26,19 @@ import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Phase;
-import edu.sharif.ce.apyugioh.model.ProfilePicture;
+import edu.sharif.ce.apyugioh.view.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.command.CheatExecutor;
-import edu.sharif.ce.apyugioh.view.model.CameraAction;
-import edu.sharif.ce.apyugioh.view.model.CardAction;
-import edu.sharif.ce.apyugioh.view.model.CardFrontView;
-import edu.sharif.ce.apyugioh.view.model.CardModelView;
-import edu.sharif.ce.apyugioh.view.model.DeckModelView;
-import edu.sharif.ce.apyugioh.view.model.GameActionsManager;
-import edu.sharif.ce.apyugioh.view.model.GameDeckModelView;
+import edu.sharif.ce.apyugioh.view.model.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class GameMenuView extends Menu {
 
@@ -72,6 +56,8 @@ public class GameMenuView extends Menu {
     private GameDeckModelView cardViews;
     private HashMap<CardLocation, Polygon> cardPolygons;
     private Label phaseLabel, currentPlayerHPLabel, rivalPlayerHPLabel, currentPlayerNameLabel, currentPlayerNicknameLabel, rivalPlayerNameLabel, rivalPlayerNicknameLabel;
+    private Label cardDetailName, attackLabel, defenseLabel, descriptionLabel;
+    private CardDetail cardDetail;
     private boolean isDialogShown;
     private ShapeRenderer shapeRenderer;
     private Polygon selectedPolygon;
@@ -111,6 +97,7 @@ public class GameMenuView extends Menu {
         cam.position.set(0, -70, 0);
         cam.lookAt(75, -25, 0);
         cam.update();
+        addCardDetailsToStage();
         addLabelsToStage();
         addButtonsToStage();
         addPolygons();
@@ -165,6 +152,12 @@ public class GameMenuView extends Menu {
                         }
                         System.out.println("Clicked " + polygon.getKey().toString());
                         getGameController().select(polygon.getKey());
+
+                        attackLabel.setText("Attack: " + getGameController().getSelectionController().getCard().getCurrentAttack());
+                        defenseLabel.setText("Defense: " + getGameController().getSelectionController().getCard().getCurrentDefense());
+                        descriptionLabel.setText(createDescription(getGameController().getSelectionController().getCard().getCard().getDescription()));
+                        cardDetailName.setText(getGameController().getSelectionController().getCard().getCard().getName());
+
                         selectedPolygon = polygon.getValue();
                         isSelected = true;
                         break;
@@ -172,10 +165,46 @@ public class GameMenuView extends Menu {
                 }
                 if (!isSelected) {
                     getGameController().deselect();
+
+                    attackLabel.setText("");
+                    defenseLabel.setText("");
+                    descriptionLabel.setText("");
+                    cardDetailName.setText("");
+
                     selectedPolygon = null;
                 }
             }
         });
+    }
+
+    private void addCardDetailsToStage() {
+        Table table = new Table(AssetController.getSkin("first"));
+        table.setPosition(100, Gdx.graphics.getHeight() - 400);
+        attackLabel = new Label("", AssetController.getSkin("first"), "title");
+        defenseLabel = new Label("", AssetController.getSkin("first"), "title");
+        descriptionLabel = new Label("", AssetController.getSkin("first"));
+        cardDetailName = new Label("", AssetController.getSkin("first"), "title");
+        table.left();
+        table.add(cardDetailName).width(250).height(20).spaceBottom(20).colspan(2);
+        table.row();
+        table.add(attackLabel).width(250).height(50).spaceBottom(20);
+        table.add(defenseLabel).width(250).height(50).spaceBottom(20);
+        table.row();
+        table.add(descriptionLabel).colspan(3).width(400);
+        stage.addActor(table);
+    }
+
+    private String createDescription(String description) {
+        StringBuilder result = new StringBuilder();
+        int i = 0;
+        while (i < description.length()) {
+            if (i + 30 < description.length()) result.append(description, i, i + 30);
+            else result.append(description.substring(i));
+            result.append("\n");
+            i += 30;
+        }
+
+        return result.toString();
     }
 
     private void addAttackButton() {

@@ -25,7 +25,6 @@ import com.badlogic.gdx.utils.ObjectSet;
 import java.util.HashMap;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
-import edu.sharif.ce.apyugioh.controller.*;
 import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.CardFactoryMenuController;
 import edu.sharif.ce.apyugioh.controller.DeckMenuController;
@@ -37,7 +36,7 @@ import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.AILevel;
-import edu.sharif.ce.apyugioh.model.ProfilePicture;
+import edu.sharif.ce.apyugioh.view.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 
