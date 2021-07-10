@@ -5,11 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import edu.sharif.ce.apyugioh.model.*;
-import edu.sharif.ce.apyugioh.model.card.Card;
-import edu.sharif.ce.apyugioh.model.card.Monster;
-import edu.sharif.ce.apyugioh.model.card.MonsterSummon;
 import edu.sharif.ce.apyugioh.view.menu.CardFactoryMenuView;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +17,6 @@ import net.spookygames.gdx.nativefilechooser.NativeFileChooserConfiguration;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Locale;
 
 
 public class CardFactoryMenuController {

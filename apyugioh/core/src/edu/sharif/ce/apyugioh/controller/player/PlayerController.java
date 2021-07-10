@@ -1,5 +1,6 @@
 package edu.sharif.ce.apyugioh.controller.player;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -341,6 +342,59 @@ public abstract class PlayerController {
                 .collect(Collectors.toList());
         return null;
     }
+
+    public void scanMonsterForScanner(SelectionAction action) {
+    }
+
+    public void tributeMonster(int amount, ArraySelectionAction action) {
+    }
+
+    public void directRemove(SelectionAction action) {
+    }
+
+    public void specialCyberseSummon(SelectionAction action) {
+    }
+
+    public void summonFromGraveyard(SelectionAction action) {
+    }
+
+    public void selectMonsterToSummon(SelectionAction action) {
+    }
+
+    public void equipMonster(SelectionAction action) {
+    }
+
+    public void selectCardFromGraveyard(SelectionAction action) {
+    }
+
+    public void selectCardFromMonsterZone(SelectionAction action) {
+    }
+
+    public void selectMonsterFromAllGraveyards(SelectionAction action) {
+    }
+
+    public void selectCardFromHand(GameCard exceptedCard, SelectionAction action) {
+    }
+
+    public void selectCardFromDeck(SelectionAction action) {
+    }
+
+    public void selectFieldSpellFromDeck(SelectionAction action) {
+    }
+
+    public void selectSpellTrapsFromField(int amount, ArraySelectionAction action) {
+    }
+
+    public void selectRivalMonster(SelectionAction action) {
+    }
+
+    public void selectCardFromGraveyard(int mostLevel, SelectionAction action) {
+    }
+
+    public void selectNormalCardFromHand(int mostLevel, SelectionAction action) {
+    }
+
+
 
     public GameCard selectRitualMonsterFromHand() {
         return null;

@@ -183,8 +183,9 @@ public class GameTurnController {
                 Boolean result = choice.peek();
                 if (result == null) return false;
                 if (!result) return false;
-                System.out.println("Check before summon");
+                System.out.println("Check before summon " + Thread.currentThread().getName());
                 SummonController summonController = new SummonController(gameControllerID, getSelectionController().getCard());
+                System.out.println("Check before summon after new " + Thread.currentThread().getName());
                 summonController.normalSummon();
                 setSummonedMonster(getSelectionController().getCard());
 //                if (test) {
@@ -194,6 +195,52 @@ public class GameTurnController {
             }
         });
     }
+
+//    public void summon() {
+//        if (getSelectionController() == null) {
+//            GameController.getView().showError(GameView.ERROR_CARD_NOT_SELECTED);
+//            return;
+//        }
+//        if (!getSelectionController().getLocation().isInHand() ||
+//                !getSelectionController().getCard().getCard().getCardType().equals(CardType.MONSTER) ||
+//                ((Monster) getSelectionController().getCard().getCard()).getSummon().equals(MonsterSummon.RITUAL)) {
+//            GameController.getView().showError(GameView.ERROR_SELECTION_NOT_IN_HAND, "summon");
+//            return;
+//        }
+//        if (!(getPhase().equals(Phase.MAIN1) || getPhase().equals(Phase.MAIN2))) {
+//            GameController.getView().showError(GameView.ERROR_ACTION_NOT_POSSIBLE_IN_THIS_PHASE);
+//            return;
+//        }
+//        if (getCurrentPlayerField().isMonsterZoneFull() &&
+//                ((Monster) getSelectionController().getCard().getCard()).getLevel() <= 4) {
+//            logger.info("in game with id {}: can't summon | monster zone full", gameControllerID);
+//            System.out.println(getCurrentPlayerField().isMonsterZoneFull());
+//            GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
+//            return;
+//        } else if (hasAnyMonsterSetOrSummon()) {
+//            logger.info("in game with id {}: can't summon | already summoned in this round", gameControllerID);
+//            GameController.getView().showError(GameView.ERROR_ALREADY_SET_OR_SUMMONED_CARD);
+//            return;
+//        }
+//        getGameController().applyEffect(Trigger.BEFORE_SUMMON, new EffectAction() {
+//            @Override
+//            public EffectResponse call() throws Exception {
+//                if (result == null) return null;
+//                EffectResponse effectResponse = result.peek();
+//                if (effectResponse == null) return null;
+//                if (effectResponse.equals(EffectResponse.SUMMON_CANT_BE_DONE)) {
+//                    GameController.getView().showError(GameView.ERROR_CANT_BE_SUMMONED);
+//                } else {
+//                    SummonController summonController = new SummonController(gameControllerID, getSelectionController().getCard());
+//                    System.out.println("Check before summon after new " + Thread.currentThread().getName());
+//                    summonController.normalSummon();
+//                    setSummonedMonster(getSelectionController().getCard());
+//                }
+//                System.out.println("Effect Action...");
+//                return null;
+//            }
+//        });
+//    }
 
     private void checkBeforeSummon(ConfirmationAction action) {
         ArrayBlockingQueue<Boolean> choice = new ArrayBlockingQueue<>(1);
