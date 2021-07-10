@@ -2,6 +2,7 @@ package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -24,6 +25,7 @@ import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.CardFactoryMenuController;
 import edu.sharif.ce.apyugioh.controller.MainMenuController;
+import edu.sharif.ce.apyugioh.model.Field;
 import edu.sharif.ce.apyugioh.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 import edu.sharif.ce.apyugioh.model.card.Spell;
@@ -319,13 +321,58 @@ public class CardFactoryMenuView extends Menu {
             public void clickAction() {
                 NativeFileChooser fileChooser = new DesktopFileChooser();
                 // Configure
-                CardFactoryMenuController.getInstance().createFileChooser(fileChooser);
+                fileChooser.chooseFile(CardFactoryMenuController.getInstance().createFileChooser(fileChooser)
+                        , new NativeFileChooserCallback() {
+                    @Override
+                    public void onFileChosen(FileHandle file) {
+                        // Do stuff with file, yay!
+                        CardFactoryMenuController.getInstance().loadImage(file);
+                    }
+
+                    @Override
+                    public void onCancellation() {
+                        System.out.println("Cancelled!");
+                    }
+
+                    @Override
+                    public void onError(Exception exception) {
+                        System.out.println("Not an audio");
+                    }
+                });
             }
         });
         backButton.addListener(new ButtonClickListener() {
             @Override
             public void clickAction() {
                 CardFactoryMenuController.getInstance().back();
+            }
+        });
+        importButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                NativeFileChooser fileChooser = new DesktopFileChooser();
+                fileChooser.chooseFile(CardFactoryMenuController.getInstance().createFileChooser(fileChooser), new NativeFileChooserCallback() {
+                    @Override
+                    public void onFileChosen(FileHandle file) {
+                        // Do stuff with file, yay!
+                        CardFactoryMenuController.getInstance().importCard(file);
+                    }
+                    @Override
+                    public void onCancellation() {
+                        System.out.println("Cancelled!");
+                    }
+
+                    @Override
+                    public void onError(Exception exception) {
+                        System.out.println("Not an audio");
+                    }
+                });
+            }
+        });
+        exportButton.addListener(new ButtonClickListener() {
+            @Override
+            public void clickAction() {
+                CardFactoryMenuController.getInstance().exportCard(cardNameField.getText());
             }
         });
         attackPointsSlider.addListener(new ChangeListener() {
@@ -409,6 +456,10 @@ public class CardFactoryMenuView extends Menu {
         updateCardEffectsTable();
     }
 
+    public void setCardName(String cardName){
+        cardNameField.setText(cardName);
+    }
+
     private void loadAllEffects(){
         ArrayList<String> effects = new ArrayList<>();
         for(String effect:CardFactoryMenuController.getInstance().getMonsterEffects())
@@ -436,7 +487,7 @@ public class CardFactoryMenuView extends Menu {
         }
     }
 
-    private boolean hasEffect(ArrayList<String> effects,String effect){
+    public boolean hasEffect(ArrayList<String> effects,String effect){
         for(String effectElement:effects){
             if (effectElement.equals(effect))
                 return true;

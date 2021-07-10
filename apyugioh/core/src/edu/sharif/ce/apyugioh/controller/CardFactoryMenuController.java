@@ -4,6 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import edu.sharif.ce.apyugioh.model.*;
 import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.menu.CardFactoryMenuView;
@@ -17,7 +20,10 @@ import net.spookygames.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 
 public class CardFactoryMenuController {
@@ -65,12 +71,44 @@ public class CardFactoryMenuController {
         MainMenuController.getInstance().showMainMenu();
     }
 
-    public void importCard(){
-
+    public void importCard(FileHandle importCardFileHandle){
+        String cardName = importCardFileHandle.name();
+        ArrayList<Effects> effects = null;
+        try{
+            List<Effects> loadedEffects;
+            Moshi moshi = new Moshi.Builder().build();
+            JsonAdapter<List<Effects>> jsonAdapter = moshi.adapter(Types.newParameterizedType(List.class,
+                    Effects.class));
+            loadedEffects = jsonAdapter.fromJson(importCardFileHandle.readString());
+            effects = (ArrayList<Effects>) loadedEffects;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (effects == null){
+            view.showErrorDialog("Couldn't read specified file!");
+            return;
+        }
+        view.setCardName(cardName);
+        cardKind = Monster.class;
+        if (effects.size() != 0){
+            if (view.hasEffect(spellEffects,
+                    Utils.firstUpperOnly(effects.get(0).toString().replaceAll("_"," "))))
+                cardKind = Spell.class;
+        }
+        cardEffects.clear();
+        for(Effects effect:effects){
+            String effectName = Utils.firstUpperOnly(effect.toString().replaceAll("_"," "));
+            cardEffects.add(effectName);
+        }
+        loadImage(Gdx.files.local("assets/cards/monster/Unknown.jpg"));
+        view.updateCardEffectsTable();
     }
 
-    public void exportCard(){
-
+    public void exportCard(String cardName){
+        Card newCard = getNewCard(cardName);
+        if (newCard == null)
+            return;
+        //new card to be Exported
     }
 
     public void loadImage(FileHandle imageFile){
@@ -88,7 +126,7 @@ public class CardFactoryMenuController {
         view.updateCardImageView(new Texture(pixmap));
     }
 
-    public void createFileChooser(NativeFileChooser fileChooser) {
+    public NativeFileChooserConfiguration createFileChooser(NativeFileChooser fileChooser) {
         NativeFileChooserConfiguration conf = new NativeFileChooserConfiguration();
         conf.directory = Gdx.files.absolute(System.getProperty("user.home"));
         conf.mimeFilter = "audio/*";
@@ -99,64 +137,59 @@ public class CardFactoryMenuController {
             }
         };
         conf.title = "Choose card's front photo";
-        fileChooser.chooseFile(conf, new NativeFileChooserCallback() {
-            @Override
-            public void onFileChosen(FileHandle file) {
-                // Do stuff with file, yay!
-                loadImage(file);
-            }
-
-            @Override
-            public void onCancellation() {
-                System.out.println("Cancelled!");
-            }
-
-            @Override
-            public void onError(Exception exception) {
-                System.out.println("Not an audio");
-            }
-        });
+        return conf;
     }
 
     public void addCardToMainCards(String cardName){
-        if (cardName.length() < 4){
-            view.showErrorDialog("Your card name's length should be at least 4!");
-            return;
-        }
         cardName = Utils.firstUpperOnly(cardName).replaceAll(" ","");
-        if (!checkForName(cardName))
+        Card newCard = getNewCard(cardName);
+        if (newCard == null)
             return;
         saveCardImage(cardName);
-        if (cardKind == Monster.class){
-            Monster monster = new Monster(cardName,"Custom Monster",4,view.getAttackPoints(),
-                    view.getDefensePoints(), MonsterAttribute.EARTH, MonsterType.AQUA,MonsterEffect.NORMAL);
-            DatabaseManager.getCards().addMonster(monster,1000);
-        } else {
-            Spell spell = new Spell(cardName,"Custom Spell",SpellProperty.QUICK_PLAY,SpellLimit.UNLIMITED);
-            DatabaseManager.getCards().addSpell(spell,1000);
-        }
+        //Add new Card
         String[] cardNames = new String[1];
         cardNames[0] = cardName;
         CardFactoryController.getInstance().export(cardNames);
     }
 
-    private void saveCardImage(String cardName){
+    private Card getNewCard(String cardName){
+        cardName = Utils.firstUpperOnly(cardName).replaceAll(" ","");
+        if (checkForCardName(cardName))
+            return null;
+        if (cardName.length() < 4){
+            view.showErrorDialog("Your card name's length should be at least 4!");
+            return null;
+        }
         ArrayList<Effects> effects = new ArrayList<>();
         for(String effectName:cardEffects)
             effects.add(Effects.valueOf(effectName.toUpperCase().replaceAll(" ","_")));
+        Card newCard;
+        if (cardKind == Monster.class){
+            newCard = new Monster(cardName,"Custom Monster",4,view.getAttackPoints(),
+                    view.getDefensePoints(), MonsterAttribute.EARTH, MonsterType.AQUA,MonsterEffect.NORMAL);
+            newCard.setCardEffects(effects);
+        } else {
+            newCard = new Spell(cardName,"Custom Spell",SpellProperty.QUICK_PLAY,SpellLimit.UNLIMITED);
+            newCard.setCardEffects(effects);
+        }
+        newCard.setName(cardName);
+        return newCard;
+    }
+
+    private void saveCardImage(String cardName){
         //image file
         String imagePath = "assets/cards/";
         if (cardKind == Monster.class)
-            imagePath += "monster";
+            imagePath += "monster/";
         else
-            imagePath += "spell_trap";
-        imagePath += "/" + cardName + ".jpg";
+            imagePath += "spell_trap/";
+        imagePath += cardName + ".jpg";
         if (Gdx.files.local(imagePath).exists()){
             view.showErrorDialog("Can't add card's image!");
             return;
         }
         try {
-            FileHandle imageFileHandleDestination = Gdx.files.external(imagePath);
+            FileHandle imageFileHandleDestination = Gdx.files.local(imagePath);
             imageFileHandle.copyTo(imageFileHandleDestination);
         }catch (Exception e){
             view.showErrorDialog(e.getMessage());
@@ -164,7 +197,7 @@ public class CardFactoryMenuController {
         }
     }
 
-    private boolean checkForName(String name){
+    private boolean checkForCardName(String name){
         String[] cardNames = DatabaseManager.getCards().getAllCardNames();
         for(int i = 0;i<cardNames.length;++i){
             if (name.equals(cardNames[i])){
