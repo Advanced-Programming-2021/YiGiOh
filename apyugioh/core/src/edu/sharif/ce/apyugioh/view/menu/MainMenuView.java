@@ -162,8 +162,9 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         //DuelController.getInstance().startNoPlayerDuel(AILevel.HARD, AILevel.MEDIOCRE, 1);
 //                        DuelController.getInstance().startSinglePlayerDuel(MainMenuController.getInstance().getUser().getUsername(), AILevel.MEDIOCRE, 1);
-                        DuelController.getInstance().startMultiplayerDuel(MainMenuController.getInstance().getUser().getUsername(), "Ali", 1);
-                        GameController.showGame();
+                        AssetController.playSound("chain");
+                        startGameWindow.addAction(Actions.moveTo(Gdx.graphics.getWidth()- startGameWindow.getWidth(), startGameWindow.getY(),TRANSITION_SPEED));
+                        window.addAction(Actions.moveTo(window.getX(),Gdx.graphics.getHeight(),TRANSITION_SPEED));
                     }
                 });
             }
