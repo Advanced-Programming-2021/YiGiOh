@@ -42,6 +42,11 @@ public class AssetController {
         SOUNDS.put("chain", Gdx.audio.newSound(Gdx.files.internal("sounds/chain.mp3")));
         SOUNDS.put("deal", Gdx.audio.newSound(Gdx.files.internal("sounds/card_deal.mp3")));
         SOUNDS.put("flip", Gdx.audio.newSound(Gdx.files.internal("sounds/card_flip.mp3")));
+        SOUNDS.put("gameplay_attack", Gdx.audio.newSound(Gdx.files.internal("sounds/gameplay_attack.mp3")));
+        SOUNDS.put("gameplay_hit", Gdx.audio.newSound(Gdx.files.internal("sounds/gameplay_hit.mp3")));
+        SOUNDS.put("gameplay_lose", Gdx.audio.newSound(Gdx.files.internal("sounds/gameplay_lose.mp3")));
+        SOUNDS.put("gameplay_summon", Gdx.audio.newSound(Gdx.files.internal("sounds/gameplay_summon.mp3")));
+
 
         MUSICS.put("gameplay", Gdx.audio.newMusic(Gdx.files.internal("sounds/gameplay_background.mp3")));
     }
@@ -76,6 +81,12 @@ public class AssetController {
         }
     }
 
+    public static void playSound(String name, float volume) {
+        if (getSound(name) != null) {
+            currentlyPlayingSounds.put(getSound(name).play(volume), getSound(name));
+        }
+    }
+
     public static void stopSound() {
         for (Map.Entry<Long, Sound> sound : currentlyPlayingSounds.entrySet()) {
             sound.getValue().stop(sound.getKey());
@@ -86,6 +97,13 @@ public class AssetController {
     public static void playMusic(String name) {
         if (getMusic(name) != null) {
             getMusic(name).play();
+        }
+    }
+
+    public static void playMusic(String name, float volume) {
+        if (getMusic(name) != null) {
+            getMusic(name).play();
+            getMusic(name).setVolume(volume);
         }
     }
 

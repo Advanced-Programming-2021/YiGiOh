@@ -33,7 +33,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
-import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
@@ -42,6 +41,7 @@ import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
+import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CameraAction;
 import edu.sharif.ce.apyugioh.view.model.CardAction;
 import edu.sharif.ce.apyugioh.view.model.CardFrontView;
@@ -72,8 +72,8 @@ public class GameMenuView extends Menu {
     private ShapeRenderer shapeRenderer;
     private Polygon selectedPolygon;
     private Rectangle attackRect, firstHPBar, secondHPBar;
-    ProfilePicture currentPlayerProfilePicture;
-    ProfilePicture rivalPlayerProfilePicture;
+    private ProfilePicture currentPlayerProfilePicture, rivalPlayerProfilePicture;
+    private boolean isGameEnded;
 
     public GameMenuView(YuGiOh game) {
         super(game);
@@ -112,7 +112,7 @@ public class GameMenuView extends Menu {
         initializeUsersDetail(50);
         Gdx.input.setInputProcessor(stage);
         addSelectionListenerToStage();
-        AssetController.playMusic("gameplay");
+        AssetController.playMusic("gameplay", 0.5f);
     }
 
     private void addButtonsToStage() {
@@ -254,9 +254,11 @@ public class GameMenuView extends Menu {
                         if (finalIsEmpty) {
                             System.out.println("Direct Attack");
                             getGameController().getCurrentPlayerController().directAttack();
+                            AssetController.playSound("gameplay_hit");
                         } else if (selectedTarget[0] != -1) {
                             System.out.println("Attack " + selectedTarget[0] + 1);
                             getGameController().getCurrentPlayerController().attack(selectedTarget[0] + 1);
+                            AssetController.playSound("gameplay_attack");
                         }
                         selectedPolygon = null;
                         isDialogShown = false;
@@ -286,6 +288,7 @@ public class GameMenuView extends Menu {
                 if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isInHand() && manager.isDone()) {
                     getGameController().getCurrentPlayerController().set();
                     selectedPolygon = null;
+                    AssetController.playSound("gameplay_summon");
                 }
             }
         });
@@ -303,6 +306,7 @@ public class GameMenuView extends Menu {
                 if (getGameController().getSelectionController() != null && getGameController().getSelectionController().getLocation().isInHand() && manager.isDone()) {
                     getGameController().getCurrentPlayerController().summon();
                     selectedPolygon = null;
+                    AssetController.playSound("gameplay_summon");
                 }
             }
         });
@@ -313,10 +317,9 @@ public class GameMenuView extends Menu {
         TextButton nextPhaseButton = new TextButton("Next Phase", AssetController.getSkin("first"));
         nextPhaseButton.setPosition(1450, 500);
         nextPhaseButton.setSize(200, 50);
-        nextPhaseButton.addListener(new ClickListener() {
+        nextPhaseButton.addListener(new ButtonClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
+            public void clickAction() {
                 if (manager.isDone()) {
                     getGameController().getCurrentPlayerController().nextPhase();
                     phaseLabel.setText("Phase: " + getGameController().getGameTurnController().getPhase().toString());
@@ -414,8 +417,9 @@ public class GameMenuView extends Menu {
             shapeRenderer.end();
         }
 
-        if (firstPlayerController.getPlayer().getLifePoints() == 0 || secondPlayerController.getPlayer().getLifePoints() == 0) {
-            
+        if (isGameEnded) {
+            Gdx.input.setInputProcessor(null);
+            phaseLabel.setText((firstPlayerController.getPlayer().getLifePoints() > 0 ? firstPlayerController.getPlayer().getUser().getNickname() : secondPlayerController.getPlayer().getUser().getNickname()) + " Won");
         }
     }
 
@@ -449,8 +453,12 @@ public class GameMenuView extends Menu {
         updateHand();
         currentPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
         rivalPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
-        firstHPBar.setWidth(300 * firstPlayerController.getPlayer().getLifePoints() / 8000f);
-        secondHPBar.setWidth(300 * secondPlayerController.getPlayer().getLifePoints() / 8000f);
+        firstHPBar.setWidth(300 * getGameController().getRivalPlayerController().getPlayer().getLifePoints() / 8000f);
+        secondHPBar.setWidth(300 * getGameController().getCurrentPlayerController().getPlayer().getLifePoints() / 8000f);
+        if (firstPlayerController.getPlayer().getLifePoints() == 0 || secondPlayerController.getPlayer().getLifePoints() == 0) {
+            isGameEnded = true;
+            AssetController.playSound("gameplay_lose");
+        }
     }
 
     private void updateFieldZone() {
