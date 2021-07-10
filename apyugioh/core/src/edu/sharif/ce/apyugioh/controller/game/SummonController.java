@@ -1,6 +1,8 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.Utils;
+import edu.sharif.ce.apyugioh.controller.player.ArraySelectionAction;
+import edu.sharif.ce.apyugioh.controller.player.ConfirmationAction;
 import edu.sharif.ce.apyugioh.model.EffectResponse;
 import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.Trigger;
@@ -13,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class SummonController {
 
@@ -45,16 +48,23 @@ public class SummonController {
         System.out.println("SummonController Created");
     }
 
-    public boolean normalSummon() {
+    public void normalSummon() {
         System.out.println("Normal Summon");
         if (specialCases.contains(card.getCard().getName()))
-            return summonSpecialMonsters();
-        if (!checkForTribute())
-            return false;
-        return summon();
+            summonSpecialMonsters();
+        checkForTribute(new ConfirmationAction() {
+            @Override
+            public Boolean call() throws Exception {
+                if (choice == null) return false;
+                Boolean isTributePossible = choice.peek();
+                if (isTributePossible == null) return false;
+                if (isTributePossible) summon();
+                return false;
+            }
+        });
     }
 
-    private boolean summon() {
+    private void summon() {
         card.setRevealed(true);
         card.setFaceDown(false);
         moveMonsterToMonsterZone();
@@ -75,15 +85,13 @@ public class SummonController {
                 return null;
             }
         });
-//        System.out.println("Check Before Summon2");
         if (summoningPlayer.getField().isInMonsterZone(card)) {
             GameController.getView().showSuccess(GameView.SUCCESS_SUMMON_SUCCESSFUL);
             getGameTurnController().setSummonedMonster(card);
         }
-        return summoningPlayer.getField().isInMonsterZone(card);
     }
 
-    private boolean summonSpecialMonsters() {
+    private void summonSpecialMonsters() {
         ArrayList<String> choices = new ArrayList<>();
         switch (card.getCard().getName()) {
             case "Beast King Barbaros":
@@ -92,17 +100,32 @@ public class SummonController {
                 choices.add("3. summon by tributing 3 monsters (all cards the your rival control will be kicked out");
                 int choice = getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices) + 1;
                 if (choice == 1) {
-                    if (!checkForTribute())
-                        return false;
-                    return summon();
+                    checkForTribute(new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            if (choice == null) return false;
+                            Boolean isTributePossible = choice.peek();
+                            if (isTributePossible == null) return false;
+                            if (isTributePossible) summon();
+                            return false;
+                        }
+                    });
+                    return;
                 } else if (choice == 2) {
                     card.addAttackModifier(-1100, false);
-                    return summon();
+                    summon();
                 } else if (choice == 3) {
-                    if (!tribute(3))
-                        return false;
-                    boolean result = summon();
-                    if (result) {
+                    tribute(3, new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            if (choice == null) return false;
+                            Boolean isTributePossible = choice.peek();
+                            if (isTributePossible == null) return false;
+                            if (isTributePossible) summon();
+                            return false;
+                        }
+                    });
+                    if (summoningPlayer.getField().isInMonsterZone(card)) {
                         getGameController().getEffectControllersByPlayer(getGameController().getPlayerByCard(card))
                                 .add(new EffectController(gameControllerID, card));
                         getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON, new EffectAction() {
@@ -112,58 +135,100 @@ public class SummonController {
                             }
                         });
                     }
-                    return result;
+                    return;
                 } else
-                    return false;
+                    return;
             case "Gate Guardian":
                 if (summoningPlayer.getField().getAvailableMonstersInZoneCount() < 3) {
                     GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
-                    return false;
+                    return;
                 }
-                if (!tribute(3))
-                    return false;
-                return summon();
+                tribute(3, new ConfirmationAction() {
+                    @Override
+                    public Boolean call() throws Exception {
+                        if (choice == null) return false;
+                        Boolean isTributePossible = choice.peek();
+                        if (isTributePossible == null) return false;
+                        if (isTributePossible) summon();
+                        return false;
+                    }
+                });
             case "The Tricky":
                 choices.add("1. summon normally (tribute 1 monster)");
                 choices.add("2. summon by removing a card from your hand");
                 int result = 1 + getGameController().getPlayerControllerByPlayer(summoningPlayer).chooseHowToSummon(choices);
                 if (result == 1) {
-                    if (!checkForTribute())
-                        return false;
-                    return summon();
+                    checkForTribute(new ConfirmationAction() {
+                        @Override
+                        public Boolean call() throws Exception {
+                            if (choice == null) return false;
+                            Boolean isTributePossible = choice.peek();
+                            if (isTributePossible == null) return false;
+                            if (isTributePossible) summon();
+                            return false;
+                        }
+                    });
+                    return;
                 } else if (result == 2) {
                     GameCard selectedCardFromHand;
                     if ((selectedCardFromHand = getGameController().getPlayerControllerByPlayer(summoningPlayer).selectCardFromHand(card)) != null) {
                         getGameController().removeMonsterCard(selectedCardFromHand);
-                        return summon();
+                        summon();
                     }
                 }
-                return false;
-            default:
-                return false;
         }
     }
 
-    private boolean checkForTribute() {
+    private void checkForTribute(ConfirmationAction action) {
+        ArrayBlockingQueue<Boolean> checkForTribute = new ArrayBlockingQueue<>(1);
+
         int availableMonsters = summoningPlayer.getField().getAvailableMonstersInZoneCount();
         if (((Monster) card.getCard()).getLevel() == 5 || ((Monster) card.getCard()).getLevel() == 6) {
             if (availableMonsters < 1) {
                 logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
                 GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
-                return false;
+                checkForTribute.add(Boolean.FALSE);
             }
-            if (!tribute(1))
-                return false;
+            tribute(1, new ConfirmationAction() {
+                @Override
+                public Boolean call() throws Exception {
+                    if (choice == null) return false;
+                    Boolean isTributePossible = choice.peek();
+                    if (isTributePossible == null) return false;
+                    if (!isTributePossible) checkForTribute.add(Boolean.FALSE);
+                    return false;
+                }
+            });
         } else if (((Monster) card.getCard()).getLevel() >= 7) {
             if (availableMonsters < 2) {
                 logger.info("in game with id {}: can't summon | not enough cards to tribute", gameControllerID);
                 GameController.getView().showError(GameView.ERROR_NOT_ENOUGH_CARD_TO_TRIBUTE);
-                return false;
+                checkForTribute.add(Boolean.FALSE);
             }
-            if (!tribute(2))
-                return false;
+            tribute(2, new ConfirmationAction() {
+                @Override
+                public Boolean call() throws Exception {
+                    if (choice == null) return false;
+                    Boolean isTributePossible = choice.peek();
+                    if (isTributePossible == null) return false;
+                    if (!isTributePossible) checkForTribute.add(Boolean.FALSE);
+                    return false;
+                }
+            });
         }
-        return true;
+        if (checkForTribute.isEmpty()) checkForTribute.add(Boolean.TRUE);
+
+        getGameController().getExecutor().submit(() -> {
+            while (checkForTribute.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(checkForTribute);
+        getGameController().getExecutor().submit(action);
     }
 
     public void specialSummon() {
@@ -171,8 +236,8 @@ public class SummonController {
             GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
             return;
         }
-        boolean result = summon();
-        if (!result)
+        summon();
+        if (!summoningPlayer.getField().isInMonsterZone(card))
             return;
         getGameController().applyEffect(Trigger.AFTER_SPECIAL_SUMMON, new EffectAction() {
             @Override
@@ -186,21 +251,27 @@ public class SummonController {
         });
     }
 
-    public boolean ritualSummon() {
-        List<GameCard> cards = getGameController().getCurrentPlayerController().selectCardsForRitualTribute(((Monster) card.getCard()).getLevel());
-        if (cards == null)
-            return false;
-        if (getGameController().getPlayerByCard(card).getField().getAvailableMonstersInZoneCount() == 5) {
-            GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
-            return false;
-        }
-        for (GameCard gameCard : cards)
-            getGameController().removeMonsterCard(gameCard);
-        summon();
-        return summoningPlayer.getField().isInMonsterZone(card);
+    public void ritualSummon() {
+        getGameController().getCurrentPlayerController().selectCardsForRitualTribute(((Monster) card.getCard()).getLevel(), new ArraySelectionAction() {
+            @Override
+            public GameCard[] call() throws Exception {
+                if (choices == null) return null;
+                GameCard[] cards = choices.peek();
+                if (cards == null)
+                    return null;
+                else if (getGameController().getPlayerByCard(card).getField().getAvailableMonstersInZoneCount() == 5) {
+                    GameController.getView().showError(GameView.ERROR_MONSTER_ZONE_FULL);
+                    return null;
+                }
+                for (GameCard gameCard : cards)
+                    getGameController().removeMonsterCard(gameCard);
+                summon();
+                return null;
+            }
+        });
     }
 
-    public boolean flipSummon() {
+    public void flipSummon() {
         card.setRevealed(true);
         card.setFaceDown(false);
         getGameTurnController().setChangedPositionMonster(card);
@@ -222,20 +293,41 @@ public class SummonController {
             GameController.getView().showSuccess(GameView.SUCCESS_FLIP_SUMMON_SUCCESSFUL);
             getGameTurnController().setSummonedMonster(card);
         }
-        return summoningPlayer.getField().isInMonsterZone(card);
     }
 
-    private boolean tribute(int amount) {
-        GameCard[] tributeMonsters = getGameController().getPlayerControllerByPlayer(summoningPlayer).tributeMonster(amount);
-        if (tributeMonsters == null) return false;
-        for (GameCard tributeMonster : tributeMonsters) {
-            if (tributeMonster == null)
-                return false;
-        }
-        for (GameCard tributeMonster : tributeMonsters) {
-            getGameController().removeMonsterCard(tributeMonster);
-        }
-        return true;
+    private void tribute(int amount, ConfirmationAction action) {
+        ArrayBlockingQueue<Boolean> choice = new ArrayBlockingQueue<>(1);
+        getGameController().getPlayerControllerByPlayer(summoningPlayer).tributeMonster(amount, new ArraySelectionAction() {
+            @Override
+            public GameCard[] call() throws Exception {
+                if (choices == null) return null;
+                GameCard[] tributeMonsters = choices.peek();
+                if (tributeMonsters == null) return null;
+                for (GameCard tributeMonster : tributeMonsters) {
+                    if (tributeMonster == null) {
+                        choice.add(Boolean.FALSE);
+                        return null;
+                    }
+                }
+                for (GameCard tributeMonster : tributeMonsters) {
+                    getGameController().removeMonsterCard(tributeMonster);
+                }
+                choice.add(Boolean.TRUE);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (choice.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(choice);
+        getGameController().getExecutor().submit(action);
     }
 
     private void moveMonsterToMonsterZone() {

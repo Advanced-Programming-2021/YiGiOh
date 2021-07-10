@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.controller.game;
 
 import edu.sharif.ce.apyugioh.controller.player.ConfirmationAction;
+import edu.sharif.ce.apyugioh.controller.player.SelectionAction;
 import javafx.scene.effect.Effect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -101,13 +102,21 @@ public class GameTurnController {
             getGameController().endRound(!getGameController().isFirstPlayerTurn());
         logger.info("in game with id {}: {} drew {} from deck", gameControllerID, getCurrentPlayer().getUser()
                 .getNickname(), drawnCard.getCard().getName());
-        while (getCurrentPlayerField().getHand().size() > 6) {
-            GameCard toBeRemoved = getGameController().getCurrentPlayerController().selectCardFromHand(null);
-            if (toBeRemoved != null) {
-                getCurrentPlayerField().removeFromHand(toBeRemoved);
-                logger.info("in game with id {}: {} removed {} from hand", gameControllerID, getCurrentPlayer().getUser()
-                        .getNickname(), toBeRemoved.getCard().getName());
-            }
+        if (getCurrentPlayerField().getHand().size() > 6) {
+            getGameController().getCurrentPlayerController().selectForceCardFromHand(new SelectionAction() {
+                @Override
+                public GameCard call() throws Exception {
+                    if (choice == null) return null;
+                    GameCard toBeRemoved = choice.peek();
+                    if (toBeRemoved == null) return null;
+                    toBeRemoved = getCurrentPlayerField().getHand().get(getRivalPlayerField().getAvailableMonstersInZoneCount());
+                    getCurrentPlayerField().removeFromHand(toBeRemoved);
+                    getCurrentPlayerField().putInGraveyard(toBeRemoved);
+                    logger.info("in game with id {}: {} removed {} from hand", gameControllerID, getCurrentPlayer().getUser()
+                            .getNickname(), toBeRemoved.getCard().getName());
+                    return null;
+                }
+            });
         }
         phase = Phase.DRAW;
     }
@@ -187,10 +196,9 @@ public class GameTurnController {
                 SummonController summonController = new SummonController(gameControllerID, getSelectionController().getCard());
                 System.out.println("Check before summon after new " + Thread.currentThread().getName());
                 summonController.normalSummon();
-                setSummonedMonster(getSelectionController().getCard());
-//                if (test) {
-//                    return true;
-//                }
+                if (getGameController().getPlayerByCard(getSelectionController().getCard())
+                        .getField().isInMonsterZone(getSelectionController().getCard()))
+                    setSummonedMonster(getSelectionController().getCard());
                 return false;
             }
         });

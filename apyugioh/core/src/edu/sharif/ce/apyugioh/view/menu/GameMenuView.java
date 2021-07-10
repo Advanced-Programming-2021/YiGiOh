@@ -160,7 +160,7 @@ public class GameMenuView extends Menu {
                         if (polygon.getKey().isFromGraveyard() && getGameController().getCurrentPlayer().getField().getGraveyard().size() < 1) {
                             continue;
                         } else if (polygon.getKey().isFromGraveyard()) {
-                            promptChoice(getGameController().getCurrentPlayer().getField().getGraveyard(), "Graveyard");
+                            promptChoice(getGameController().getCurrentPlayer().getField().getGraveyard(), "Graveyard", false);
                             return;
                         }
                         System.out.println("Clicked " + polygon.getKey().toString());
@@ -707,11 +707,15 @@ public class GameMenuView extends Menu {
         return GameController.getGameControllerById(gameControllerID);
     }
 
-    public ArrayBlockingQueue<GameCard> promptChoice(List<GameCard> cards) {
-        return promptChoice(cards, "Select Card");
+    public ArrayBlockingQueue<GameCard> forcePromptChoice(List<GameCard> cards) {
+        return promptChoice(cards, "Select Card", true);
     }
 
-    public ArrayBlockingQueue<GameCard> promptChoice(List<GameCard> cards, String message) {
+    public ArrayBlockingQueue<GameCard> promptChoice(List<GameCard> cards) {
+        return promptChoice(cards, "Select Card", false);
+    }
+
+    public ArrayBlockingQueue<GameCard> promptChoice(List<GameCard> cards, String message, boolean isForce) {
         ArrayBlockingQueue<GameCard> choice = new ArrayBlockingQueue<>(1);
         System.out.println("Choice Called");
         if (cards.size() > 0) {
@@ -767,7 +771,7 @@ public class GameMenuView extends Menu {
             dialog.getContentTable().add(scroll).width(500).height(500);
             dialog.getContentTable().row();
             dialog.button("Select", true);
-            dialog.button("Cancel", false);
+            if (!isForce) dialog.button("Cancel", false);
             isDialogShown = true;
             dialog.show(stage);
         }

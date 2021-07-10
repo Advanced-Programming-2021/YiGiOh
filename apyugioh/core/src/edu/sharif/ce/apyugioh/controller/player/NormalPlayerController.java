@@ -538,6 +538,68 @@ public class NormalPlayerController extends PlayerController {
         getGameController().getExecutor().submit(action);
     }
 
+    public void selectForceCardFromHand(SelectionAction action) {
+        super.selectCardFromHand(null);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getForceGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
+    }
+
+    public void selectRitualMonsterFromHand(SelectionAction action) {
+        super.selectRitualMonsterFromHand();
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getForceGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
+    }
+
+    public void selectCardsForRitualTribute(int level, ArraySelectionAction action) {
+        super.selectCardsForRitualTribute(level);
+        ArrayBlockingQueue<GameCard[]> cards = new ArrayBlockingQueue<>(1);
+
+    }
+
     public Card getACard() {
         String result = GameController.getView().promptChoice(DatabaseManager.getCards().getAllCardNames());
         if (result == null) return null;
@@ -580,4 +642,19 @@ public class NormalPlayerController extends PlayerController {
         getGameController().getExecutor().submit(action);
     }
 
+
+    private void getForceGameCard(List<GameCard> availableMonsters, SelectionAction action) {
+        ArrayBlockingQueue<GameCard> card = GameController.getUIView().forcePromptChoice(availableMonsters);
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
+    }
 }

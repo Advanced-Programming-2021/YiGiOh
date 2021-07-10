@@ -14,15 +14,7 @@ import edu.sharif.ce.apyugioh.controller.game.SelectionController;
 import edu.sharif.ce.apyugioh.model.DatabaseManager;
 import edu.sharif.ce.apyugioh.model.Phase;
 import edu.sharif.ce.apyugioh.model.Player;
-import edu.sharif.ce.apyugioh.model.card.Card;
-import edu.sharif.ce.apyugioh.model.card.CardLocation;
-import edu.sharif.ce.apyugioh.model.card.CardType;
-import edu.sharif.ce.apyugioh.model.card.GameCard;
-import edu.sharif.ce.apyugioh.model.card.Monster;
-import edu.sharif.ce.apyugioh.model.card.MonsterEffect;
-import edu.sharif.ce.apyugioh.model.card.MonsterType;
-import edu.sharif.ce.apyugioh.model.card.Spell;
-import edu.sharif.ce.apyugioh.model.card.SpellProperty;
+import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.GameView;
 import lombok.Getter;
 import lombok.Setter;
@@ -376,6 +368,9 @@ public abstract class PlayerController {
     public void selectCardFromHand(GameCard exceptedCard, SelectionAction action) {
     }
 
+    public void selectForceCardFromHand(SelectionAction action) {
+    }
+
     public void selectCardFromDeck(SelectionAction action) {
     }
 
@@ -394,13 +389,20 @@ public abstract class PlayerController {
     public void selectNormalCardFromHand(int mostLevel, SelectionAction action) {
     }
 
+    public void selectRitualMonsterFromHand(SelectionAction action) {
+    }
 
+    public void selectCardsForRitualTribute(int level, ArraySelectionAction action) {
+    }
 
     public GameCard selectRitualMonsterFromHand() {
+        availableCards = Arrays.stream(player.getField().getMonsterZone())
+                .filter(e -> ((Monster) e.getCard()).getSummon().equals(MonsterSummon.RITUAL)).collect(Collectors.toList());
         return null;
     }
 
     public List<GameCard> selectCardsForRitualTribute(int level) {
+        availableCards = Arrays.stream(player.getField().getMonsterZone()).collect(Collectors.toList());
         return null;
     }
 

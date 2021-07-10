@@ -399,11 +399,18 @@ public class EffectController {
         }
     }
 
-    private void ritualSummon() {
-        GameCard monsterToBeRitualSummoned = getCurrentPlayerController().selectRitualMonsterFromHand();
-        if (monsterToBeRitualSummoned == null || ((Monster) monsterToBeRitualSummoned.getCard()).getSummon() != MonsterSummon.RITUAL)
-            return;
-        new SummonController(gameControllerID, monsterToBeRitualSummoned).ritualSummon();
+    public void ritualSummon() {
+        getCurrentPlayerController().selectRitualMonsterFromHand(new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard monsterToBeRitualSummoned = choice.peek();
+                if (monsterToBeRitualSummoned == null) return null;
+                new SummonController(gameControllerID, monsterToBeRitualSummoned).ritualSummon();
+                getGameController().removeSpellTrapCard(effectCard);
+                return null;
+            }
+        });
     }
 
     public void destroyAllRivalCards() {

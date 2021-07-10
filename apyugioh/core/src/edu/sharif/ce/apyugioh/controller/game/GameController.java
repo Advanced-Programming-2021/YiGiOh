@@ -318,6 +318,7 @@ public class GameController {
                 return null;
             }
         });
+        updateView();
     }
 
     public void activeEffect() {
@@ -444,7 +445,7 @@ public class GameController {
             }
         });
         view.showSuccess(GameView.SUCCESS_SPELL_ACTIVATED, selectedCard.getCard().getName());
-
+        updateView();
     }
 
     public void activeTrapInRivalTurn() {
@@ -602,6 +603,10 @@ public class GameController {
                         }
                     });
                 }
+                //Ritual
+                if (effectController.containEffect(Effects.RITUAL_SUMMON)) {
+                    effectController.ritualSummon();
+                }
             } else if (trigger.equals(Trigger.AFTER_FLIP_SUMMON)) {
                 //Man-Eater Bug
                 if (effectController.containEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
@@ -705,6 +710,7 @@ public class GameController {
                     effectController.disposableEffect();
                 }
             }
+            updateView();
         }
         for (EffectController effectController : new ArrayList<>(getRivalPlayerEffectControllers())) {
             //ignore disposable effects
@@ -993,6 +999,7 @@ public class GameController {
                     });
                 }
             }
+            updateView();
         }
         if (result.isEmpty()) result.add(EffectResponse.NULL);
         if (isTurnTempChanged) resetTurnTemp();
@@ -1033,6 +1040,7 @@ public class GameController {
                     }
                 }
             }
+            updateView();
         }
     }
 
