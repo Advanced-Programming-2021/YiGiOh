@@ -1,4 +1,4 @@
-package edu.sharif.ce.apyugioh.model;
+package edu.sharif.ce.apyugioh.view.model;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;

@@ -710,7 +710,6 @@ public class GameController {
                     effectController.disposableEffect();
                 }
             }
-            updateView();
         }
         for (EffectController effectController : new ArrayList<>(getRivalPlayerEffectControllers())) {
             //ignore disposable effects
@@ -999,8 +998,8 @@ public class GameController {
                     });
                 }
             }
-            updateView();
         }
+        updateView();
         if (result.isEmpty()) result.add(EffectResponse.NULL);
         if (isTurnTempChanged) resetTurnTemp();
         executor.submit(() -> {
@@ -1040,8 +1039,8 @@ public class GameController {
                     }
                 }
             }
-            updateView();
         }
+        updateView();
     }
 
     private void isRoundEnded() {

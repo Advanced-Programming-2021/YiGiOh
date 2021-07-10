@@ -46,7 +46,7 @@ import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.AILevel;
-import edu.sharif.ce.apyugioh.model.ProfilePicture;
+import edu.sharif.ce.apyugioh.view.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 

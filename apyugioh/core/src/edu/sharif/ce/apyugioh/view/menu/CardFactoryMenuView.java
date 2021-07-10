@@ -25,8 +25,7 @@ import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.CardFactoryMenuController;
 import edu.sharif.ce.apyugioh.controller.MainMenuController;
-import edu.sharif.ce.apyugioh.model.Field;
-import edu.sharif.ce.apyugioh.model.ProfilePicture;
+import edu.sharif.ce.apyugioh.view.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.model.card.Monster;
 import edu.sharif.ce.apyugioh.model.card.Spell;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
@@ -39,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import net.spookygames.gdx.nativefilechooser.NativeFileChooser;
 import net.spookygames.gdx.nativefilechooser.NativeFileChooserCallback;
-import net.spookygames.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
 public class CardFactoryMenuView extends Menu {
 
