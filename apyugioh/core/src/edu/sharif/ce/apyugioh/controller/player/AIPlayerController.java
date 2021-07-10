@@ -159,27 +159,11 @@ public class AIPlayerController extends PlayerController {
         if (random.nextInt(100) < 70 && isRivalContainEffect(Effects.CANT_BE_DESTROYED_IN_NORMAL_ATTACK)) {
             int index = player.getField().getFirstFreeSpellZoneIndex();
             new CheatController(gameControllerID).cheat(Cheats.SET_SPELL, new String[]{"Raigeki"});
-            registerRaigeki(index);
         }
         //Man-Eater cheat
         if (random.nextInt(100) < 50 && isRivalContainEffect(Effects.DESTROY_ONE_OF_RIVAL_MONSTERS_AFTER_FLIP)) {
             int index = player.getField().getFirstFreeSpellZoneIndex();
             new CheatController(gameControllerID).cheat(Cheats.SET_SPELL, new String[]{"Raigeki"});
-            registerRaigeki(index);
-        }
-    }
-
-    private void registerRaigeki(int index) {
-        if (index != -1) {
-            if (player.getField().getSpellZone()[index] != null && player.getField().getSpellZone()[index].getCard().getName().equals("Raigeki")) {
-                getGameController().getUIView().registerGameCard(player.getField().getSpellZone()[index]);
-            } else {
-                List<GameCard> graveyardRaigeki = player.getField().getGraveyard().stream().filter(e -> e.getCard().getName().equals("Raigeki")).collect(Collectors.toList());
-                if (graveyardRaigeki.size() > 0) {
-                    GameCard raigeki = graveyardRaigeki.get(graveyardRaigeki.size() - 1);
-                    getGameController().getUIView().registerGameCard(raigeki);
-                }
-            }
         }
     }
 

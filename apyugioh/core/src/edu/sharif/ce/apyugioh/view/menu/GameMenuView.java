@@ -1,6 +1,7 @@
 package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -25,6 +26,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.strongjoshua.console.Console;
+import com.strongjoshua.console.GUIConsole;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +45,7 @@ import edu.sharif.ce.apyugioh.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
+import edu.sharif.ce.apyugioh.view.command.CheatExecutor;
 import edu.sharif.ce.apyugioh.view.model.CameraAction;
 import edu.sharif.ce.apyugioh.view.model.CardAction;
 import edu.sharif.ce.apyugioh.view.model.CardFrontView;
@@ -74,6 +78,7 @@ public class GameMenuView extends Menu {
     private Rectangle attackRect, firstHPBar, secondHPBar;
     private ProfilePicture currentPlayerProfilePicture, rivalPlayerProfilePicture;
     private boolean isGameEnded;
+    private Console gameConsole;
 
     public GameMenuView(YuGiOh game) {
         super(game);
@@ -113,6 +118,11 @@ public class GameMenuView extends Menu {
         Gdx.input.setInputProcessor(stage);
         addSelectionListenerToStage();
         AssetController.playMusic("gameplay", 0.5f);
+        gameConsole = new GUIConsole();
+        gameConsole.setCommandExecutor(new CheatExecutor());
+        gameConsole.setDisplayKeyID(Input.Keys.GRAVE);
+        gameConsole.setSizePercent(30, 30);
+        gameConsole.setPositionPercent(5, 5);
     }
 
     private void addButtonsToStage() {
@@ -421,6 +431,7 @@ public class GameMenuView extends Menu {
             Gdx.input.setInputProcessor(null);
             phaseLabel.setText((firstPlayerController.getPlayer().getLifePoints() > 0 ? firstPlayerController.getPlayer().getUser().getNickname() : secondPlayerController.getPlayer().getUser().getNickname()) + " Won");
         }
+        gameConsole.draw();
     }
 
     @Override
@@ -451,10 +462,10 @@ public class GameMenuView extends Menu {
         updateFieldZone();
         updateDeck();
         updateHand();
-        currentPlayerHPLabel.setText(firstPlayerController.getPlayer().getUser().getUsername() + " : " + firstPlayerController.getPlayer().getLifePoints());
-        rivalPlayerHPLabel.setText(secondPlayerController.getPlayer().getUser().getUsername() + " : " + secondPlayerController.getPlayer().getLifePoints());
-        firstHPBar.setWidth(300 * getGameController().getRivalPlayerController().getPlayer().getLifePoints() / 8000f);
-        secondHPBar.setWidth(300 * getGameController().getCurrentPlayerController().getPlayer().getLifePoints() / 8000f);
+        currentPlayerHPLabel.setText((isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getUser().getUsername() + " : " + (isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getLifePoints());
+        rivalPlayerHPLabel.setText((isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getUser().getUsername() + " : " + (isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getLifePoints());
+        firstHPBar.setWidth(300 * (isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getLifePoints() / 8000f);
+        secondHPBar.setWidth(300 * (isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getLifePoints() / 8000f);
         if (firstPlayerController.getPlayer().getLifePoints() == 0 || secondPlayerController.getPlayer().getLifePoints() == 0) {
             isGameEnded = true;
             AssetController.playSound("gameplay_lose");
@@ -539,7 +550,7 @@ public class GameMenuView extends Menu {
                     target.setToRotation(0, 1, 0, card.isRevealed() ? -90 : 90);
                 }
                 target.rotate(0, 0, 1, card.isFaceDown() ? -90 : 0);
-                target.setTranslation(74, -33.5f, (counter % 2 == 0 ? -1 : 1) * ((counter + 1) / 2) * 13f);
+                target.setTranslation(74, -40, (counter % 2 == 0 ? -1 : 1) * ((counter + 1) / 2) * 13f);
                 CardAction action = new CardAction(cardView, target, 1);
                 manager.addAction(action);
             }
@@ -556,7 +567,7 @@ public class GameMenuView extends Menu {
                     target.setToRotation(0, 1, 0, card.isRevealed() ? -90 : 90);
                 }
                 target.rotate(0, 0, 1, 180 + (card.isFaceDown() ? -90 : 0));
-                target.setTranslation(74, 33.5f, (counter % 2 == 0 ? 1 : -1) * ((counter + 1) / 2) * 13f);
+                target.setTranslation(74, 40, (counter % 2 == 0 ? 1 : -1) * ((counter + 1) / 2) * 13f);
                 CardAction action = new CardAction(cardView, target, 1);
                 manager.addAction(action);
             }
@@ -788,4 +799,15 @@ public class GameMenuView extends Menu {
         return choice;
     }
 
+    @Override
+    public void pause() {
+        super.pause();
+        AssetController.pauseMusic();
+    }
+
+    @Override
+    public void resume() {
+        super.resume();
+        AssetController.resumeMusic();
+    }
 }

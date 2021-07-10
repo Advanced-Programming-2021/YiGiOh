@@ -3,7 +3,11 @@ package edu.sharif.ce.apyugioh.controller.game;
 import edu.sharif.ce.apyugioh.controller.ProgramController;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
-import edu.sharif.ce.apyugioh.model.*;
+import edu.sharif.ce.apyugioh.model.Cheats;
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
+import edu.sharif.ce.apyugioh.model.Field;
+import edu.sharif.ce.apyugioh.model.Inventory;
+import edu.sharif.ce.apyugioh.model.Player;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.CardType;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
@@ -79,7 +83,10 @@ public class CheatController {
         card.setEffects(card.getCard().getCardEffects());
         int spellLocation = getCurrentPlayer().getField().getFirstFreeSpellZoneIndex();
         getCurrentPlayer().getField().getSpellZone()[spellLocation] = card;
+        getGameController().getUIView().registerGameCard(card);
+        getGameController().getUIView().update(getGameController().isFirstPlayerTurn());
         forceActiveSpell(spellLocation);
+        getGameController().getUIView().update(getGameController().isFirstPlayerTurn());
     }
 
     private void forceActiveSpell(int spellLocation) {
@@ -88,6 +95,7 @@ public class CheatController {
         location.setPosition(spellLocation);
         getGameController().setSelectionController(new SelectionController(gameControllerID, location));
         getGameController().activeEffect();
+        getGameController().getUIView().update(getGameController().isFirstPlayerTurn());
     }
 
     private void forceSummon(String option, boolean isSet) {
@@ -110,6 +118,8 @@ public class CheatController {
         card.setRevealed(!isSet);
         getGameController().getCurrentPlayerEffectControllers().add(new EffectController(gameControllerID, card));
         getCurrentPlayer().getField().getMonsterZone()[getCurrentPlayer().getField().getFirstFreeMonsterZoneIndex()] = card;
+        getGameController().getUIView().registerGameCard(card);
+        getGameController().getUIView().update(getGameController().isFirstPlayerTurn());
     }
 
     private void setLifePoints(String option) {
@@ -137,7 +147,9 @@ public class CheatController {
             card.setCard(DatabaseManager.getCards().getCardByName(Utils.firstUpperOnly(option)));
             card.setId(++fakeID);
         }
+        getGameController().getUIView().registerGameCard(card);
         getCurrentPlayer().getField().getHand().add(card);
+        getGameController().getUIView().update(getGameController().isFirstPlayerTurn());
     }
 
     private void setMoney(String option) {

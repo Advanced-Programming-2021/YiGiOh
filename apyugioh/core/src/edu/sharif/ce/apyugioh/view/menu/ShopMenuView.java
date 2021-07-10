@@ -2,7 +2,6 @@ package edu.sharif.ce.apyugioh.view.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -38,9 +37,9 @@ import edu.sharif.ce.apyugioh.model.Inventory;
 import edu.sharif.ce.apyugioh.model.card.Card;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardAction;
-import edu.sharif.ce.apyugioh.view.model.GameActionsManager;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
 import edu.sharif.ce.apyugioh.view.model.DeckModelView;
+import edu.sharif.ce.apyugioh.view.model.GameActionsManager;
 
 public class ShopMenuView extends Menu {
 
@@ -104,14 +103,16 @@ public class ShopMenuView extends Menu {
                 }
             }
         });
-        searchBox.addListener(new InputListener(){
+        searchBox.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ESCAPE) {
                     back();
                     return true;
+                } else {
+                    System.out.println(keycode);
                 }
-                return super.keyDown(event,keycode);
+                return super.keyDown(event, keycode);
             }
         });
         searchBox.setPosition(1480, 50);
@@ -286,7 +287,7 @@ public class ShopMenuView extends Menu {
         @Override
         public void clicked(InputEvent event, float x, float y) {
             super.clicked(event, x, y);
-            animationSpeed = 10;
+            animationSpeed = 1;
             lastX = 0;
             lastY = 0;
             if (Math.abs(x - startingX) < 10 && Math.abs(y - startingY) < 10 && manager.isDone()) {
@@ -359,7 +360,7 @@ public class ShopMenuView extends Menu {
         }
     }
 
-    private void back(){
+    private void back() {
         if (poppedUpCard != null) {
             poppedUpCard = null;
         }
