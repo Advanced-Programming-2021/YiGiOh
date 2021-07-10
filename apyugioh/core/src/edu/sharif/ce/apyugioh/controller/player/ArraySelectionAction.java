@@ -7,9 +7,9 @@ import lombok.Setter;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 
-public abstract class SelectionAction implements Callable<GameCard> {
+public abstract class ArraySelectionAction implements Callable<GameCard[]> {
 
     @Getter
     @Setter
-    public ArrayBlockingQueue<GameCard> choice;
+    public ArrayBlockingQueue<GameCard[]> choices;
 }

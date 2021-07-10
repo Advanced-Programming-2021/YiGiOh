@@ -214,7 +214,7 @@ public class MainMenuView extends Menu {
             window.row();
         }
 
-        window.padTop(150);
+        window.padTop(200);
         windows.put("main", window);
         stage.addActor(window);
     }

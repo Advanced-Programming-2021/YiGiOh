@@ -24,39 +24,155 @@ public class NormalPlayerController extends PlayerController {
     //special Cases
 
     //Scanner
-    public GameCard scanMonsterForScanner() {
+    public void scanMonsterForScanner(SelectionAction action) {
         super.scanMonsterForScanner();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //TributeMonsterForSummon
-    public GameCard[] tributeMonster(int amount) {
+    public void tributeMonster(int amount, ArraySelectionAction action) {
+        ArrayBlockingQueue<GameCard[]> cards = new ArrayBlockingQueue<>(1);
         super.tributeMonster(amount);
-        GameCard[] cards = new GameCard[amount];
+
+        GameCard[] cardsArray = new GameCard[amount];
         for (int i = 0; i < amount; i++) {
-            GameCard selectedMonster = getGameCard(availableCards);
-            cards[i] = selectedMonster;
-            availableCards.remove(selectedMonster);
+            int finalI = i;
+            getGameCard(availableCards, new SelectionAction() {
+                @Override
+                public GameCard call() throws Exception {
+                    if (choice == null) return null;
+                    GameCard gameCard = choice.peek();
+                    if (gameCard == null) return null;
+                    cardsArray[finalI] = gameCard;
+                    availableCards.remove(gameCard);
+                    return null;
+                }
+            });
         }
-        return cards;
+
+        cards.add(cardsArray);
+
+        getGameController().getExecutor().submit(() -> {
+            while (cards.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoices(cards);
+        getGameController().getExecutor().submit(action);
     }
 
     //Man-Eater Bug
-    public GameCard directRemove() {
+    public void directRemove(SelectionAction action) {
         super.directRemove();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //TexChanger
-    public GameCard specialCyberseSummon() {
+    public void specialCyberseSummon(SelectionAction action) {
         super.specialCyberseSummon();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //HeraldOfCreation
-    public GameCard summonFromGraveyard() {
+    public void summonFromGraveyard(SelectionAction action) {
         super.summonFromGraveyard();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //Beast King Barbaros & Tricky
@@ -72,77 +188,354 @@ public class NormalPlayerController extends PlayerController {
     }
 
     //terratiger
-    public GameCard selectMonsterToSummon() {
+    public void selectMonsterToSummon(SelectionAction action) {
         super.selectMonsterToSummon();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //EquipMonster
-    public GameCard equipMonster() {
+    public void equipMonster(SelectionAction action) {
         super.equipMonster();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //Select card from graveyard
-    public GameCard selectCardFromGraveyard() {
+    public void selectCardFromGraveyard(SelectionAction action) {
         super.selectCardFromGraveyard();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //Select card from monster zone
-    public GameCard selectCardFromMonsterZone() {
+    public void selectCardFromMonsterZone(SelectionAction action) {
         super.selectCardFromMonsterZone();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //Select card from both graveyards
-    public GameCard selectMonsterFromAllGraveyards() {
+    public void selectMonsterFromAllGraveyards(SelectionAction action) {
         super.selectMonsterFromAllGraveyards();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //Select card from hand
-    public GameCard selectCardFromHand(GameCard exceptCard) {
+    public void selectCardFromHand(GameCard exceptCard, SelectionAction action) {
         super.selectCardFromHand(exceptCard);
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     //Select card from deck
-    public GameCard selectCardFromDeck() {
+    public void selectCardFromDeck(SelectionAction action) {
         super.selectCardFromDeck();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
-    public GameCard selectFieldSpellFromDeck() {
+    public void selectFieldSpellFromDeck(SelectionAction action) {
         super.selectFieldSpellFromDeck();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
-    public GameCard selectRivalMonster() {
+    public void selectRivalMonster(SelectionAction action) {
         super.selectRivalMonster();
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
-    public GameCard[] selectSpellTrapsFromField(int amount) {
+    public void selectSpellTrapsFromField(int amount, ArraySelectionAction action) {
         super.selectSpellTrapsFromField(amount);
-        GameCard[] cards = new GameCard[amount];
+        ArrayBlockingQueue<GameCard[]> cards = new ArrayBlockingQueue<>(1);
+
+        GameCard[] cardsArray = new GameCard[amount];
         for (int i = 0; i < amount; i++) {
-            GameCard selectedSpell = getGameCard(availableCards);
-            cards[i] = selectedSpell;
-            availableCards.remove(selectedSpell);
+            int finalI = i;
+            getGameCard(availableCards, new SelectionAction() {
+                @Override
+                public GameCard call() throws Exception {
+                    if (choice == null) return null;
+                    GameCard gameCard = choice.peek();
+                    if (gameCard == null) return null;
+                    cardsArray[finalI] = gameCard;
+                    availableCards.remove(gameCard);
+                    return null;
+                }
+            });
         }
-        return cards;
+
+        cards.add(cardsArray);
+
+        getGameController().getExecutor().submit(() -> {
+            while (cards.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoices(cards);
+        getGameController().getExecutor().submit(action);
     }
 
     //Select card from graveyard with level less than mostLevel
-    public GameCard selectCardFromGraveyard(int mostLevel) {
+    public void selectCardFromGraveyard(int mostLevel, SelectionAction action) {
         super.selectCardFromGraveyard(mostLevel);
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
-    public GameCard selectNormalCardFromHand(int mostLevel) {
+    public void selectNormalCardFromHand(int mostLevel, SelectionAction action) {
         super.selectNormalCardFromHand(mostLevel);
-        return getGameCard(availableCards);
+        ArrayBlockingQueue<GameCard> card = new ArrayBlockingQueue<>(1);
+
+        getGameCard(availableCards, new SelectionAction() {
+            @Override
+            public GameCard call() throws Exception {
+                if (choice == null) return null;
+                GameCard gameCard = choice.peek();
+                if (gameCard == null) return null;
+                card.add(gameCard);
+                return null;
+            }
+        });
+
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
     public Card getACard() {
@@ -172,13 +565,19 @@ public class NormalPlayerController extends PlayerController {
         getGameController().getExecutor().submit(action);
     }
 
-    @Nullable
-    private GameCard getGameCard(List<GameCard> availableMonsters) {
-        ArrayBlockingQueue<GameCard> choice = GameController.getUIView().promptChoice(availableMonsters);
-        if (choice == null || choice.size() == 0) {
-            return null;
-        }
-        return choice.poll();
+    private void getGameCard(List<GameCard> availableMonsters, SelectionAction action) {
+        ArrayBlockingQueue<GameCard> card = GameController.getUIView().promptChoice(availableMonsters);
+        getGameController().getExecutor().submit(() -> {
+            while (card.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        action.setChoice(card);
+        getGameController().getExecutor().submit(action);
     }
 
 }
