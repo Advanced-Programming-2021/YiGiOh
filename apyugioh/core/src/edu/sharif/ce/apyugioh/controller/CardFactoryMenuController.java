@@ -5,6 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import edu.sharif.ce.apyugioh.model.*;
+import edu.sharif.ce.apyugioh.model.card.*;
 import edu.sharif.ce.apyugioh.view.menu.CardFactoryMenuView;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,20 +15,9 @@ import net.spookygames.gdx.nativefilechooser.NativeFileChooser;
 import net.spookygames.gdx.nativefilechooser.NativeFileChooserCallback;
 import net.spookygames.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
-
-import edu.sharif.ce.apyugioh.model.DatabaseManager;
-import edu.sharif.ce.apyugioh.model.Effects;
-import edu.sharif.ce.apyugioh.model.MenuState;
-import edu.sharif.ce.apyugioh.model.User;
-import edu.sharif.ce.apyugioh.view.menu.CardFactoryMenuView;
-import lombok.Getter;
-import lombok.Setter;
 
 
 public class CardFactoryMenuController {
@@ -35,7 +25,7 @@ public class CardFactoryMenuController {
     private static CardFactoryMenuController instance;
     private static Logger logger;
 
-    static {
+    static{
         instance = new CardFactoryMenuController();
         logger = LogManager.getLogger(CardFactoryMenuController.class);
     }
@@ -55,12 +45,11 @@ public class CardFactoryMenuController {
     @Setter
     private Class cardKind;
     private FileHandle imageFileHandle;
-    private Pixmap imagePixmap;
 
-    private CardFactoryMenuController() {
+    private CardFactoryMenuController(){
     }
 
-    public void showCardFactoryMenu() {
+    public void showCardFactoryMenu(){
         if (view != null)
             view.dispose();
         loadEffects();
@@ -70,21 +59,26 @@ public class CardFactoryMenuController {
         ProgramController.setCurrentMenu(view);
     }
 
-    public void back() {
+    public void back(){
         view.dispose();
         view = null;
         MainMenuController.getInstance().showMainMenu();
     }
 
-    public void importCard() {
+    public void importCard(){
 
     }
 
-    public void exportCard() {
+    public void exportCard(){
 
     }
 
-    public void loadImage(FileHandle imageFile) {
+    public void loadImage(FileHandle imageFile){
+        imageFileHandle = imageFile;
+        if (!imageFileHandle.path().endsWith("jpg")){
+            view.showErrorDialog("Try to load jpg files!");
+            return;
+        }
         Pixmap pixmap = new Pixmap(imageFile);
         Pixmap resizedPixmap = new Pixmap(350, 520, pixmap.getFormat());
         resizedPixmap.drawPixmap(pixmap,
@@ -124,15 +118,56 @@ public class CardFactoryMenuController {
         });
     }
 
-    public void addCardToMainCards(String cardName) {
+    public void addCardToMainCards(String cardName){
+        if (cardName.length() < 4){
+            view.showErrorDialog("Your card name's length should be at least 4!");
+            return;
+        }
+        cardName = Utils.firstUpperOnly(cardName).replaceAll(" ","");
         if (!checkForName(cardName))
             return;
+        saveCardImage(cardName);
+        if (cardKind == Monster.class){
+            Monster monster = new Monster(cardName,"Custom Monster",4,view.getAttackPoints(),
+                    view.getDefensePoints(), MonsterAttribute.EARTH, MonsterType.AQUA,MonsterEffect.NORMAL);
+            DatabaseManager.getCards().addMonster(monster,1000);
+        } else {
+            Spell spell = new Spell(cardName,"Custom Spell",SpellProperty.QUICK_PLAY,SpellLimit.UNLIMITED);
+            DatabaseManager.getCards().addSpell(spell,1000);
+        }
+        String[] cardNames = new String[1];
+        cardNames[0] = cardName;
+        CardFactoryController.getInstance().export(cardNames);
     }
 
-    private boolean checkForName(String name) {
+    private void saveCardImage(String cardName){
+        ArrayList<Effects> effects = new ArrayList<>();
+        for(String effectName:cardEffects)
+            effects.add(Effects.valueOf(effectName.toUpperCase().replaceAll(" ","_")));
+        //image file
+        String imagePath = "assets/cards/";
+        if (cardKind == Monster.class)
+            imagePath += "monster";
+        else
+            imagePath += "spell_trap";
+        imagePath += "/" + cardName + ".jpg";
+        if (Gdx.files.local(imagePath).exists()){
+            view.showErrorDialog("Can't add card's image!");
+            return;
+        }
+        try {
+            FileHandle imageFileHandleDestination = Gdx.files.external(imagePath);
+            imageFileHandle.copyTo(imageFileHandleDestination);
+        }catch (Exception e){
+            view.showErrorDialog(e.getMessage());
+            return;
+        }
+    }
+
+    private boolean checkForName(String name){
         String[] cardNames = DatabaseManager.getCards().getAllCardNames();
-        for (int i = 0; i < cardNames.length; ++i) {
-            if (name.equals(cardNames[i])) {
+        for(int i = 0;i<cardNames.length;++i){
+            if (name.equals(cardNames[i])){
                 view.showErrorDialog("There is another card with this name!");
                 return false;
             }
@@ -140,22 +175,28 @@ public class CardFactoryMenuController {
         return true;
     }
 
-    public void removeEffect(String effect) {
+    public void removeEffect(String effect){
         cardEffects.remove(effect);
         view.updateCardEffectsTable();
     }
 
-    public void addEffect(String effect) {
+    public void addEffect(String effect){
+        for(String effectName:cardEffects){
+            if (effect.equals(effectName)){
+                view.showErrorDialog("Card already has this effect!");
+                return;
+            }
+        }
         cardEffects.add(effect);
         view.updateCardEffectsTable();
     }
 
-    private void loadEffects() {
+    private void loadEffects(){
         loadMonsterEffects();
         loadSpellEffects();
     }
 
-    private void loadMonsterEffects() {
+    private void loadMonsterEffects(){
         monsterEffects = new ArrayList<>();
         monsterEffects.add(Utils.firstUpperOnly(Effects.SET_ATTACK.toString()));
         monsterEffects.add(Utils.firstUpperOnly(Effects.COMBINE_LEVELS_OF.toString()));
@@ -179,7 +220,7 @@ public class CardFactoryMenuController {
 
     }
 
-    private void loadSpellEffects() {
+    private void loadSpellEffects(){
         spellEffects = new ArrayList<>();
         spellEffects.add(Utils.firstUpperOnly(Effects.SPECIAL_SUMMON_FROM_GRAVEYARD.toString()));
         spellEffects.add(Utils.firstUpperOnly(Effects.ADD_FIELD_SPELL_TO_HAND.toString()));

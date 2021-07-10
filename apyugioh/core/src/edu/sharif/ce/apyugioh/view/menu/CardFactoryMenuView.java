@@ -33,7 +33,6 @@ import edu.sharif.ce.apyugioh.view.model.DesktopFileChooser;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.lang.annotation.Native;
 import java.util.ArrayList;
 import java.util.Collections;
 import net.spookygames.gdx.nativefilechooser.NativeFileChooser;
@@ -202,7 +201,7 @@ public class CardFactoryMenuView extends Menu {
         cardImageView.setPosition(cardViewWindow.getWidth() / 2 - cardImageView.getWidth() * 0.5f, 100);
         cardNameField.setSize(cardViewWindow.getWidth() * 0.8f, 40);
         cardNameField.setPosition(cardViewWindow.getWidth() / 2 - cardNameField.getWidth() / 2, 45);
-
+        CardFactoryMenuController.getInstance().loadImage(Gdx.files.local("assets/cards/monster/Unknown.jpg"));
     }
 
     private void initializeMonsterOptionsWindow(){
@@ -522,6 +521,14 @@ public class CardFactoryMenuView extends Menu {
         dialog.show(stage);
     }
 
+    public int getAttackPoints(){
+        return (int)attackPointsSlider.getValue();
+    }
+
+    public int getDefensePoints(){
+        return (int)defensePointsSlider.getValue();
+    }
+
     class CardImageView extends Actor{
         @Getter
         @Setter
@@ -540,7 +547,6 @@ public class CardFactoryMenuView extends Menu {
         public void draw(Batch batch, float parentAlpha) {
             super.draw(batch, parentAlpha);
             if (imageSprite != null) {
-                System.out.println("high");
                 imageSprite.setBounds(getX(), getY(), getWidth(), getHeight());
                 imageSprite.draw(batch, parentAlpha);
             }
