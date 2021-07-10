@@ -81,9 +81,11 @@ public class CardActor extends Actor {
         cardSprite.draw(batch, parentAlpha);
         if (amount!=1){
             Label amountLabel = new Label(""+amount, AssetController.getSkin("first"),"title");
+            Color lastColor = amountLabel.getStyle().fontColor;
             amountLabel.getStyle().fontColor = Color.BLACK;
             amountLabel.setPosition(cardSprite.getX()+cardSprite.getWidth()/2f, cardSprite.getY()+20);
             amountLabel.draw(batch,parentAlpha);
+            amountLabel.getStyle().fontColor = lastColor;
         }
     }
 

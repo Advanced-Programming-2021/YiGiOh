@@ -11,6 +11,7 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Card {
     @EqualsAndHashCode.Include
+    @Setter
     protected String name;
     protected String number;
     protected String description;
