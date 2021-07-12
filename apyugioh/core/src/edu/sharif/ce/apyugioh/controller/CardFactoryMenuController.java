@@ -7,23 +7,34 @@ import com.badlogic.gdx.graphics.Texture;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
-import edu.sharif.ce.apyugioh.model.*;
-import edu.sharif.ce.apyugioh.model.card.*;
-import edu.sharif.ce.apyugioh.view.menu.CardFactoryMenuView;
-import lombok.Getter;
-import lombok.Setter;
+
+import net.spookygames.gdx.nativefilechooser.NativeFileChooser;
+import net.spookygames.gdx.nativefilechooser.NativeFileChooserConfiguration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import net.spookygames.gdx.nativefilechooser.NativeFileChooser;
-import net.spookygames.gdx.nativefilechooser.NativeFileChooserCallback;
-import net.spookygames.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+
+import edu.sharif.ce.apyugioh.model.DatabaseManager;
+import edu.sharif.ce.apyugioh.model.Effects;
+import edu.sharif.ce.apyugioh.model.MenuState;
+import edu.sharif.ce.apyugioh.model.User;
+import edu.sharif.ce.apyugioh.model.card.Card;
+import edu.sharif.ce.apyugioh.model.card.Monster;
+import edu.sharif.ce.apyugioh.model.card.MonsterAttribute;
+import edu.sharif.ce.apyugioh.model.card.MonsterEffect;
+import edu.sharif.ce.apyugioh.model.card.MonsterType;
+import edu.sharif.ce.apyugioh.model.card.Spell;
+import edu.sharif.ce.apyugioh.model.card.SpellLimit;
+import edu.sharif.ce.apyugioh.model.card.SpellProperty;
+import edu.sharif.ce.apyugioh.view.menu.CardFactoryMenuView;
+import lombok.Getter;
+import lombok.Setter;
 
 
 public class CardFactoryMenuController {
@@ -31,7 +42,7 @@ public class CardFactoryMenuController {
     private static CardFactoryMenuController instance;
     private static Logger logger;
 
-    static{
+    static {
         instance = new CardFactoryMenuController();
         logger = LogManager.getLogger(CardFactoryMenuController.class);
     }
@@ -52,10 +63,10 @@ public class CardFactoryMenuController {
     private Class cardKind;
     private FileHandle imageFileHandle;
 
-    private CardFactoryMenuController(){
+    private CardFactoryMenuController() {
     }
 
-    public void showCardFactoryMenu(){
+    public void showCardFactoryMenu() {
         if (view != null)
             view.dispose();
         loadEffects();
@@ -65,16 +76,16 @@ public class CardFactoryMenuController {
         ProgramController.setCurrentMenu(view);
     }
 
-    public void back(){
+    public void back() {
         view.dispose();
         view = null;
         MainMenuController.getInstance().showMainMenu();
     }
 
-    public void importCard(FileHandle importCardFileHandle){
+    public void importCard(FileHandle importCardFileHandle) {
         String cardName = importCardFileHandle.name();
         ArrayList<Effects> effects = null;
-        try{
+        try {
             List<Effects> loadedEffects;
             Moshi moshi = new Moshi.Builder().build();
             JsonAdapter<List<Effects>> jsonAdapter = moshi.adapter(Types.newParameterizedType(List.class,
@@ -84,36 +95,36 @@ public class CardFactoryMenuController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (effects == null){
+        if (effects == null) {
             view.showErrorDialog("Couldn't read specified file!");
             return;
         }
         view.setCardName(cardName);
         cardKind = Monster.class;
-        if (effects.size() != 0){
+        if (effects.size() != 0) {
             if (view.hasEffect(spellEffects,
-                    Utils.firstUpperOnly(effects.get(0).toString().replaceAll("_"," "))))
+                    Utils.firstUpperOnly(effects.get(0).toString().replaceAll("_", " "))))
                 cardKind = Spell.class;
         }
         cardEffects.clear();
-        for(Effects effect:effects){
-            String effectName = Utils.firstUpperOnly(effect.toString().replaceAll("_"," "));
+        for (Effects effect : effects) {
+            String effectName = Utils.firstUpperOnly(effect.toString().replaceAll("_", " "));
             cardEffects.add(effectName);
         }
         loadImage(Gdx.files.local("assets/cards/monster/Unknown.jpg"));
         view.updateCardEffectsTable();
     }
 
-    public void exportCard(String cardName){
+    public void exportCard(String cardName) {
         Card newCard = getNewCard(cardName);
         if (newCard == null)
             return;
         //new card to be Exported
     }
 
-    public void loadImage(FileHandle imageFile){
+    public void loadImage(FileHandle imageFile) {
         imageFileHandle = imageFile;
-        if (!imageFileHandle.path().endsWith("jpg")){
+        if (!imageFileHandle.path().endsWith("jpg")) {
             view.showErrorDialog("Try to load jpg files!");
             return;
         }
@@ -140,43 +151,42 @@ public class CardFactoryMenuController {
         return conf;
     }
 
-    public void addCardToMainCards(String cardName){
-        cardName = Utils.firstUpperOnly(cardName).replaceAll(" ","");
+    public void addCardToMainCards(String cardName) {
+        cardName = Utils.firstUpperOnly(cardName).replaceAll(" ", "");
         Card newCard = getNewCard(cardName);
         if (newCard == null)
             return;
         saveCardImage(cardName);
         //Add new Card
-        String[] cardNames = new String[1];
-        cardNames[0] = cardName;
+        String[] cardNames = new String[]{cardName};
         CardFactoryController.getInstance().export(cardNames);
     }
 
-    private Card getNewCard(String cardName){
-        cardName = Utils.firstUpperOnly(cardName).replaceAll(" ","");
+    private Card getNewCard(String cardName) {
+        cardName = Utils.firstUpperOnly(cardName).replaceAll(" ", "");
         if (checkForCardName(cardName))
             return null;
-        if (cardName.length() < 4){
+        if (cardName.length() < 4) {
             view.showErrorDialog("Your card name's length should be at least 4!");
             return null;
         }
         ArrayList<Effects> effects = new ArrayList<>();
-        for(String effectName:cardEffects)
-            effects.add(Effects.valueOf(effectName.toUpperCase().replaceAll(" ","_")));
+        for (String effectName : cardEffects)
+            effects.add(Effects.valueOf(effectName.toUpperCase().replaceAll(" ", "_")));
         Card newCard;
-        if (cardKind == Monster.class){
-            newCard = new Monster(cardName,"Custom Monster",4,view.getAttackPoints(),
-                    view.getDefensePoints(), MonsterAttribute.EARTH, MonsterType.AQUA,MonsterEffect.NORMAL);
+        if (cardKind == Monster.class) {
+            newCard = new Monster(cardName, "Custom Monster", 4, view.getAttackPoints(),
+                    view.getDefensePoints(), MonsterAttribute.EARTH, MonsterType.AQUA, MonsterEffect.NORMAL);
             newCard.setCardEffects(effects);
         } else {
-            newCard = new Spell(cardName,"Custom Spell",SpellProperty.QUICK_PLAY,SpellLimit.UNLIMITED);
+            newCard = new Spell(cardName, "Custom Spell", SpellProperty.QUICK_PLAY, SpellLimit.UNLIMITED);
             newCard.setCardEffects(effects);
         }
         newCard.setName(cardName);
         return newCard;
     }
 
-    private void saveCardImage(String cardName){
+    private void saveCardImage(String cardName) {
         //image file
         String imagePath = "assets/cards/";
         if (cardKind == Monster.class)
@@ -184,23 +194,23 @@ public class CardFactoryMenuController {
         else
             imagePath += "spell_trap/";
         imagePath += cardName + ".jpg";
-        if (Gdx.files.local(imagePath).exists()){
+        if (Gdx.files.local(imagePath).exists()) {
             view.showErrorDialog("Can't add card's image!");
             return;
         }
         try {
             FileHandle imageFileHandleDestination = Gdx.files.local(imagePath);
             imageFileHandle.copyTo(imageFileHandleDestination);
-        }catch (Exception e){
+        } catch (Exception e) {
             view.showErrorDialog(e.getMessage());
             return;
         }
     }
 
-    private boolean checkForCardName(String name){
+    private boolean checkForCardName(String name) {
         String[] cardNames = DatabaseManager.getCards().getAllCardNames();
-        for(int i = 0;i<cardNames.length;++i){
-            if (name.equals(cardNames[i])){
+        for (int i = 0; i < cardNames.length; ++i) {
+            if (name.equals(cardNames[i])) {
                 view.showErrorDialog("There is another card with this name!");
                 return false;
             }
@@ -208,14 +218,14 @@ public class CardFactoryMenuController {
         return true;
     }
 
-    public void removeEffect(String effect){
+    public void removeEffect(String effect) {
         cardEffects.remove(effect);
         view.updateCardEffectsTable();
     }
 
-    public void addEffect(String effect){
-        for(String effectName:cardEffects){
-            if (effect.equals(effectName)){
+    public void addEffect(String effect) {
+        for (String effectName : cardEffects) {
+            if (effect.equals(effectName)) {
                 view.showErrorDialog("Card already has this effect!");
                 return;
             }
@@ -224,12 +234,12 @@ public class CardFactoryMenuController {
         view.updateCardEffectsTable();
     }
 
-    private void loadEffects(){
+    private void loadEffects() {
         loadMonsterEffects();
         loadSpellEffects();
     }
 
-    private void loadMonsterEffects(){
+    private void loadMonsterEffects() {
         monsterEffects = new ArrayList<>();
         monsterEffects.add(Utils.firstUpperOnly(Effects.SET_ATTACK.toString()));
         monsterEffects.add(Utils.firstUpperOnly(Effects.COMBINE_LEVELS_OF.toString()));
@@ -253,7 +263,7 @@ public class CardFactoryMenuController {
 
     }
 
-    private void loadSpellEffects(){
+    private void loadSpellEffects() {
         spellEffects = new ArrayList<>();
         spellEffects.add(Utils.firstUpperOnly(Effects.SPECIAL_SUMMON_FROM_GRAVEYARD.toString()));
         spellEffects.add(Utils.firstUpperOnly(Effects.ADD_FIELD_SPELL_TO_HAND.toString()));

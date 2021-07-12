@@ -1,11 +1,18 @@
 package edu.sharif.ce.apyugioh.controller;
 
-import edu.sharif.ce.apyugioh.model.MenuState;
-import edu.sharif.ce.apyugioh.model.User;
-import edu.sharif.ce.apyugioh.view.menu.UserMenuView;
-import lombok.Getter;
+import com.badlogic.gdx.Gdx;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import edu.sharif.ce.apyugioh.model.MenuState;
+import edu.sharif.ce.apyugioh.model.User;
+import edu.sharif.ce.apyugioh.model.networking.request.LoginRequest;
+import edu.sharif.ce.apyugioh.model.networking.request.RegisterRequest;
+import edu.sharif.ce.apyugioh.model.networking.response.LoginResponse;
+import edu.sharif.ce.apyugioh.model.networking.response.RegisterResponse;
+import edu.sharif.ce.apyugioh.view.menu.UserMenuView;
+import lombok.Getter;
 
 public class UserController {
 
@@ -24,38 +31,34 @@ public class UserController {
     }
 
     public void registerUser(String username, String password, String nickname) {
-        if (User.getUserByUsername(username) != null) {
-            view.showError(UserMenuView.ERROR_USER_USERNAME_ALREADY_TAKEN, username);
-            return;
-        }
-        if (User.getUserByNickname(nickname) != null) {
-            view.showError(UserMenuView.ERROR_USER_NICKNAME_ALREADY_TAKEN, nickname);
-            return;
-        }
-        User user = new User(username, password, nickname, "default.png");
-        MainMenuController.getInstance().setUser(user);
-        view.showSuccess(UserMenuView.SUCCESS_USER_CREATE);
-        ProgramController.setState(MenuState.MAIN);
-        logger.info("{} registered in with {} : {}", user.getNickname(), username, password);
+        ProgramController.getClient().sendTCP(new RegisterRequest(username, password, nickname));
+        logger.info("{} registered in with {} : {}", nickname, username, password);
+    }
+
+    public void registerUser(RegisterResponse response) {
+        Gdx.app.postRunnable(() -> {
+            view.showMessage(response.getMessage());
+        });
     }
 
     public void loginUser(String username, String password) {
-        User user = User.getUserByUsername(username);
-        if (user == null) {
-            view.showError(UserMenuView.ERROR_USER_INCORRECT_USERNAME_PASSWORD);
-            return;
-        }
-        if (!user.isPasswordCorrect(password)) {
-            view.showError(UserMenuView.ERROR_USER_INCORRECT_USERNAME_PASSWORD);
-            return;
-        }
-        MainMenuController.getInstance().setUser(user);
-        view.showSuccess(UserMenuView.SUCCESS_USER_LOGIN);
-        MainMenuController.getInstance().showMainMenu();
-        logger.info("{} logged in with {} : {}", user.getNickname(), username, password);
+        ProgramController.getClient().sendTCP(new LoginRequest(username, password));
     }
 
-    public void logoutUser(){
+    public void loginUser(LoginResponse response) {
+        if (response.isSuccessful()) {
+            Gdx.app.postRunnable(() -> {
+                MainMenuController.getInstance().setUser(response.getUser());
+                MainMenuController.getInstance().showMainMenu();
+                view.dispose();
+            });
+            logger.info("{} logged in with {} : {}", response.getUser().getNickname(), response.getUser().getUsername(), response.getUser().getPassword());
+        } else {
+            view.showMessage(response.getMessage());
+        }
+    }
+
+    public void logoutUser() {
         User user = MainMenuController.getInstance().getUser();
         logger.info("{} logged in with {} : {}", user.getNickname(),
                 user.getUsername(), user.getPassword());
@@ -63,9 +66,6 @@ public class UserController {
     }
 
     public void showMenu() {
-        if (view != null)
-            view.dispose();
-        view = new UserMenuView(ProgramController.getGame());
         ProgramController.setState(MenuState.LOGIN);
         ProgramController.getGame().setScreen(view);
     }

@@ -46,9 +46,9 @@ import edu.sharif.ce.apyugioh.controller.ShopController;
 import edu.sharif.ce.apyugioh.controller.UserController;
 import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.model.AILevel;
-import edu.sharif.ce.apyugioh.view.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.model.CardModelView;
+import edu.sharif.ce.apyugioh.view.model.ProfilePicture;
 
 public class MainMenuView extends Menu {
 
@@ -194,6 +194,7 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         DeckMenuController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         DeckMenuController.getInstance().showDeckMenu();
+                        dispose();
                     }
                 });
             }
@@ -203,6 +204,7 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         CardFactoryMenuController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         CardFactoryMenuController.getInstance().showCardFactoryMenu();
+                        dispose();
                     }
                 });
             }
@@ -211,6 +213,7 @@ public class MainMenuView extends Menu {
                     @Override
                     public void clickAction() {
                         UserController.getInstance().logoutUser();
+                        dispose();
                     }
                 });
             }
@@ -220,6 +223,7 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         ProfileController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         ProfileController.getInstance().showProfile();
+                        dispose();
                     }
                 });
             }
@@ -229,6 +233,7 @@ public class MainMenuView extends Menu {
                     public void clickAction() {
                         ScoreboardController.getInstance().setUser(MainMenuController.getInstance().getUser());
                         ScoreboardController.getInstance().showScoreboard();
+                        dispose();
                     }
                 });
             }

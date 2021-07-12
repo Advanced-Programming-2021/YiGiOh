@@ -13,7 +13,11 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.sharif.ce.apyugioh.controller.CSVParser;
@@ -252,7 +256,7 @@ public class DatabaseManager {
 
     public static FileHandle exportShopCards(ShopCards cards) {
         JsonAdapter<ShopCards> cardsAdapter = moshi.adapter(ShopCards.class);
-        FileHandle exportPath = Gdx.files.local("assets/backup" + LocalDateTime.now().format(DateTimeFormatter
+        FileHandle exportPath = Gdx.files.external("assets/backup" + LocalDateTime.now().format(DateTimeFormatter
                 .ofPattern("yyyy_MM_dd_HH:mm:ss")) + "_export.json");
         writeToFile(exportPath, cardsAdapter.toJson(cards));
         return exportPath;

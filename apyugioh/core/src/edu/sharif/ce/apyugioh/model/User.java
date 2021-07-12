@@ -3,15 +3,17 @@ package edu.sharif.ce.apyugioh.model;
 import edu.sharif.ce.apyugioh.controller.Utils;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
 public class User implements Comparable<User> {
 
     @Getter
     @EqualsAndHashCode.Include
-    private final int id;
+    private int id;
     @Getter
     @EqualsAndHashCode.Include
     private String username;

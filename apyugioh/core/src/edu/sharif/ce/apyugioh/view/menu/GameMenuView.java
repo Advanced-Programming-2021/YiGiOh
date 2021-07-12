@@ -11,15 +11,31 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import edu.sharif.ce.apyugioh.YuGiOh;
 import edu.sharif.ce.apyugioh.controller.AssetController;
 import edu.sharif.ce.apyugioh.controller.Utils;
@@ -27,19 +43,21 @@ import edu.sharif.ce.apyugioh.controller.game.GameController;
 import edu.sharif.ce.apyugioh.controller.player.PlayerController;
 import edu.sharif.ce.apyugioh.model.Effects;
 import edu.sharif.ce.apyugioh.model.Phase;
-import edu.sharif.ce.apyugioh.view.model.ProfilePicture;
 import edu.sharif.ce.apyugioh.model.card.CardLocation;
 import edu.sharif.ce.apyugioh.model.card.GameCard;
 import edu.sharif.ce.apyugioh.view.ButtonClickListener;
 import edu.sharif.ce.apyugioh.view.command.CheatExecutor;
-import edu.sharif.ce.apyugioh.view.model.*;
+import edu.sharif.ce.apyugioh.view.model.CameraAction;
+import edu.sharif.ce.apyugioh.view.model.CardAction;
+import edu.sharif.ce.apyugioh.view.model.CardDetail;
+import edu.sharif.ce.apyugioh.view.model.CardFrontView;
+import edu.sharif.ce.apyugioh.view.model.CardModelView;
+import edu.sharif.ce.apyugioh.view.model.DeckModelView;
+import edu.sharif.ce.apyugioh.view.model.GameActionsManager;
+import edu.sharif.ce.apyugioh.view.model.GameDeckModelView;
+import edu.sharif.ce.apyugioh.view.model.ProfilePicture;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 
 public class GameMenuView extends Menu {
 
@@ -481,9 +499,9 @@ public class GameMenuView extends Menu {
         updateUsersDetail();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Math.min(1, 1 - getGameController().getRivalPlayerController().getPlayer().getLifePoints() / 8000f), Math.min(1, firstPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
+        shapeRenderer.setColor(Math.min(1, 1 - getGameController().getCurrentPlayerController().getPlayer().getLifePoints() / 8000f), Math.min(1, firstPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
         shapeRenderer.rect(firstHPBar.x, firstHPBar.y, firstHPBar.width, firstHPBar.height);
-        shapeRenderer.setColor(Math.min(1, 1 - getGameController().getCurrentPlayerController().getPlayer().getLifePoints() / 8000f), Math.min(1, secondPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
+        shapeRenderer.setColor(Math.min(1, 1 - getGameController().getRivalPlayerController().getPlayer().getLifePoints() / 8000f), Math.min(1, secondPlayerController.getPlayer().getLifePoints() / 8000f), 0, 1);
         shapeRenderer.rect(secondHPBar.x, secondHPBar.y, secondHPBar.width, secondHPBar.height);
         shapeRenderer.end();
 
@@ -547,8 +565,8 @@ public class GameMenuView extends Menu {
         updateHand();
         currentPlayerHPLabel.setText((isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getUser().getUsername() + " : " + (isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getLifePoints());
         rivalPlayerHPLabel.setText((isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getUser().getUsername() + " : " + (isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getLifePoints());
-        firstHPBar.setWidth(300 * (isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getLifePoints() / 8000f);
-        secondHPBar.setWidth(300 * (isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getLifePoints() / 8000f);
+        firstHPBar.setWidth(300 * (isFirstPlayerTurn ? firstPlayerController : secondPlayerController).getPlayer().getLifePoints() / 8000f);
+        secondHPBar.setWidth(300 * (isFirstPlayerTurn ? secondPlayerController : firstPlayerController).getPlayer().getLifePoints() / 8000f);
         if (firstPlayerController.getPlayer().getLifePoints() == 0 || secondPlayerController.getPlayer().getLifePoints() == 0) {
             isGameEnded = true;
             AssetController.playSound("gameplay_lose");

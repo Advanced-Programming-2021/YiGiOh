@@ -39,9 +39,6 @@ public class MainMenuController {
     }
 
     public void showMainMenu(){
-        if (view != null)
-            view.dispose();
-        view = new MainMenuView(ProgramController.getGame());
         ProgramController.setState(MenuState.MAIN);
         ProgramController.setCurrentMenu(MainMenuController.getView());
     }

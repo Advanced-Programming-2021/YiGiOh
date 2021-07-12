@@ -8,9 +8,16 @@ import edu.sharif.ce.apyugioh.controller.Utils;
 public class GameActionsManager {
 
     private final List<GameAction> actions;
+    private boolean isRecursive;
 
     public GameActionsManager() {
         actions = new ArrayList<>();
+        isRecursive = true;
+    }
+
+    public GameActionsManager(boolean isRecursive) {
+        this();
+        this.isRecursive = isRecursive;
     }
 
     public void addAction(GameAction action) {
@@ -23,7 +30,9 @@ public class GameActionsManager {
             actions.get(0).update(delta);
             if (Utils.almostEqual(actions.get(0).getAlpha(), 1, 0.01f)) {
                 actions.remove(0);
-                update(delta);
+                if (isRecursive) {
+                    update(delta);
+                }
             }
         }
     }

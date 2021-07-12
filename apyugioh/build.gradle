@@ -108,5 +108,6 @@ project(":core") {
         annotationProcessor 'org.projectlombok:lombok:1.18.20'
         implementation "games.spooky.gdx:gdx-nativefilechooser:1.0.0"
         implementation "com.strongjoshua:libgdx-inGameConsole:1.0.0"
+        implementation 'com.esotericsoftware:kryonet:2.22.0-RC1'
     }
 }

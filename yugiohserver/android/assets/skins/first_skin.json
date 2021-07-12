@@ -1,0 +1,134 @@
+{
+com.badlogic.gdx.graphics.g2d.BitmapFont: {
+	Vanderick_title: {
+		file: Vanderick_title.fnt
+	}
+	Vanderik: {
+		file: Vanderik.fnt
+	}
+}
+com.badlogic.gdx.graphics.Color: {
+	RGBA_100_240_255_255: {
+		r: 0.39333332
+		g: 0.94455755
+		b: 1
+		a: 1
+	}
+	RGBA_126_152_162_255: {
+		r: 0.93666667
+		g: 0.93666667
+		b: 0.93666667
+		a: 1
+	}
+	RGBA_255_0_0_255: {
+		r: 1
+		g: 0
+		b: 0
+		a: 1
+	}
+	RGBA_39_20_20_255: {
+		r: 1
+		g: 0.17666662
+		b: 0.7322794
+		a: 1
+	}
+	RGBA_58_123_150_255: {
+		r: 0.22813332
+		g: 0.48475713
+		b: 0.59
+		a: 1
+	}
+	RGBA_58_169_235_255: {
+		r: 0.22775555
+		g: 0.6655446
+		b: 0.92333335
+		a: 1
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
+	default: {
+		up: GUI_T_Detail_TimeBase01.dds16
+		down: GUI_T_Detail_TimeBase01.dds2
+		over: GUI_T_Detail_TimeBase01.dds16
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle: {
+	default: {
+		checkboxOn: checkbox copy
+		checkboxOff: checkbox
+		font: Vanderik
+		fontColor: RGBA_255_0_0_255
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
+	default: {
+		font: Vanderik
+		fontColor: RGBA_58_123_150_255
+	}
+	title: {
+		font: Vanderick_title
+		fontColor: RGBA_126_152_162_255
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
+	default: {
+		hScroll: scrollpane
+		vScroll: scrollpaneV
+	}
+	vertical: {
+		vScroll: scrollpaneV
+	}
+	horizontal: {
+	
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle: {
+	default-horizontal: {
+		knobOver: slider-knob
+		knobDown: slider-knob
+		background: slider-horizontal
+		knob: slider-knob
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
+	default: {
+		font: Vanderik
+		fontColor: RGBA_100_240_255_255
+		downFontColor: RGBA_58_169_235_255
+		overFontColor: RGBA_100_240_255_255
+		up: GUI_T_Detail_TimeBase01.dds16
+		down: GUI_T_Detail_TimeBase01.dds2
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
+	default: {
+		font: Vanderik
+		fontColor: RGBA_255_0_0_255
+		background: textfield
+		cursor: cursor
+		selection: selection
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
+	default: {
+		label: default
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
+	default: {
+		background: window
+		titleFont: Vanderik
+		titleFontColor: RGBA_39_20_20_255
+	}
+	right: {
+		background: window-right
+		titleFont: Vanderik
+		titleFontColor: RGBA_39_20_20_255
+	}
+	left: {
+		background: window-left
+		titleFont: Vanderik
+		titleFontColor: RGBA_39_20_20_255
+	}
+}
+}

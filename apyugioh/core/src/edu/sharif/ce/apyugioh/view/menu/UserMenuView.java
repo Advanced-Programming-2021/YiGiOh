@@ -132,42 +132,18 @@ public class UserMenuView extends Menu {
 
     @Override
     public void showError(int errorID, String... values) {
-        Dialog dialog = new Dialog("",AssetController.getSkin("first"));
-        TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
-        Label errorMessageLabel = new Label(String.format(errorMessages.get(errorID),values),AssetController.getSkin("first"),"title");
-        errorMessageLabel.getStyle().fontColor = Color.WHITE;
-        dialog.setModal(true);
-        dialog.setMovable(false);
-        dialog.setResizable(false);
-        Runnable okAction = () -> {
-            dialog.hide();
-            dialog.cancel();
-            dialog.remove();
-        };
-        okButton.addListener(new ButtonClickListener() {
-            @Override
-            public void clickAction() {
-                okAction.run();
-            }
-        });
-        dialog.addListener(new InputListener(){
-            @Override
-            public boolean keyDown(InputEvent event, int keycode) {
-                if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.ENTER)
-                    okAction.run();
-                return super.keyDown(event,keycode);
-            }
-        });
-        dialog.getContentTable().add(errorMessageLabel).fill().expandX().padLeft(10).padRight(10);
-        dialog.getButtonTable().add(okButton).fill().expand().height(110);
-        dialog.show(stage);
+        showMessage(String.format(errorMessages.get(errorID), values));
     }
 
     @Override
     public void showSuccess(int successID, String... values) {
-        Dialog dialog = new Dialog("",AssetController.getSkin("first"));
-        TextButton okButton = new TextButton("Ok",AssetController.getSkin("first"));
-        Label errorMessageLabel = new Label(String.format(successMessages.get(successID), values),AssetController.getSkin("first"),"title");
+        showMessage(String.format(successMessages.get(successID), values));
+    }
+
+    public void showMessage(String message) {
+        Dialog dialog = new Dialog("", AssetController.getSkin("first"));
+        TextButton okButton = new TextButton("Ok", AssetController.getSkin("first"));
+        Label errorMessageLabel = new Label(message, AssetController.getSkin("first"), "title");
         errorMessageLabel.getStyle().fontColor = Color.WHITE;
         dialog.setModal(true);
         dialog.setMovable(false);
@@ -183,12 +159,12 @@ public class UserMenuView extends Menu {
                 okAction.run();
             }
         });
-        dialog.addListener(new InputListener(){
+        dialog.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.ENTER)
                     okAction.run();
-                return super.keyDown(event,keycode);
+                return super.keyDown(event, keycode);
             }
         });
         dialog.getContentTable().add(errorMessageLabel).fill().expandX().padLeft(10).padRight(10);
@@ -385,13 +361,13 @@ public class UserMenuView extends Menu {
             table.add(loginWindowButton).width(350).height(100).colspan(2).spaceBottom(10);
             table.row();
         }
-        window.addListener(new InputListener(){
+        window.addListener(new InputListener() {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ENTER) {
                     UserController.getInstance().loginUser(usernameField.getText(), passwordField.getText());
                     return true;
-                } else if (keycode == Input.Keys.ESCAPE){
+                } else if (keycode == Input.Keys.ESCAPE) {
                     usernameField.setText("");
                     passwordField.setText("");
                     window.addAction(Actions.moveTo(-window.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2, TRANSITION_SPEED));
@@ -399,7 +375,7 @@ public class UserMenuView extends Menu {
                     windows.get("main").addAction(Actions.moveTo(Gdx.graphics.getWidth() / 2 - 271, Gdx.graphics.getHeight() - 940, TRANSITION_SPEED));
                     return true;
                 }
-                return super.keyDown(event,keycode);
+                return super.keyDown(event, keycode);
             }
         });
         window.setPosition(-window.getWidth(), Gdx.graphics.getHeight() / 2 - 542 / 2);

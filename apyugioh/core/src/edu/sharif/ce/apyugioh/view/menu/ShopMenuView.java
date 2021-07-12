@@ -78,7 +78,7 @@ public class ShopMenuView extends Menu {
         environment.add(new DirectionalLight().set(0.35f, 0.35f, 0.35f, 0.1f, -0.03f, -0.1f));
         backgroundTexture = new Texture(Gdx.files.internal("backgrounds/main" + MathUtils.random(1, 10) + ".jpg"));
         moveCamera = false;
-        manager = new GameActionsManager();
+        manager = new GameActionsManager(false);
         searchBox = new TextField("", AssetController.getSkin("first"));
     }
 
@@ -287,7 +287,7 @@ public class ShopMenuView extends Menu {
         @Override
         public void clicked(InputEvent event, float x, float y) {
             super.clicked(event, x, y);
-            animationSpeed = 1;
+            animationSpeed = 10;
             lastX = 0;
             lastY = 0;
             if (Math.abs(x - startingX) < 10 && Math.abs(y - startingY) < 10 && manager.isDone()) {
